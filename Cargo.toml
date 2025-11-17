@@ -1,0 +1,36 @@
+[package]
+name = "accounts-superposition-so"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "accounts_superposition_so"
+crate-type   = ["rlib", "cdylib"]
+
+[dependencies]
+bobcat-sdk = { path = "/home/user/Documents/fluidity/bobcat-sdk/bobcat-sdk", features = ["panic-revert", "alloc", "borsh"] }
+borsh = { version = "1.5.7", default-features = false }
+lzss = { version = "0.9.1", default-features = false, features = ["alloc", "safe"] }
+mini-alloc = { version = "1.0.0", default-features = false }
+ed25519-dalek = { version = "2.1.1", default-features = false, features = ["digest"] }
+array-concat = "0.5.5"
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+panic = "abort"
+strip = true
+lto = "fat"
+debug = false
+rpath = false
+debug-assertions = false
+incremental = false
+
+[profile.dev]
+codegen-units = 16
+panic = "unwind"
+opt-level = "z"
+incremental = true
+
+[features]
+std = ["bobcat-sdk/std"]
