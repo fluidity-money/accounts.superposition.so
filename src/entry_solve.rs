@@ -4,7 +4,7 @@ use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec},
     entry::{contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec},
     interfaces::{
-        eip20::{make_fn_balance_of, make_fn_transfer_from},
+        eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
         eip2612::make_fn_permit,
     },
     maths::U,
@@ -21,7 +21,6 @@ pub fn entry_solve(args: Vec<([u8; 64], SolveArgs)>) -> usize {
             from,
             target,
             cd,
-            goal,
         },
     ) in args
     {
@@ -54,6 +53,12 @@ pub fn entry_solve(args: Vec<([u8; 64], SolveArgs)>) -> usize {
                 &make_fn_transfer_from(owner.into(), contract_address(), &to_take),
                 &U::ZERO,
                 u64::MAX,
+            ));
+            revert_if_bad_call_unit_vec!(call_unit_err_vec(
+                *token,
+                &make_fn_approve(target, to_take),
+                &U::ZERO,
+                u64::MAX
             ));
         }
         revert_if_bad_call_unit_vec!(call_unit_err_vec(target, &cd, &U::ZERO, u64::MAX));

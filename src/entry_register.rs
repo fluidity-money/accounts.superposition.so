@@ -1,19 +1,20 @@
 use alloc::vec::Vec;
 
 use bobcat_sdk::{
-    call::call_unit,
+    call::{call_unit_err_vec, call_unit},
     create::create2_unit,
-    entry::{contract_address, msg_sender},
+    entry::{revert_if_bad_call_unit_vec, contract_address, msg_sender},
     maths::U,
     proxy::{make_metamorphic_proxy, SEL_MIGRATE},
     storage::transient_store,
+    interfaces::eip2612::make_fn_permit
 };
 
 use array_concat::concat_arrays;
 
 use ed25519_dalek::{Signature, VerifyingKey};
 
-use crate::{Permit, SolveArgs};
+use crate::{entry_solve, Permit, SolveArgs};
 
 fn validate_sig(key: U, sig: [u8; 64], addr: [u8; 20]) -> bool {
     let to_check: [u8; 37 + 20] = concat_arrays!(*b"Creating a Superposition account for ", addr);
@@ -39,11 +40,26 @@ pub fn entry_register(
         msg_sender().into(),
     )
     .unwrap();
+    for Permit {
+        token,
+        deadline,
+        v,
+        r,
+        s,
+    } in permit_blobs
+    {
+        revert_if_bad_call_unit_vec!(call_unit_err_vec(
+            token,
+            &make_fn_permit(msg_sender(), proxy, &U::MAX, &deadline, v, &r, &s),
+            &U::ZERO,
+            u64::MAX
+        ));
+    }
     transient_store(&U::ZERO, &key);
     assert!(
         call_unit(proxy, &SEL_MIGRATE, &U::ZERO, u64::MAX),
         "bad migration"
     );
     // After we've invoked the function again, we need to send it Solve:
-    1
+    entry_solve(solve_args)
 }

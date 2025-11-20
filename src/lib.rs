@@ -42,19 +42,11 @@ pub struct FromArgs {
 }
 
 #[derive(BorshDeserialize, BorshSerialize, Clone, PartialEq)]
-pub struct GoalArgs {
-    pub token: Address,
-    pub min_back: U,
-    pub max_back: U
-}
-
-#[derive(BorshDeserialize, BorshSerialize, Clone, PartialEq)]
 pub struct SolveArgs {
     pub permit: Vec<Permit>,
     pub from: Vec<FromArgs>,
     pub target: [u8; 20],
     pub cd: Vec<u8>,
-    pub goal: Vec<GoalArgs>
 }
 
 #[derive(BorshDeserialize, BorshSerialize, Clone, PartialEq)]
