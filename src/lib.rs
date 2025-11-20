@@ -23,11 +23,13 @@ pub type OurLzss = lzss::Lzss<12, 11, 0, { 1 << 12 }, { 2 << 12 }>;
 use entry_register::entry_register;
 use entry_solve::entry_solve;
 
+type Address = [u8; 20];
+
 #[derive(BorshDeserialize, BorshSerialize, Clone, PartialEq)]
 pub struct Permit {
     pub token: [u8; 20],
     pub deadline: U,
-    v: [u8; 8],
+    v: u8,
     r: U,
     s: U,
 }
