@@ -14,16 +14,15 @@ use crate::{storage, FromArgs, Permit, SolveArgs};
 
 pub fn entry_solve(args: Vec<([u8; 64], SolveArgs)>) -> usize {
     let owner = storage::ed25519_owner::get();
-    for (
-        sig,
-        SolveArgs {
+    for (sig, args) in args {
+        let SolveArgs {
             permit,
             from,
             target,
             cd,
-        },
-    ) in args
-    {
+            ms_ts,
+        } = args;
+        storage::timestamps::exchange(&ms_ts.into());
         for Permit {
             token,
             deadline,

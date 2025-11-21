@@ -43,6 +43,7 @@ pub struct SolveArgs {
     pub from: Vec<FromArgs>,
     pub target: [u8; 20],
     pub cd: Vec<u8>,
+    pub ms_ts: u128
 }
 
 #[derive(BorshDeserialize, BorshSerialize, Clone, PartialEq)]

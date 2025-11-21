@@ -44,15 +44,8 @@ macro_rules! storage {
         pub fn set($param1: &U, x: &U) {
             storage_store(&slot_map(&SLOT, $param1), x)
         }
-        pub fn add($param1: &U, x: &U) -> Option<()> {
-            storage_checked_add(&slot_map(&SLOT, $param1), x)
-        }
-        pub fn sub($param1: &U, x: &U) -> Option<()> {
-            storage_checked_sub(&slot_map(&SLOT, $param1), x)
-        }
-        pub fn get_hash($param1: &[u8; 64]) -> U {
-            let x: [u8; 32] = $param1[..32].try_into().unwrap();
-            get(&U(x))
+        pub fn exchange($param1: &U) {
+            assert!(!storage_exchange_bool($param1, true));
         }
     };
 }
@@ -63,4 +56,6 @@ storage! {
     ed25519_owner(),
     // Which Ethereum address owns this contract? Client only.
     ethereum_owner(),
+    // Seen timestamps:
+    timestamps(ms)
 }
