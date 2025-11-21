@@ -3,18 +3,6 @@
 version = 4
 
 [[package]]
-name = "accounts-superposition-so"
-version = "0.1.0"
-dependencies = [
- "array-concat",
- "bobcat-sdk",
- "borsh",
- "ed25519-dalek",
- "lzss",
- "mini-alloc",
-]
-
-[[package]]
 name = "anstream"
 version = "0.6.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -309,6 +297,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "contract"
+version = "0.1.0"
+dependencies = [
+ "bobcat-sdk",
+ "borsh",
+ "libaccounts",
+ "lzss",
+ "mini-alloc",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -468,6 +467,17 @@ name = "keccak-const"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57d8d8ce877200136358e0bbff3a77965875db3af755a11e1fa6b1b3e2df13ea"
+
+[[package]]
+name = "libaccounts"
+version = "0.1.0"
+dependencies = [
+ "array-concat",
+ "bobcat-sdk",
+ "borsh",
+ "ed25519-dalek",
+ "lzss",
+]
 
 [[package]]
 name = "libc"

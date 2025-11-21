@@ -1,8 +1,14 @@
 
-accounts.superposition.so.wasm: $(shell find Cargo.* src -type f)
-	@rm -f accounts.superposition.so.wasm
+.PHONY: clean
+
+.DELETE_ON_ERROR:
+
+accounts.superposition.so.wasm: $(shell find Cargo.* contract libaccounts -type f)
 	@cargo build --release --target wasm32-unknown-unknown
 	@./wasm-post.sh \
-		target/wasm32-unknown-unknown/release/accounts-superposition-so.wasm \
+		target/wasm32-unknown-unknown/release/contract.wasm \
 		accounts.superposition.so.wasm
 	@./check-codesize.sh accounts.superposition.so.wasm
+
+clean:
+	@rm -rf target accounts.superposition.so.wasm

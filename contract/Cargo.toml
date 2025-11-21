@@ -1,0 +1,20 @@
+[package]
+name = "contract"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[[bin]]
+name = "contract"
+
+[features]
+std = ["bobcat-sdk/std"]
+
+[dependencies]
+borsh.workspace = true
+libaccounts = { version = "0.1.0", path = "../libaccounts" }
+lzss.workspace = true
+mini-alloc.workspace = true
+
+[dependencies.bobcat-sdk]
+workspace = true

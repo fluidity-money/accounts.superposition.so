@@ -4,10 +4,6 @@ use bobcat_sdk::{storage::flush_guard, maths::U};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 
-#[global_allocator]
-#[cfg(target_arch = "wasm32")]
-static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
-
 pub mod storage;
 
 pub mod entry_migrate;

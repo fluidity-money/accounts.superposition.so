@@ -9,7 +9,11 @@ use bobcat_sdk::{
 
 use borsh::de::BorshDeserialize;
 
-use accounts_superposition_so::{entry_migrate::entry_migrate, entry, Args};
+#[global_allocator]
+#[cfg(target_arch = "wasm32")]
+static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
+
+use libaccounts::{entry_migrate::entry_migrate, entry, Args};
 
 pub type OurLzss = lzss::Lzss<12, 11, 0, { 1 << 12 }, { 2 << 12 }>;
 

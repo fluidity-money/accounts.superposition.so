@@ -1,0 +1,17 @@
+[package]
+name = "libaccounts"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[lib]
+
+[features]
+std = ["bobcat-sdk/std"]
+
+[dependencies]
+array-concat.workspace = true
+borsh.workspace = true
+ed25519-dalek.workspace = true
+lzss.workspace = true
+bobcat-sdk.workspace = true

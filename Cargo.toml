@@ -1,13 +1,9 @@
-[package]
-name = "accounts-superposition-so"
-version = "0.1.0"
+[workspace]
+members = ["contract", "libaccounts"]
 edition = "2024"
+resolver = "3"
 
-[lib]
-name = "accounts_superposition_so"
-crate-type   = ["rlib", "cdylib"]
-
-[dependencies]
+[workspace.dependencies]
 bobcat-sdk = { path = "/home/user/Documents/fluidity/bobcat-sdk/bobcat-sdk", features = ["panic-revert", "alloc", "borsh"] }
 borsh = { version = "1.5.7", default-features = false }
 lzss = { version = "0.9.1", default-features = false, features = ["alloc", "safe"] }
@@ -31,6 +27,3 @@ codegen-units = 16
 panic = "unwind"
 opt-level = "z"
 incremental = true
-
-[features]
-std = ["bobcat-sdk/std"]
