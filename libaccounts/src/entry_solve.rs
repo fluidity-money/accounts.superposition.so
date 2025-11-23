@@ -10,10 +10,10 @@ use bobcat_sdk::{
     maths::U,
 };
 
-use crate::{storage, FromArgs, Permit, SolveArgs};
+use crate::{storage, FromArgs, Permit, Sig, SolveArgs};
 
-pub fn entry_solve(args: Vec<([u8; 64], SolveArgs)>) -> usize {
-    let owner = storage::ed25519_owner::get();
+pub fn entry_solve(owner: u32, args: Vec<(Sig, SolveArgs)>) -> usize {
+    let owner = storage::ed25519_slot::get(&owner.into());
     for (sig, args) in args {
         let SolveArgs {
             permit,
@@ -32,7 +32,7 @@ pub fn entry_solve(args: Vec<([u8; 64], SolveArgs)>) -> usize {
         } in permit
         {
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
-                token,
+                token.0,
                 &make_fn_permit(
                     owner.into(),
                     contract_address(),
@@ -48,31 +48,31 @@ pub fn entry_solve(args: Vec<([u8; 64], SolveArgs)>) -> usize {
         }
         for FromArgs { token, to_take, .. } in &from {
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
-                *token,
+                token.0,
                 &make_fn_transfer_from(owner.into(), contract_address(), &to_take),
                 &U::ZERO,
                 u64::MAX,
             ));
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
-                *token,
-                &make_fn_approve(target, to_take),
+                token.0,
+                &make_fn_approve(target.0, to_take),
                 &U::ZERO,
                 u64::MAX
             ));
         }
-        revert_if_bad_call_unit_vec!(call_unit_err_vec(target, &cd, &U::ZERO, u64::MAX));
+        revert_if_bad_call_unit_vec!(call_unit_err_vec(target.0, &cd, &U::ZERO, u64::MAX));
         for FromArgs {
             token, max_unspent, ..
         } in from
         {
             let bal = revert_if_bad_call_slice_vec!(call_word_err_vec(
-                token,
+                token.0,
                 &make_fn_balance_of(contract_address()),
                 &U::ZERO,
                 u64::MAX,
             ));
             assert!(
-                max_unspent > bal,
+                max_unspent >= bal,
                 "max unspent exceeds: {max_unspent}, {bal}"
             );
         }

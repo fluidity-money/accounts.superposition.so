@@ -1,9 +1,7 @@
 #!/bin/sh -e
 
-# This is left here for you to comment out if you have functions you
-# want to test in Rust on the native host:
-#cargo test --features std
+# cargo test --features std
 
-make
+make accounts.superposition.so.wasm
 
-arbos-forge test $@
+arbos-forge test -vv --ffi $@

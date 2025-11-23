@@ -45,15 +45,19 @@ macro_rules! storage {
             storage_store(&slot_map(&SLOT, $param1), x)
         }
         pub fn exchange($param1: &U) {
-            assert!(!storage_exchange_bool($param1, true));
+            assert!(!storage_exchange_bool($param1, false), "exchange failed");
         }
     };
 }
 storage! {
     // Was this contract created?
     was_created(),
-    // Which ed25519 address owns this contract? Client only.
-    ed25519_owner(),
+    // The count of the number of ed25519 keys in this contract. Client only.
+    ed25519_count(),
+    // Slot (u32) => ed25519 id.
+    ed25519_slot(slot),
+    // Does this ed25519 address owns this contract? Client only.
+    ed25519_owner(addr),
     // Which Ethereum address owns this contract? Client only.
     ethereum_owner(),
     // Seen timestamps:

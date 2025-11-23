@@ -1,0 +1,13 @@
+[workspace]
+
+[package]
+name = "frontend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bobcat-sdk = { path = "/home/user/Documents/fluidity/bobcat-sdk/bobcat-sdk", features = ["wasm-bindgen-wasi", "alloy-enabled"] }
+libaccounts = { version = "0.1.0", path = "../libaccounts" }
+serde = "1.0.228"
+serde-wasm-bindgen = "0.6.5"
+wasm-bindgen = "0.2.105"

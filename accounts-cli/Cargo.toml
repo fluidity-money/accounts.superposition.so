@@ -1,18 +1,19 @@
 [package]
-name = "contract"
+name = "accounts-cli"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
 
 [[bin]]
-name = "contract"
-
-[features]
-std = ["bobcat-sdk/std"]
+name = "accounts-cli"
 
 [dependencies]
-bobcat-sdk = { workspace = true, features = ["panic-revert", "msg-on-sdk-err"] }
+array-concat.workspace = true
+bobcat-sdk.workspace = true
 borsh.workspace = true
+clap = { version = "4.5.53", features = ["derive"] }
+const-hex.workspace = true
+ed25519-dalek.workspace = true
 libaccounts = { version = "0.1.0", path = "../libaccounts" }
 lzss.workspace = true
 mini-alloc.workspace = true

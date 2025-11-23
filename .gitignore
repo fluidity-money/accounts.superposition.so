@@ -3,3 +3,6 @@ accounts.superposition.so.wasm
 *.wasm1
 target
 out
+out/frontend_bg.wasm
+accounts-cli.out
+cache
