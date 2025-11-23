@@ -1,0 +1,31 @@
+
+type Query {
+  """
+  Get the system management ed25519 public key this server is managing. Useful for the
+  signing process.
+  """
+  publickey: String!
+}
+
+type Mutation {
+  """
+  Create a new account using the key management service intended for API workers. Returns
+  a secret key that can be used to spend from the account.
+  """
+  createAccount(
+      eoa_addr: String!,
+      sigV: Int!,
+      sigR: String!,
+      sigS: String!
+  ): String!
+
+  """
+  Leverage 9lives to open a position on your behalf.
+  """
+  ninelivesOpenPosition(
+      eoa_addr: String!,
+      market: String!,
+      outcome: String!,
+      amount: Int!
+  ): String!
+}

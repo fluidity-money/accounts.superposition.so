@@ -165,13 +165,20 @@ pub struct Sig(#[serde(with = "const_hex")] pub [u8; 64]);
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
 pub enum Args {
+    /// Create a new account and execute some calldata given.
     Fresh(U, Sig, Vec<(Sig, SolveArgs)>),
+    /// Take a signature from a EVM EOA user that a ed25519 public key is
+    /// authorised to spend on its behalf. Useful in a programmatic setup
+    /// context.
+    FreshBackwards(U, ArgsAddr, u8, U, U),
+    /// Execute some calldata.
     Solve(u32, Vec<(Sig, SolveArgs)>),
 }
 
 pub fn entry(x: Args) -> usize {
     flush_guard(|| match x {
         Args::Fresh(key, sig, solve_args) => entry_fresh(key, sig, solve_args),
+        Args::FreshBackwards(key, sig) => entry_fresh_backwards(key, sig),
         Args::Solve(slot, args) => entry_solve(slot, args),
     })
 }
