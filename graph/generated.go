@@ -14,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -48,7 +49,9 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateAccount         func(childComplexity int, eoaAddr string, sigV int32, sigR string, sigS string) int
+		Fresh                 func(childComplexity int, ed25519Pub string, sig string, solveArgs []*model.SolveArgs) int
 		NinelivesOpenPosition func(childComplexity int, eoaAddr string, market string, outcome string, amount int32) int
+		Solve                 func(childComplexity int, slot int32, solveArgs []*model.SolveArgs) int
 	}
 
 	Query struct {
@@ -58,6 +61,8 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateAccount(ctx context.Context, eoaAddr string, sigV int32, sigR string, sigS string) (string, error)
+	Fresh(ctx context.Context, ed25519Pub string, sig string, solveArgs []*model.SolveArgs) (bool, error)
+	Solve(ctx context.Context, slot int32, solveArgs []*model.SolveArgs) (bool, error)
 	NinelivesOpenPosition(ctx context.Context, eoaAddr string, market string, outcome string, amount int32) (string, error)
 }
 type QueryResolver interface {
@@ -94,6 +99,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.CreateAccount(childComplexity, args["eoa_addr"].(string), args["sigV"].(int32), args["sigR"].(string), args["sigS"].(string)), true
+	case "Mutation.fresh":
+		if e.complexity.Mutation.Fresh == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_fresh_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Fresh(childComplexity, args["ed25519_pub"].(string), args["sig"].(string), args["solve_args"].([]*model.SolveArgs)), true
 	case "Mutation.ninelivesOpenPosition":
 		if e.complexity.Mutation.NinelivesOpenPosition == nil {
 			break
@@ -105,6 +121,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.NinelivesOpenPosition(childComplexity, args["eoa_addr"].(string), args["market"].(string), args["outcome"].(string), args["amount"].(int32)), true
+	case "Mutation.solve":
+		if e.complexity.Mutation.Solve == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_solve_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Solve(childComplexity, args["slot"].(int32), args["solve_args"].([]*model.SolveArgs)), true
 
 	case "Query.publickey":
 		if e.complexity.Query.Publickey == nil {
@@ -120,7 +147,11 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputFromArgs,
+		ec.unmarshalInputPermit,
+		ec.unmarshalInputSolveArgs,
+	)
 	first := true
 
 	switch opCtx.Operation.Operation {
@@ -262,6 +293,27 @@ func (ec *executionContext) field_Mutation_createAccount_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_fresh_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "ed25519_pub", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["ed25519_pub"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "sig", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["sig"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "solve_args", ec.unmarshalNSolveArgs2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐSolveArgsᚄ)
+	if err != nil {
+		return nil, err
+	}
+	args["solve_args"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_ninelivesOpenPosition_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -285,6 +337,22 @@ func (ec *executionContext) field_Mutation_ninelivesOpenPosition_args(ctx contex
 		return nil, err
 	}
 	args["amount"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_solve_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "slot", ec.unmarshalNInt2int32)
+	if err != nil {
+		return nil, err
+	}
+	args["slot"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "solve_args", ec.unmarshalNSolveArgs2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐSolveArgsᚄ)
+	if err != nil {
+		return nil, err
+	}
+	args["solve_args"] = arg1
 	return args, nil
 }
 
@@ -386,6 +454,88 @@ func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_fresh(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_fresh,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().Fresh(ctx, fc.Args["ed25519_pub"].(string), fc.Args["sig"].(string), fc.Args["solve_args"].([]*model.SolveArgs))
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_fresh(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_fresh_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_solve(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_solve,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().Solve(ctx, fc.Args["slot"].(int32), fc.Args["solve_args"].([]*model.SolveArgs))
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_solve(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_solve_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2016,6 +2166,157 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputFromArgs(ctx context.Context, obj any) (model.FromArgs, error) {
+	var it model.FromArgs
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"token", "to_take", "max_unspent"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "token":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Token = data
+		case "to_take":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to_take"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ToTake = data
+		case "max_unspent":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max_unspent"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxUnspent = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPermit(ctx context.Context, obj any) (model.Permit, error) {
+	var it model.Permit
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"token", "deadline", "permitV", "permitR", "permitS"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "token":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Token = data
+		case "deadline":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deadline"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Deadline = data
+		case "permitV":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permitV"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PermitV = data
+		case "permitR":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permitR"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PermitR = data
+		case "permitS":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permitS"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PermitS = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSolveArgs(ctx context.Context, obj any) (model.SolveArgs, error) {
+	var it model.SolveArgs
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"permit", "from", "target", "cd", "ms_ts"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "permit":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permit"))
+			data, err := ec.unmarshalNPermit2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐPermitᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Permit = data
+		case "from":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+			data, err := ec.unmarshalNFromArgs2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFromArgsᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.From = data
+		case "target":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("target"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Target = data
+		case "cd":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cd"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cd = data
+		case "ms_ts":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ms_ts"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MsTs = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2046,6 +2347,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createAccount":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createAccount(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fresh":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_fresh(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "solve":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_solve(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -2503,6 +2818,26 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNFromArgs2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFromArgsᚄ(ctx context.Context, v any) ([]*model.FromArgs, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.FromArgs, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNFromArgs2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFromArgs(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNFromArgs2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFromArgs(ctx context.Context, v any) (*model.FromArgs, error) {
+	res, err := ec.unmarshalInputFromArgs(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
 	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2517,6 +2852,46 @@ func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNPermit2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐPermitᚄ(ctx context.Context, v any) ([]*model.Permit, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.Permit, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNPermit2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐPermit(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNPermit2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐPermit(ctx context.Context, v any) (*model.Permit, error) {
+	res, err := ec.unmarshalInputPermit(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNSolveArgs2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐSolveArgsᚄ(ctx context.Context, v any) ([]*model.SolveArgs, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.SolveArgs, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNSolveArgs2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐSolveArgs(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNSolveArgs2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐSolveArgs(ctx context.Context, v any) (*model.SolveArgs, error) {
+	res, err := ec.unmarshalInputSolveArgs(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {

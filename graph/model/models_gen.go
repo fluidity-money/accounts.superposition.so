@@ -2,8 +2,30 @@
 
 package model
 
+type FromArgs struct {
+	Token      string `json:"token"`
+	ToTake     string `json:"to_take"`
+	MaxUnspent string `json:"max_unspent"`
+}
+
 type Mutation struct {
 }
 
+type Permit struct {
+	Token    string `json:"token"`
+	Deadline int32  `json:"deadline"`
+	PermitV  int32  `json:"permitV"`
+	PermitR  string `json:"permitR"`
+	PermitS  string `json:"permitS"`
+}
+
 type Query struct {
+}
+
+type SolveArgs struct {
+	Permit []*Permit   `json:"permit"`
+	From   []*FromArgs `json:"from"`
+	Target string      `json:"target"`
+	Cd     string      `json:"cd"`
+	MsTs   string      `json:"ms_ts"`
 }

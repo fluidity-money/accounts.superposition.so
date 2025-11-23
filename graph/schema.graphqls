@@ -7,25 +7,59 @@ type Query {
   publickey: String!
 }
 
+input Permit {
+  token: String!,
+  deadline: Int!,
+  permitV: Int!,
+  permitR: String!,
+  permitS: String!
+}
+
+input FromArgs {
+  token: String!,
+  to_take: String!,
+  max_unspent: String!
+}
+
+
+input SolveArgs {
+  permit: [Permit!]!,
+  from: [FromArgs!]!,
+  target: String!,
+  cd: String!,
+  ms_ts: String!
+}
+
 type Mutation {
   """
   Create a new account using the key management service intended for API workers. Returns
   a secret key that can be used to spend from the account.
   """
   createAccount(
-      eoa_addr: String!,
-      sigV: Int!,
-      sigR: String!,
-      sigS: String!
+    eoa_addr: String!,
+    sigV: Int!,
+    sigR: String!,
+    sigS: String!
   ): String!
 
+  fresh(
+    ed25519_pub: String!,
+    sig: String!,
+    solve_args: [SolveArgs!]!
+  ): Boolean!
+
+  solve(
+    slot: Int!,
+    solve_args: [SolveArgs!]!
+  ): Boolean!
+
   """
-  Leverage 9lives to open a position on your behalf.
+  Use 9lives to open a position on your behalf.
   """
   ninelivesOpenPosition(
-      eoa_addr: String!,
-      market: String!,
-      outcome: String!,
-      amount: Int!
+    eoa_addr: String!,
+    market: String!,
+    outcome: String!,
+    amount: Int!
   ): String!
 }

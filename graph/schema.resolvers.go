@@ -7,11 +7,23 @@ package graph
 import (
 	"context"
 	"fmt"
+
+	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 )
 
 // CreateAccount is the resolver for the createAccount field.
 func (r *mutationResolver) CreateAccount(ctx context.Context, eoaAddr string, sigV int32, sigR string, sigS string) (string, error) {
 	panic(fmt.Errorf("not implemented: CreateAccount - createAccount"))
+}
+
+// Fresh is the resolver for the fresh field.
+func (r *mutationResolver) Fresh(ctx context.Context, ed25519Pub string, sig string, solveArgs []*model.SolveArgs) (bool, error) {
+	panic(fmt.Errorf("not implemented: Fresh - fresh"))
+}
+
+// Solve is the resolver for the solve field.
+func (r *mutationResolver) Solve(ctx context.Context, slot int32, solveArgs []*model.SolveArgs) (bool, error) {
+	panic(fmt.Errorf("not implemented: Solve - solve"))
 }
 
 // NinelivesOpenPosition is the resolver for the ninelivesOpenPosition field.
