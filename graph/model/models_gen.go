@@ -2,10 +2,26 @@
 
 package model
 
+type CreateAccount struct {
+	EoaAddr string `json:"eoa_addr"`
+	SigV    int32  `json:"sigV"`
+	SigR    string `json:"sigR"`
+	SigS    string `json:"sigS"`
+}
+
 type FromArgs struct {
 	Token      string `json:"token"`
 	ToTake     string `json:"to_take"`
 	MaxUnspent string `json:"max_unspent"`
+}
+
+type Mint struct {
+	Market  string  `json:"market"`
+	Outcome string  `json:"outcome"`
+	Amount  int32   `json:"amount"`
+	Permit  *Permit `json:"permit"`
+	// The millisecond timestamp for making sure this isn't doubled up somehow.
+	MsTs string `json:"ms_ts"`
 }
 
 type Mutation struct {

@@ -5,6 +5,8 @@ type Query {
   signing process.
   """
   publickey: String!
+
+  eoaForAddress(address: String!): String!
 }
 
 input Permit {
@@ -30,36 +32,47 @@ input SolveArgs {
   ms_ts: String!
 }
 
+input CreateAccount {
+  eoa_addr: String!,
+  sigV: Int!,
+  sigR: String!,
+  sigS: String!
+}
+
+input Mint {
+    market: String!,
+    outcome: String!,
+    amount: Int!,
+    permit: Permit!,
+
+    """
+    The millisecond timestamp for making sure this isn't doubled up somehow.
+    """
+    ms_ts: String!
+  }
+
 type Mutation {
   """
   Create a new account using the key management service intended for API workers. Returns
   a secret key that can be used to spend from the account.
   """
-  createAccount(
+  createAccountExec(createAccount: CreateAccount!, mint: Mint): String!
+
+  """
+  Request the existing secret that was created for this account. It needs a signature of
+  the original kind . the secret that will be included here.
+  """
+  requestSecret(
     eoa_addr: String!,
+    nonce: Int!,
     sigV: Int!,
     sigR: String!,
     sigS: String!
   ): String!
 
-  fresh(
-    ed25519_pub: String!,
-    sig: String!,
-    solve_args: [SolveArgs!]!
-  ): Boolean!
-
-  solve(
-    slot: Int!,
-    solve_args: [SolveArgs!]!
-  ): Boolean!
-
   """
-  Use 9lives to open a position on your behalf.
+  Use 9lives to open a position on behalf of the user given, optiomally creating the
+  account at the same time.
   """
-  ninelivesOpenPosition(
-    eoa_addr: String!,
-    market: String!,
-    outcome: String!,
-    amount: Int!
-  ): String!
+  ninelivesMint(eoa: String, mint: Mint!): String!
 }

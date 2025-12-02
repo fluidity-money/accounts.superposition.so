@@ -11,29 +11,29 @@ import (
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 )
 
-// CreateAccount is the resolver for the createAccount field.
-func (r *mutationResolver) CreateAccount(ctx context.Context, eoaAddr string, sigV int32, sigR string, sigS string) (string, error) {
-	panic(fmt.Errorf("not implemented: CreateAccount - createAccount"))
+// CreateAccountExec is the resolver for the createAccountExec field.
+func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (string, error) {
+	panic(fmt.Errorf("not implemented: CreateAccountExec - createAccountExec"))
 }
 
-// Fresh is the resolver for the fresh field.
-func (r *mutationResolver) Fresh(ctx context.Context, ed25519Pub string, sig string, solveArgs []*model.SolveArgs) (bool, error) {
-	panic(fmt.Errorf("not implemented: Fresh - fresh"))
+// RequestSecret is the resolver for the requestSecret field.
+func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) (string, error) {
+	panic(fmt.Errorf("not implemented: RequestSecret - requestSecret"))
 }
 
-// Solve is the resolver for the solve field.
-func (r *mutationResolver) Solve(ctx context.Context, slot int32, solveArgs []*model.SolveArgs) (bool, error) {
-	panic(fmt.Errorf("not implemented: Solve - solve"))
-}
-
-// NinelivesOpenPosition is the resolver for the ninelivesOpenPosition field.
-func (r *mutationResolver) NinelivesOpenPosition(ctx context.Context, eoaAddr string, market string, outcome string, amount int32) (string, error) {
-	panic(fmt.Errorf("not implemented: NinelivesOpenPosition - ninelivesOpenPosition"))
+// NinelivesMint is the resolver for the ninelivesMint field.
+func (r *mutationResolver) NinelivesMint(ctx context.Context, eoa *string, mint model.Mint) (string, error) {
+	panic(fmt.Errorf("not implemented: NinelivesMint - ninelivesMint"))
 }
 
 // Publickey is the resolver for the publickey field.
 func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
 	panic(fmt.Errorf("not implemented: Publickey - publickey"))
+}
+
+// EoaForAddress is the resolver for the eoaForAddress field.
+func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (string, error) {
+	panic(fmt.Errorf("not implemented: EoaForAddress - eoaForAddress"))
 }
 
 // Mutation returns MutationResolver implementation.

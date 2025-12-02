@@ -4,7 +4,7 @@ use bobcat_sdk::maths::U;
 
 use ed25519_dalek::{Signer, SigningKey};
 
-use libaccounts::{Args, ArgsAddr, FromArgs, OurLzss, Sig, SolveArgs, REGISTER_MSG_PREFIX};
+use libaccounts::{Args, ArgsAddr, FromArgs, OurLzss, Sig, SolveArgs};
 
 use array_concat::concat_arrays;
 
@@ -45,7 +45,6 @@ enum CliArgs {
     SignFresh {
         #[arg(value_parser = U::from_str)]
         priv_key: U,
-        spender_addr: ArgsAddr,
         solve_args: Vec<SolveArgs>,
     },
     SignSolve {
@@ -71,13 +70,9 @@ fn entry(x: CliArgs) {
     match x {
         CliArgs::SignFresh {
             priv_key,
-            spender_addr,
             solve_args,
         } => {
             let k = SigningKey::from_bytes(&priv_key.0);
-            let k_pub = k.verifying_key().to_bytes();
-            let m: [u8; 37 + 20] = concat_arrays!(*REGISTER_MSG_PREFIX, spender_addr.0);
-            let onramping_sig = SigningKey::sign(&k, &m);
             let solve_args = solve_args
                 .into_iter()
                 .map(|args| {
@@ -91,8 +86,7 @@ fn entry(x: CliArgs) {
                 "0x{}",
                 create_blob(
                     &borsh::to_vec(&Args::Fresh(
-                        k_pub.into(),
-                        Sig(onramping_sig.into()),
+                        U(*k.verifying_key().as_bytes()),
                         solve_args,
                     ))
                     .unwrap()

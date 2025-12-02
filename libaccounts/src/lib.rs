@@ -14,10 +14,6 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 
-use array_concat::concat_arrays;
-
-use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
-
 use core::{
     fmt::{Display, Formatter},
     str::FromStr,
@@ -27,12 +23,10 @@ use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
 
 pub type OurLzss = lzss::Lzss<12, 11, 0, { 1 << 12 }, { 2 << 12 }>;
 
-use entry_fresh::entry_fresh;
+use entry_fresh::{entry_fresh, entry_fresh_backwards};
 use entry_solve::entry_solve;
 
 type Address = [u8; 20];
-
-pub const REGISTER_MSG_PREFIX: &'static [u8; 37] = b"Creating a Superposition account for ";
 
 #[derive(
     Debug,
@@ -164,52 +158,45 @@ pub struct Sig(#[serde(with = "const_hex")] pub [u8; 64]);
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
+pub struct SolveArgsSigArgs {
+    pub sig: Sig,
+    pub args: SolveArgs,
+}
+
+#[derive(
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+)]
 pub enum Args {
-    /// Create a new account and execute some calldata given.
-    Fresh(U, Sig, Vec<(Sig, SolveArgs)>),
+    /// Create a new account and execute some calldata given. The sender
+    /// simply passes on the ed25519 sender address.
+    Fresh {
+        key: U,
+        solve_args: Vec<SolveArgsSigArgs>,
+    },
     /// Take a signature from a EVM EOA user that a ed25519 public key is
     /// authorised to spend on its behalf. Useful in a programmatic setup
     /// context.
-    FreshBackwards(U, ArgsAddr, u8, U, U),
+    FreshBackwards {
+        key: U,
+        eoa_addr: ArgsAddr,
+        v: u8,
+        r: U,
+        s: U,
+        solve_args: Vec<SolveArgsSigArgs>,
+    },
     /// Execute some calldata.
-    Solve(u32, Vec<(Sig, SolveArgs)>),
+    Solve {
+        slot: u32,
+        args: Vec<SolveArgsSigArgs>,
+    },
 }
 
 pub fn entry(x: Args) -> usize {
     flush_guard(|| match x {
-        Args::Fresh(key, sig, solve_args) => entry_fresh(key, sig, solve_args),
-        Args::FreshBackwards(key, sig) => entry_fresh_backwards(key, sig),
+        Args::Fresh { key, solve_args } => entry_fresh(key, solve_args),
+        Args::FreshBackwards(key, eoa_addr, v, r, s, solve_args) => {
+            entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args)
+        }
         Args::Solve(slot, args) => entry_solve(slot, args),
     })
-}
-
-pub fn sign_hello(k: SigningKey, addr: [u8; 20]) -> Sig {
-    let m: [u8; 37 + 20] = concat_arrays!(*REGISTER_MSG_PREFIX, addr);
-    Sig(SigningKey::sign(&k, &m).to_bytes())
-}
-
-fn validate_hello_sig(pub_key: &VerifyingKey, sig: Sig, addr: [u8; 20]) -> bool {
-    let to_check: [u8; 37 + 20] = concat_arrays!(*REGISTER_MSG_PREFIX, addr);
-    let sig = Signature::from_bytes(&sig.0);
-    if let Err(_) = pub_key.verify_strict(&to_check, &sig) {
-        return false;
-    }
-    true
-}
-
-#[cfg(all(test, feature = "std"))]
-mod test {
-    use super::*;
-
-    use proptest::prelude::*;
-
-    proptest! {
-        #[test]
-        fn test_sign_validate(addr in any::<[u8; 20]>(), k in any::<[u8; 32]>()) {
-            let k = SigningKey::from_bytes(&k);
-            let pub_key = k.verifying_key();
-            let sig = sign_hello(k, addr);
-            assert!(validate_hello_sig(&pub_key, sig, addr));
-        }
-    }
 }
