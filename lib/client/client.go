@@ -1,80 +1,19 @@
-// lib: Helpers to invoke the accounts contract.
-
-package lib
+package client
 
 import (
 	"context"
-	"fmt"
 	"crypto/ecdsa"
+	"fmt"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/ethclient"
-	ethCommon "github.com/ethereum/go-ethereum/common"
+	"github.com/fluidity-money/accounts.superposition.so/lib/types"
+
 	"github.com/ethereum/go-ethereum"
+	ethCommon "github.com/ethereum/go-ethereum/common"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 
 	"github.com/near/borsh-go"
-)
-
-const (
-	ArgsFresh borsh.Enum = iota
-	ArgsFreshBackwards
-	ArgsSolve
-)
-
-type (
-	Args struct {
-		Enum borsh.Enum `borsh_enum:"true"`
-		Fresh
-		FreshBackwards
-		Solve
-	}
-
-	Permit struct {
-		Token    [20]byte
-		Deadline [32]byte
-		V        uint8
-		R        [32]byte
-		S        [32]byte
-	}
-
-	FromArgs struct {
-		Token      [20]byte
-		ToTake     [32]byte
-		MaxUnspent [32]byte
-	}
-
-	SolveArgs struct {
-		Permit []Permit
-		From   []FromArgs
-		Target [20]byte
-		Cd     []byte
-		MsTs   *big.Int
-	}
-
-	SolveArgsSigArgs struct {
-		Sig [64]byte
-		SolveArgs
-	}
-
-	Fresh struct {
-		Key       [32]byte
-		SolveArgs []SolveArgsSigArgs
-	}
-
-	FreshBackwards struct {
-		Key       [32]byte
-		EoaAddr   [20]byte
-		V         uint8
-		R         [32]byte
-		S         [32]byte
-		SolveArgs []SolveArgsSigArgs
-	}
-
-	Solve struct {
-		Slot uint32
-		Args []SolveArgsSigArgs
-	}
 )
 
 // SendArguments by estimating the gas of the execution, then send with
@@ -86,8 +25,11 @@ func SendArguments(
 	chainId *big.Int,
 	privateKey *ecdsa.PrivateKey,
 	from, to ethCommon.Address,
-	args Args,
-) (*ethCommon.Hash, error) {
+	args types.Args,
+) (
+	*ethCommon.Hash,
+	error,
+) {
 	b, err := borsh.Serialize(args)
 	if err != nil {
 		return nil, fmt.Errorf("serialising borsh: %v", err)

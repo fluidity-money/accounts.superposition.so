@@ -23,7 +23,6 @@ input FromArgs {
   max_unspent: String!
 }
 
-
 input SolveArgs {
   permit: [Permit!]!,
   from: [FromArgs!]!,
@@ -40,16 +39,17 @@ input CreateAccount {
 }
 
 input Mint {
-    market: String!,
-    outcome: String!,
-    amount: Int!,
-    permit: Permit!,
+  market: String!,
+  outcome: String!,
+  amount: String!,
+  permit: Permit!,
+  referrer: String!,
 
-    """
-    The millisecond timestamp for making sure this isn't doubled up somehow.
-    """
-    ms_ts: String!
-  }
+  """
+  The millisecond timestamp for making sure this isn't doubled up somehow.
+  """
+  ms_ts: String!
+}
 
 type Mutation {
   """

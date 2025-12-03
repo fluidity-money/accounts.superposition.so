@@ -2249,7 +2249,7 @@ func (ec *executionContext) unmarshalInputMint(ctx context.Context, obj any) (mo
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"market", "outcome", "amount", "permit", "ms_ts"}
+	fieldsInOrder := [...]string{"market", "outcome", "amount", "permit", "referrer", "ms_ts"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2272,7 +2272,7 @@ func (ec *executionContext) unmarshalInputMint(ctx context.Context, obj any) (mo
 			it.Outcome = data
 		case "amount":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
-			data, err := ec.unmarshalNInt2int32(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2284,6 +2284,13 @@ func (ec *executionContext) unmarshalInputMint(ctx context.Context, obj any) (mo
 				return it, err
 			}
 			it.Permit = data
+		case "referrer":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("referrer"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Referrer = data
 		case "ms_ts":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ms_ts"))
 			data, err := ec.unmarshalNString2string(ctx, v)

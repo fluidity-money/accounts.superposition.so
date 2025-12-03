@@ -67,7 +67,7 @@ impl FromStr for ArgsAddr {
 )]
 pub struct Permit {
     pub token: ArgsAddr,
-    pub deadline: U,
+    pub deadline: u64,
     v: u8,
     r: U,
     s: U,
