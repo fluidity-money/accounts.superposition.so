@@ -86,10 +86,7 @@ func FuzzCreateAccountToFreshBackwardsLegit(f *testing.F) {
 		if err := c.GenerateStruct(&a); err != nil {
 			return
 		}
-		var (
-			token     = hex.EncodeToString(a.Token[:])
-			recipient = hex.EncodeToString(a.Recipient[:])
-		)
+		recipient := hex.EncodeToString(a.Recipient[:])
 		a.FreshBackwards.SolveArgs = nil
 		for _, s := range a.MintArgs {
 			s.SolveArgs.Cd = ninelives.NewMint(
@@ -118,7 +115,7 @@ func FuzzCreateAccountToFreshBackwardsLegit(f *testing.F) {
 			err = TagFreshBackwardsWithMint(
 				f,
 				priv,
-				token,
+				a.Token,
 				mint.Market,
 				mint.Outcome,
 				mint.Amount,

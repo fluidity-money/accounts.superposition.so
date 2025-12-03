@@ -6,14 +6,62 @@ package graph
 
 import (
 	"context"
+	"log/slog"
 	"fmt"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
+	"github.com/fluidity-money/accounts.superposition.so/lib/client"
+	"github.com/fluidity-money/accounts.superposition.so/lib/db"
+	"github.com/fluidity-money/accounts.superposition.so/lib/types"
 )
 
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (string, error) {
-	panic(fmt.Errorf("not implemented: CreateAccountExec - createAccountExec"))
+	var pubKey [32]byte
+	copy(pubKey[:], r.PasPubKey)
+	f, err := CreateAccountToFreshBackwards(pubKey, createAccount)
+	if err != nil {
+		slog.Error("create account",
+			"create account", createAccount,
+			"mint", mint,
+			"err", err,
+		)
+		return "", fmt.Errorf("create account: %v", err)
+	}
+	if mint != nil {
+		err = TagFreshBackwardsWithMint(
+			f,
+			r.PasPrivKey,
+			r.Fusdc,
+			mint.Market,
+			mint.Outcome,
+			mint.Amount,
+			mint.Referrer,
+			createAccount.EoaAddr,
+			mint.Permit,
+			mint.MsTs,
+		)
+		if err != nil {
+			return "", fmt.Errorf("mint tagging: %v", err)
+		}
+	}
+	privKey, sender, err := db.PickPrivateKey(r.Db)
+	h, err := client.SendArguments(
+		ctx,
+		r.Client,
+		r.ChainId,
+		privKey,
+		*sender,
+		r.PassportAddr,
+		types.Args {
+			Enum: types.ArgsFreshBackwards,
+			FreshBackwards: *f,
+		},
+	)
+	if err != nil {
+		return "", fmt.Errorf("send arguments: %v", err)
+	}
+	return h.Hex(), nil
 }
 
 // RequestSecret is the resolver for the requestSecret field.

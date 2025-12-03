@@ -112,14 +112,11 @@ func NewPermit(
 func TagFreshBackwardsWithMint(
 	f *types.FreshBackwards,
 	priv ed25519.PrivateKey,
-	token, market, outcome, amount, referrer, recipient string,
+	token [20]byte,
+	market, outcome, amount, referrer, recipient string,
 	permit *model.Permit,
 	msTs string,
 ) error {
-	t, err := strToAddr(token)
-	if err != nil {
-		return fmt.Errorf("token: %v", err)
-	}
 	m, err := strToAddr(market)
 	if err != nil {
 		return fmt.Errorf("addr: %v", err)
@@ -143,7 +140,7 @@ func TagFreshBackwardsWithMint(
 	cd := ninelives.NewMint(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
 		From: []types.FromArgs{{
-			Token:      t,
+			Token:      token,
 			ToTake:     a,
 			MaxUnspent: MaxBytes32,
 		}},
