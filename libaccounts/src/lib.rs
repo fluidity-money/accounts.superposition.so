@@ -194,9 +194,14 @@ pub enum Args {
 pub fn entry(x: Args) -> usize {
     flush_guard(|| match x {
         Args::Fresh { key, solve_args } => entry_fresh(key, solve_args),
-        Args::FreshBackwards(key, eoa_addr, v, r, s, solve_args) => {
-            entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args)
-        }
-        Args::Solve(slot, args) => entry_solve(slot, args),
+        Args::FreshBackwards {
+            key,
+            eoa_addr,
+            v,
+            r,
+            s,
+            solve_args,
+        } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args),
+        Args::Solve { slot, args } => entry_solve(slot, args),
     })
 }

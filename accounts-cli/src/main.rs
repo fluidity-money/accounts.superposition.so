@@ -4,9 +4,7 @@ use bobcat_sdk::maths::U;
 
 use ed25519_dalek::{Signer, SigningKey};
 
-use libaccounts::{Args, ArgsAddr, FromArgs, OurLzss, Sig, SolveArgs};
-
-use array_concat::concat_arrays;
+use libaccounts::{Args, ArgsAddr, FromArgs, OurLzss, Sig, SolveArgs, SolveArgsSigArgs};
 
 use core::{
     fmt::{Display, Formatter},
@@ -75,20 +73,18 @@ fn entry(x: CliArgs) {
             let k = SigningKey::from_bytes(&priv_key.0);
             let solve_args = solve_args
                 .into_iter()
-                .map(|args| {
-                    (
-                        Sig(SigningKey::sign(&k, &borsh::to_vec(&args).unwrap()).to_bytes()),
-                        args,
-                    )
+                .map(|args| SolveArgsSigArgs {
+                    sig: Sig(SigningKey::sign(&k, &borsh::to_vec(&args).unwrap()).to_bytes()),
+                    args,
                 })
                 .collect::<Vec<_>>();
             println!(
                 "0x{}",
                 create_blob(
-                    &borsh::to_vec(&Args::Fresh(
-                        U(*k.verifying_key().as_bytes()),
+                    &borsh::to_vec(&Args::Fresh {
+                        key: U(*k.verifying_key().as_bytes()),
                         solve_args,
-                    ))
+                    })
                     .unwrap()
                 )
             );
@@ -101,16 +97,20 @@ fn entry(x: CliArgs) {
             let k = SigningKey::from_bytes(&priv_key.0);
             let solve_args = solve_args
                 .into_iter()
-                .map(|args| {
-                    (
-                        Sig(SigningKey::sign(&k, &borsh::to_vec(&args).unwrap()).to_bytes()),
-                        args,
-                    )
+                .map(|args| SolveArgsSigArgs {
+                    sig: Sig(SigningKey::sign(&k, &borsh::to_vec(&args).unwrap()).to_bytes()),
+                    args,
                 })
                 .collect::<Vec<_>>();
             println!(
                 "0x{}",
-                create_blob(&borsh::to_vec(&Args::Solve(slot, solve_args,)).unwrap())
+                create_blob(
+                    &borsh::to_vec(&Args::Solve {
+                        slot,
+                        args: solve_args
+                    })
+                    .unwrap()
+                )
             );
         }
         CliArgs::SignTokenSpend {

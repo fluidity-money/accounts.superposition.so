@@ -6,3 +6,6 @@ out
 out/frontend_bg.wasm
 accounts-cli.out
 cache
+accounts.superposition.so
+bootstrap
+bootstrap.zip

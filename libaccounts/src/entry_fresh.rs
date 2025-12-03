@@ -10,13 +10,13 @@ use bobcat_sdk::{
     precompiles::ecrecover
 };
 
-use crate::{ArgsAddr, entry_solve, Sig, SolveArgs};
+use crate::{ArgsAddr, entry_solve, SolveArgsSigArgs};
 
 use ed25519_dalek::VerifyingKey;
 
 pub fn entry_fresh(
     pub_key: U,
-    solve_args: Vec<(Sig, SolveArgs)>,
+    solve_args: Vec<SolveArgsSigArgs>,
 ) -> usize {
     let pub_key = VerifyingKey::from_bytes(pub_key.as_slice()).unwrap();
     let proxy = create2_unit(
@@ -44,7 +44,7 @@ pub fn entry_fresh_backwards(
     v: u8,
     r: U,
     s: U,
-    solve_args: Vec<(Sig, SolveArgs)>,
+    solve_args: Vec<SolveArgsSigArgs>,
 ) -> usize {
     assert_eq!(eoa_addr.0, ecrecover(pub_key, v, r, s, u64::MAX).unwrap());
     let pub_key = VerifyingKey::from_bytes(pub_key.as_slice()).unwrap();

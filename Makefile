@@ -3,7 +3,7 @@
 
 .DELETE_ON_ERROR:
 
-build: accounts.superposition.so.wasm accounts-cli.out frontend
+build: accounts.superposition.so.wasm accounts-cli.out frontend bootstrap.zip
 
 accounts.superposition.so.wasm: $(shell find Cargo.* contract libaccounts -type f)
 	@rm -f accounts.superposition.so.wasm
@@ -24,6 +24,15 @@ out/frontend_bg.wasm: $(shell find Cargo.* libaccounts frontend -type f)
 	@cd frontend && \
 		cargo build --release --target wasm32-wasip1 && \
 		wasm-bindgen target/wasm32-wasip1/release/frontend.wasm --out-dir ../out
+
+accounts.superposition.so: $(shell find -name '*.go')
+	@go build
+
+bootstrap: accounts.superposition.so
+	@cp accounts.superposition.so bootstrap
+
+bootstrap.zip: bootstrap
+	@zip bootstrap.zip bootstrap
 
 clean:
 	@rm -rf target accounts.superposition.so.wasm accounts-cli.out

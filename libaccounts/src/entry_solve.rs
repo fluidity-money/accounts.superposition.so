@@ -10,11 +10,11 @@ use bobcat_sdk::{
     maths::U,
 };
 
-use crate::{storage, FromArgs, Permit, Sig, SolveArgs};
+use crate::{storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
 
-pub fn entry_solve(owner: u32, args: Vec<(Sig, SolveArgs)>) -> usize {
+pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     let owner = storage::ed25519_slot::get(&owner.into());
-    for (sig, args) in args {
+    for SolveArgsSigArgs { sig: _sig, args } in args {
         let SolveArgs {
             permit,
             from,
@@ -37,7 +37,7 @@ pub fn entry_solve(owner: u32, args: Vec<(Sig, SolveArgs)>) -> usize {
                     owner.into(),
                     contract_address(),
                     &U::MAX,
-                    &deadline,
+                    &deadline.into(),
                     v,
                     &r,
                     &s
