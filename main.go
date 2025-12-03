@@ -3,12 +3,12 @@
 package main
 
 import (
-	"net/http"
-	"log"
-	"encoding/hex"
 	"crypto/ed25519"
 	"database/sql"
+	"encoding/hex"
+	"log"
 	"math/big"
+	"net/http"
 	"os"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph"
@@ -24,8 +24,8 @@ import (
 
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 
-	"github.com/ethereum/go-ethereum/ethclient"
 	ethCommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 const (
@@ -52,6 +52,9 @@ const (
 
 	// EnvAccPrivateKey to execute transactions on the behalf of users with.
 	EnvAccPrivateKey = "SPN_ACCOUNTS_PRIVATE_KEY"
+
+	// EnvDryrun disables the sending of transactions, instead simulating.
+	EnvDryrun = "SPN_DRYRUN"
 )
 
 func main() {
@@ -78,15 +81,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("accounts private key: %v", err)
 	}
+	dryrun := os.Getenv(EnvDryrun) != ""
 	accPrivKey := ed25519.PrivateKey(accPrivKeyB)
 	accPubKey, _ := accPrivKey.Public().(ed25519.PublicKey)
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-		Client: c,
-		Db: db,
-		ChainId: chainId,
+		Client:              c,
+		Db:                  db,
+		ChainId:             chainId,
 		AccountsFactoryAddr: accountsFactoryAddr,
-		AccPrivKey: accPrivKey,
-		AccPubKey: accPubKey,
+		AccPrivKey:          accPrivKey,
+		AccPubKey:           accPubKey,
+		Dryrun:              dryrun,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

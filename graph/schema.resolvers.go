@@ -57,6 +57,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			Enum:           types.ArgsFreshBackwards,
 			FreshBackwards: *f,
 		},
+		r.Dryrun,
 	)
 	if err != nil {
 		return "", fmt.Errorf("send arguments: %v", err)

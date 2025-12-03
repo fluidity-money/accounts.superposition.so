@@ -26,6 +26,7 @@ func SendArguments(
 	privateKey *ecdsa.PrivateKey,
 	from, to ethCommon.Address,
 	args types.Args,
+	dryrun bool,
 ) (
 	*ethCommon.Hash,
 	error,
@@ -74,8 +75,10 @@ func SendArguments(
 	if err != nil {
 		return nil, fmt.Errorf("signed: %v", err)
 	}
-	if err = c.SendTransaction(ctx, signed); err != nil {
-		return nil, fmt.Errorf("send transaction: %v", err)
+	if !dryrun {
+		if err = c.SendTransaction(ctx, signed); err != nil {
+			return nil, fmt.Errorf("send transaction: %v", err)
+		}
 	}
 	h := signed.Hash()
 	return &h, nil
