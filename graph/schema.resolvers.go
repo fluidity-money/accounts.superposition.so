@@ -6,8 +6,8 @@ package graph
 
 import (
 	"context"
-	"log/slog"
 	"fmt"
+	"log/slog"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	"github.com/fluidity-money/accounts.superposition.so/lib/client"
@@ -18,7 +18,7 @@ import (
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (string, error) {
 	var pubKey [32]byte
-	copy(pubKey[:], r.PasPubKey)
+	copy(pubKey[:], r.AccPubKey)
 	f, err := CreateAccountToFreshBackwards(pubKey, createAccount)
 	if err != nil {
 		slog.Error("create account",
@@ -31,7 +31,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	if mint != nil {
 		err = TagFreshBackwardsWithMint(
 			f,
-			r.PasPrivKey,
+			r.AccPrivKey,
 			r.Fusdc,
 			mint.Market,
 			mint.Outcome,
@@ -52,9 +52,9 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		r.ChainId,
 		privKey,
 		*sender,
-		r.PassportAddr,
-		types.Args {
-			Enum: types.ArgsFreshBackwards,
+		r.AccountsFactoryAddr,
+		types.Args{
+			Enum:           types.ArgsFreshBackwards,
 			FreshBackwards: *f,
 		},
 	)

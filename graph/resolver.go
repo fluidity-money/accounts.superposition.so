@@ -13,8 +13,8 @@ type Resolver struct {
 	Client                *ethclient.Client
 	Db                    *sql.DB
 	ChainId               *big.Int
-	PassportAddr ethCommon.Address
-	PasPrivKey            ed25519.PrivateKey
-	PasPubKey             ed25519.PublicKey
+	AccountsFactoryAddr ethCommon.Address
+	AccPrivKey            ed25519.PrivateKey
+	AccPubKey             ed25519.PublicKey
 	Fusdc                 [20]byte
 }
