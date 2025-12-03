@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"log/slog"
 
@@ -46,6 +47,12 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		}
 	}
 	privKey, sender, err := db.PickPrivateKey(r.Db)
+	if err != nil {
+		slog.Error("error picking private key",
+			"err", err,
+		)
+		return "", fmt.Errorf("picking private key: %v", err)
+	}
 	h, err := client.SendArguments(
 		ctx,
 		r.Client,
@@ -77,7 +84,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, eoa *string, mint 
 
 // Publickey is the resolver for the publickey field.
 func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
-	panic(fmt.Errorf("not implemented: Publickey - publickey"))
+	return hex.EncodeToString(r.AccPubKey), nil
 }
 
 // EoaForAddress is the resolver for the eoaForAddress field.

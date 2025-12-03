@@ -2279,7 +2279,7 @@ func (ec *executionContext) unmarshalInputMint(ctx context.Context, obj any) (mo
 			it.Amount = data
 		case "permit":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permit"))
-			data, err := ec.unmarshalNPermit2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐPermit(ctx, v)
+			data, err := ec.unmarshalOPermit2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐPermit(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3300,6 +3300,14 @@ func (ec *executionContext) unmarshalOMint2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋ
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputMint(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPermit2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐPermit(ctx context.Context, v any) (*model.Permit, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPermit(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

@@ -19,7 +19,7 @@ type Mint struct {
 	Market   string  `json:"market"`
 	Outcome  string  `json:"outcome"`
 	Amount   string  `json:"amount"`
-	Permit   *Permit `json:"permit"`
+	Permit   *Permit `json:"permit,omitempty"`
 	Referrer string  `json:"referrer"`
 	// The millisecond timestamp for making sure this isn't doubled up somehow.
 	MsTs string `json:"ms_ts"`

@@ -75,7 +75,16 @@ func SendArguments(
 	if err != nil {
 		return nil, fmt.Errorf("signed: %v", err)
 	}
-	if !dryrun {
+	if dryrun {
+		_, err = c.CallContract(ctx, ethereum.CallMsg{
+			From: from,
+			To:   &to,
+			Data: b,
+		}, nil)
+		if err != nil {
+			return nil, fmt.Errorf("dryrun simulate: %v", err)
+		}
+	} else {
 		if err = c.SendTransaction(ctx, signed); err != nil {
 			return nil, fmt.Errorf("send transaction: %v", err)
 		}

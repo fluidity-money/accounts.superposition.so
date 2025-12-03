@@ -42,7 +42,7 @@ input Mint {
   market: String!,
   outcome: String!,
   amount: String!,
-  permit: Permit!,
+  permit: Permit,
   referrer: String!,
 
   """
@@ -60,7 +60,8 @@ type Mutation {
 
   """
   Request the existing secret that was created for this account. It needs a signature of
-  the original kind . the secret that will be included here.
+  the nonce and the public key from the user. The nonce must be greater than what's
+  recorded in the database so far.
   """
   requestSecret(
     eoa_addr: String!,

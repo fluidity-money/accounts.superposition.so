@@ -33,7 +33,7 @@ CREATE TABLE accounts_secrets_1 (
 	eoa_addr ADDRESS NOT NULL,
 	-- The secret that's needed to spend for a user to send instructions to this
 	-- account. This is the digest of the HMAC.
-	secret VARCHAR NOT NULL,
+	priv_key VARCHAR NOT NULL
 );
 
 -- Unsent transcations that need executing. The timestamp is provided by the end user and ensured

@@ -13,6 +13,8 @@ import (
 
 	"github.com/fluidity-money/accounts.superposition.so/graph"
 
+	_ "github.com/lib/pq"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
