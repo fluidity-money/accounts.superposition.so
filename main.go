@@ -3,16 +3,16 @@
 package main
 
 import (
-	"strings"
+	"context"
 	"crypto/ed25519"
 	"database/sql"
-	"context"
 	"encoding/hex"
 	"log"
-	"math/big"
 	"log/slog"
+	"math/big"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph"
 
@@ -60,17 +60,31 @@ const (
 
 	// EnvDryrun disables the sending of transactions, instead simulating.
 	EnvDryrun = "SPN_DRYRUN"
+
+	// EnvAdminSecret to use for users to perform administrative actions with.
+	EnvAdminSecret = "SPN_ADMIN_SECRET"
 )
 
 type authMiddleware struct {
-	db *sql.DB
+	db  *sql.DB
 	srv http.Handler
+	adminSecret string
 }
 
 func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
-	if bearer := r.Header.Get("Authorization"); bearer != "" {
+	switch bearer := r.Header.Get("Authorization"); bearer {
+	case "":
+		a.srv.ServeHTTP(w, r)
+	case a.adminSecret:
+		adminSecretEnabled := a.adminSecret != ""
+		a.srv.ServeHTTP(w, r.WithContext(context.WithValue(
+			r.Context(),
+			"is admin",
+			adminSecretEnabled,
+		)))
+	default:
 		// Do a serious roundtrip to use the database with sending transactions,
 		// since we have an open database storage situation acrouss our
 		// monitoring stack. We avoid a roundtrip of the secret this way!
@@ -124,8 +138,6 @@ WHERE priv_key = $1 AND eoa_addr = $2`,
 		ctx := context.WithValue(r.Context(), "authed", true)
 		ctx = context.WithValue(ctx, "eoa", eoa)
 		a.srv.ServeHTTP(w, r.WithContext(ctx))
-	} else {
-		a.srv.ServeHTTP(w, r)
 	}
 }
 
@@ -153,6 +165,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("accounts private key: %v", err)
 	}
+	adminSecret := os.Getenv(EnvAdminSecret)
 	dryrun := os.Getenv(EnvDryrun) != ""
 	accPrivKey := ed25519.PrivateKey(accPrivKeyB)
 	accPubKey, _ := accPrivKey.Public().(ed25519.PublicKey)
@@ -173,7 +186,7 @@ func main() {
 	srv.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
-	http.Handle("/", srv)
+	http.Handle("/", authMiddleware{db, srv, adminSecret})
 	switch typ := os.Getenv(EnvBackendType); typ {
 	case "lambda":
 		lambda.Start(httpadapter.NewV2(http.DefaultServeMux).ProxyWithContext)
