@@ -102,23 +102,25 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	}
 	var (
 		secretX = hex.EncodeToString(secret)
-		saltX    = hex.EncodeToString(salt)
+		saltX   = hex.EncodeToString(salt)
 	)
 	key := MakeKey(secret, salt)
 	keyX := hex.EncodeToString(key)
-	_, err = r.Db.Exec(`
+	if !r.Dryrun {
+		_, err = r.Db.Exec(`
 INSERT INTO accounts_secrets_1 (eoa_addr, priv_key salt)
 VALUES ($1, $2, $3)`,
-		eoa.String(),
-		keyX,
-		saltX,
-	)
-	if err != nil {
-		slog.Error("error executing the insertion of the secret",
-			"err", err,
-			"eoa addr", eoa,
+			eoa.String(),
+			keyX,
+			saltX,
 		)
-		return nil, fmt.Errorf("error inserting secret: %v", err)
+		if err != nil {
+			slog.Error("error executing the insertion of the secret",
+				"err", err,
+				"eoa addr", eoa,
+			)
+			return nil, fmt.Errorf("error inserting secret: %v", err)
+		}
 	}
 	return &model.CreateAccountExec{
 		Hash:   h.Hex(),
