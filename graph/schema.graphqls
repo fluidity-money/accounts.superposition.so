@@ -73,7 +73,8 @@ type Mutation {
 
   """
   Use 9lives to open a position on behalf of the user given, optiomally creating the
-  account at the same time.
+  account at the same time. The EOA is fetched from the secret key that the
+  user passes to the client.
   """
-  ninelivesMint(eoa: String, mint: Mint!): String!
+  ninelivesMint(mint: Mint!): String!
 }

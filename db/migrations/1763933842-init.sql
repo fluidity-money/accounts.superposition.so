@@ -32,8 +32,10 @@ CREATE TABLE accounts_secrets_1 (
 	id SERIAL PRIMARY KEY,
 	eoa_addr ADDRESS NOT NULL,
 	-- The secret that's needed to spend for a user to send instructions to this
-	-- account. This is the digest of the HMAC.
-	priv_key VARCHAR NOT NULL
+	-- account. This is the digest of the Argon2id hashing we do.
+	priv_key VARCHAR NOT NULL,
+	-- Salt for this address.
+	salt VARCHAR(16) NOT NULL
 );
 
 -- Unsent transcations that need executing. The timestamp is provided by the end user and ensured

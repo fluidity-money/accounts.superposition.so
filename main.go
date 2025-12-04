@@ -3,13 +3,18 @@
 package main
 
 import (
+	"strings"
 	"crypto/ed25519"
 	"database/sql"
+	"context"
 	"encoding/hex"
 	"log"
 	"math/big"
+	"log/slog"
 	"net/http"
 	"os"
+
+	"golang.org/x/crypto/argon2"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph"
 
@@ -58,6 +63,64 @@ const (
 	// EnvDryrun disables the sending of transactions, instead simulating.
 	EnvDryrun = "SPN_DRYRUN"
 )
+
+type authMiddleware struct {
+	db *sql.DB
+	srv http.Handler
+}
+
+func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	if bearer := r.Header.Get("Authorization"); bearer != "" {
+		// Do a serious roundtrip to use the database with sending transactions,
+		// since we have an open database storage situation acrouss our
+		// monitoring stack. We avoid a roundtrip of the secret this way!
+		bearerS := strings.Split(bearer, ":")
+		eoaPreferred := bearerS[0]
+		secret := bearerS[1]
+		row := a.db.QueryRow(`
+SELECT salt
+FROM accounts_secrets_1
+WHERE eoa_addr = $1`,
+			eoaPreferred,
+		)
+		var salt string
+		switch err := row.Scan(&salt); err {
+		case nil:
+		default:
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		saltB, err := hex.DecodeString(salt)
+		if err != nil {
+			slog.Error("error unpacking salt from database", "err", err)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		key := argon2.IDKey([]byte(secret), saltB, 1, 64*1024, 4, 32)
+		keyS := hex.EncodeToString(key)
+		row = a.db.QueryRow(`
+SELECT 1
+FROM accounts_secrets_1
+WHERE priv_key = $1 AND eoa_addr = $2`,
+			keyS,
+			eoaPreferred,
+		)
+		var sink int
+		switch err := row.Scan(&sink); err {
+		case nil:
+		default:
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "authed", true)
+		ctx = context.WithValue(ctx, "eoa", eoaPreferred)
+		a.srv.ServeHTTP(w, r.WithContext(ctx))
+	} else {
+		a.srv.ServeHTTP(w, r)
+	}
+}
 
 func main() {
 	c, err := ethclient.Dial(os.Getenv(EnvGethAddr))

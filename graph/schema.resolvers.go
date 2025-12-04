@@ -89,6 +89,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, eoa *string, mint 
 	if eoa == nil {
 		return "", fmt.Errorf("empty eoa")
 	}
+	if ethCommon.IsHexAddress(*eoa) {
+		return "", fmt.Errorf("not address")
+	}
 	e := ethCommon.HexToAddress(*eoa)
 	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, e)
 	privKey, sender, err := db.PickPrivateKey(r.Db)
@@ -143,7 +146,11 @@ func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
 
 // EoaForAddress is the resolver for the eoaForAddress field.
 func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (string, error) {
-	panic(fmt.Errorf("not implemented: EoaForAddress - eoaForAddress"))
+	if ethCommon.IsHexAddress(address) {
+		return "", fmt.Errorf("not address")
+	}
+	e := ethCommon.HexToAddress(address)
+	return types.GetClientAddr(r.AccountsFactoryAddr, e).String(), nil
 }
 
 // Mutation returns MutationResolver implementation.
