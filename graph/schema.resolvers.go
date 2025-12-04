@@ -12,7 +12,6 @@ import (
 	"log/slog"
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
-
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	"github.com/fluidity-money/accounts.superposition.so/lib/client"
 	"github.com/fluidity-money/accounts.superposition.so/lib/db"
@@ -85,7 +84,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	// issue with the database, since the frontend willpresumably greedily
 	// reauthenticate when the user tries.
 	secret := make([]byte, 32)
-	if n, err := rand.Read(secret); n != 16 || err != nil {
+	if n, err := rand.Read(secret); n != 32 || err != nil {
 		slog.Error("error seeding randomness",
 			"err", err,
 		)
@@ -202,6 +201,22 @@ func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (stri
 	}
 	e := ethCommon.HexToAddress(address)
 	return types.GetClientAddr(r.AccountsFactoryAddr, e).String(), nil
+}
+
+// HasCreated is the resolver for the hasCreated field.
+func (r *queryResolver) HasCreated(ctx context.Context, address string) (bool, error) {
+	var count int
+	err := r.Db.QueryRow(`
+SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
+		address,
+	)
+	if err != nil {
+		slog.Error("error querying accounts secrets row",
+			"err", err,
+		)
+		return false, fmt.Errorf("query row: %v", err)
+	}
+	return count > 0, nil
 }
 
 // Mutation returns MutationResolver implementation.
