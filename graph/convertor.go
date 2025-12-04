@@ -10,6 +10,8 @@ import (
 	"github.com/fluidity-money/accounts.superposition.so/lib/ninelives"
 	"github.com/fluidity-money/accounts.superposition.so/lib/types"
 
+	ethCommon "github.com/ethereum/go-ethereum/common"
+
 	"github.com/near/borsh-go"
 )
 
@@ -112,7 +114,8 @@ func NewPermit(
 func CreateSolveArgsSigArgs(
 	priv ed25519.PrivateKey,
 	token [20]byte,
-	market, outcome, amount, referrer, recipient string,
+	market, outcome, amount, referrer string,
+	recipient ethCommon.Address,
 	permit *model.Permit,
 	msTs string,
 ) (*types.SolveArgsSigArgs, error) {
@@ -132,10 +135,8 @@ func CreateSolveArgsSigArgs(
 	if err != nil {
 		return nil, fmt.Errorf("referrer: %v", err)
 	}
-	rec, err := strToAddr(recipient)
-	if err != nil {
-		return nil, fmt.Errorf("sender: %v", err)
-	}
+	var rec [20]byte
+	copy(rec[:], recipient.Bytes())
 	cd := ninelives.NewMint(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
 		From: []types.FromArgs{{
@@ -180,7 +181,8 @@ func TagFreshBackwardsWithMint(
 	f *types.FreshBackwards,
 	priv ed25519.PrivateKey,
 	token [20]byte,
-	market, outcome, amount, referrer, recipient string,
+	market, outcome, amount, referrer string,
+	recipient ethCommon.Address,
 	permit *model.Permit,
 	msTs string,
 ) error {

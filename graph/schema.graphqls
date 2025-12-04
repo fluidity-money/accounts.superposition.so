@@ -51,12 +51,17 @@ input Mint {
   ms_ts: String!
 }
 
+type CreateAccountExec {
+  hash: String!,
+  secret: String!
+}
+
 type Mutation {
   """
   Create a new account using the key management service intended for API workers. Returns
   a secret key that can be used to spend from the account.
   """
-  createAccountExec(createAccount: CreateAccount!, mint: Mint): String!
+  createAccountExec(createAccount: CreateAccount!, mint: Mint): CreateAccountExec
 
   """
   Request the existing secret that was created for this account. It needs a signature of

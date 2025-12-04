@@ -6,20 +6,21 @@ package graph
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"log/slog"
+
+	ethCommon "github.com/ethereum/go-ethereum/common"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	"github.com/fluidity-money/accounts.superposition.so/lib/client"
 	"github.com/fluidity-money/accounts.superposition.so/lib/db"
 	"github.com/fluidity-money/accounts.superposition.so/lib/types"
-
-	ethCommon "github.com/ethereum/go-ethereum/common"
 )
 
 // CreateAccountExec is the resolver for the createAccountExec field.
-func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (string, error) {
+func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (*model.CreateAccountExec, error) {
 	var pubKey [32]byte
 	copy(pubKey[:], r.AccPubKey)
 	f, err := CreateAccountToFreshBackwards(pubKey, createAccount)
@@ -29,8 +30,12 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			"mint", mint,
 			"err", err,
 		)
-		return "", fmt.Errorf("create account: %v", err)
+		return nil, fmt.Errorf("create account: %v", err)
 	}
+	if !ethCommon.IsHexAddress(createAccount.EoaAddr) {
+		return nil, fmt.Errorf("not eoa address")
+	}
+	eoa := ethCommon.HexToAddress(createAccount.EoaAddr)
 	if mint != nil {
 		err = TagFreshBackwardsWithMint(
 			f,
@@ -40,12 +45,12 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			mint.Outcome,
 			mint.Amount,
 			mint.Referrer,
-			createAccount.EoaAddr,
+			eoa,
 			mint.Permit,
 			mint.MsTs,
 		)
 		if err != nil {
-			return "", fmt.Errorf("mint tagging: %v", err)
+			return nil, fmt.Errorf("mint tagging: %v", err)
 		}
 	}
 	privKey, sender, err := db.PickPrivateKey(r.Db)
@@ -53,7 +58,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		slog.Error("error picking private key",
 			"err", err,
 		)
-		return "", fmt.Errorf("picking private key: %v", err)
+		return nil, fmt.Errorf("picking private key: %v", err)
 	}
 	h, err := client.SendArguments(
 		ctx,
@@ -74,9 +79,51 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			"fresh backwards", f,
 			"err", err,
 		)
-		return "", fmt.Errorf("send arguments: %v", err)
+		return nil, fmt.Errorf("send arguments: %v", err)
 	}
-	return h.Hex(), nil
+	// We can tolerate a situation where the request drops off here due to a
+	// issue with the database, since the frontend willpresumably greedily
+	// reauthenticate when the user tries.
+	secret := make([]byte, 32)
+	if n, err := rand.Read(secret); n != 16 || err != nil {
+		slog.Error("error seeding randomness",
+			"err", err,
+		)
+		return nil, fmt.Errorf("error with randomness")
+	}
+	salt := make([]byte, 16)
+	if n, err := rand.Read(salt); n != 16 || err != nil {
+		// This isn't very likely, but with Lambda (and money) it's good to
+		// exercise caution.
+		slog.Error("error seeding randomness",
+			"err", err,
+		)
+		return nil, fmt.Errorf("error with randomness")
+	}
+	var (
+		secretX = hex.EncodeToString(secret)
+		saltX    = hex.EncodeToString(salt)
+	)
+	key := MakeKey(secret, salt)
+	keyX := hex.EncodeToString(key)
+	_, err = r.Db.Exec(`
+INSERT INTO accounts_secrets_1 (eoa_addr, priv_key salt)
+VALUES ($1, $2, $3)`,
+		eoa.String(),
+		keyX,
+		saltX,
+	)
+	if err != nil {
+		slog.Error("error executing the insertion of the secret",
+			"err", err,
+			"eoa addr", eoa,
+		)
+		return nil, fmt.Errorf("error inserting secret: %v", err)
+	}
+	return &model.CreateAccountExec{
+		Hash:   h.Hex(),
+		Secret: secretX,
+	}, nil
 }
 
 // RequestSecret is the resolver for the requestSecret field.
@@ -85,15 +132,15 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 }
 
 // NinelivesMint is the resolver for the ninelivesMint field.
-func (r *mutationResolver) NinelivesMint(ctx context.Context, eoa *string, mint model.Mint) (string, error) {
-	if eoa == nil {
-		return "", fmt.Errorf("empty eoa")
+func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (string, error) {
+	if authed, _ := ctx.Value("authed").(bool); !authed {
+		return "", fmt.Errorf("not authed")
 	}
-	if ethCommon.IsHexAddress(*eoa) {
-		return "", fmt.Errorf("not address")
+	eoa, ok := ctx.Value("eoa").(ethCommon.Address)
+	if !ok {
+		return "", fmt.Errorf("bad eoa address")
 	}
-	e := ethCommon.HexToAddress(*eoa)
-	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, e)
+	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, eoa)
 	privKey, sender, err := db.PickPrivateKey(r.Db)
 	if err != nil {
 		slog.Error("error picking private key",
@@ -108,7 +155,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, eoa *string, mint 
 		mint.Outcome,
 		mint.Amount,
 		mint.Referrer,
-		*eoa,
+		eoa,
 		mint.Permit,
 		mint.MsTs,
 	)

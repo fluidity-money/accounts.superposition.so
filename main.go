@@ -14,8 +14,6 @@ import (
 	"net/http"
 	"os"
 
-	"golang.org/x/crypto/argon2"
-
 	"github.com/fluidity-money/accounts.superposition.so/graph"
 
 	_ "github.com/lib/pq"
@@ -78,7 +76,15 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// monitoring stack. We avoid a roundtrip of the secret this way!
 		bearerS := strings.Split(bearer, ":")
 		eoaPreferred := bearerS[0]
-		secret := bearerS[1]
+		if !ethCommon.IsHexAddress(eoaPreferred) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		secret, err := hex.DecodeString(bearerS[1])
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		row := a.db.QueryRow(`
 SELECT salt
 FROM accounts_secrets_1
@@ -98,7 +104,7 @@ WHERE eoa_addr = $1`,
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		key := argon2.IDKey([]byte(secret), saltB, 1, 64*1024, 4, 32)
+		key := graph.MakeKey([]byte(secret), saltB)
 		keyS := hex.EncodeToString(key)
 		row = a.db.QueryRow(`
 SELECT 1
@@ -114,8 +120,9 @@ WHERE priv_key = $1 AND eoa_addr = $2`,
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		eoa := ethCommon.HexToAddress(eoaPreferred)
 		ctx := context.WithValue(r.Context(), "authed", true)
-		ctx = context.WithValue(ctx, "eoa", eoaPreferred)
+		ctx = context.WithValue(ctx, "eoa", eoa)
 		a.srv.ServeHTTP(w, r.WithContext(ctx))
 	} else {
 		a.srv.ServeHTTP(w, r)

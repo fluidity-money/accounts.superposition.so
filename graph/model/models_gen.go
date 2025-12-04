@@ -9,6 +9,11 @@ type CreateAccount struct {
 	SigS    string `json:"sigS"`
 }
 
+type CreateAccountExec struct {
+	Hash   string `json:"hash"`
+	Secret string `json:"secret"`
+}
+
 type FromArgs struct {
 	Token      string `json:"token"`
 	ToTake     string `json:"to_take"`

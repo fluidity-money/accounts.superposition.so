@@ -47,9 +47,14 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	CreateAccountExec struct {
+		Hash   func(childComplexity int) int
+		Secret func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateAccountExec func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint) int
-		NinelivesMint     func(childComplexity int, eoa *string, mint model.Mint) int
+		NinelivesMint     func(childComplexity int, mint model.Mint) int
 		RequestSecret     func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) int
 	}
 
@@ -60,9 +65,9 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (string, error)
+	CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (*model.CreateAccountExec, error)
 	RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) (string, error)
-	NinelivesMint(ctx context.Context, eoa *string, mint model.Mint) (string, error)
+	NinelivesMint(ctx context.Context, mint model.Mint) (string, error)
 }
 type QueryResolver interface {
 	Publickey(ctx context.Context) (string, error)
@@ -88,6 +93,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
+	case "CreateAccountExec.hash":
+		if e.complexity.CreateAccountExec.Hash == nil {
+			break
+		}
+
+		return e.complexity.CreateAccountExec.Hash(childComplexity), true
+	case "CreateAccountExec.secret":
+		if e.complexity.CreateAccountExec.Secret == nil {
+			break
+		}
+
+		return e.complexity.CreateAccountExec.Secret(childComplexity), true
+
 	case "Mutation.createAccountExec":
 		if e.complexity.Mutation.CreateAccountExec == nil {
 			break
@@ -109,7 +127,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.NinelivesMint(childComplexity, args["eoa"].(*string), args["mint"].(model.Mint)), true
+		return e.complexity.Mutation.NinelivesMint(childComplexity, args["mint"].(model.Mint)), true
 	case "Mutation.requestSecret":
 		if e.complexity.Mutation.RequestSecret == nil {
 			break
@@ -288,16 +306,11 @@ func (ec *executionContext) field_Mutation_createAccountExec_args(ctx context.Co
 func (ec *executionContext) field_Mutation_ninelivesMint_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "eoa", ec.unmarshalOString2ᚖstring)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "mint", ec.unmarshalNMint2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐMint)
 	if err != nil {
 		return nil, err
 	}
-	args["eoa"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "mint", ec.unmarshalNMint2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐMint)
-	if err != nil {
-		return nil, err
-	}
-	args["mint"] = arg1
+	args["mint"] = arg0
 	return args, nil
 }
 
@@ -406,6 +419,64 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _CreateAccountExec_hash(ctx context.Context, field graphql.CollectedField, obj *model.CreateAccountExec) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CreateAccountExec_hash,
+		func(ctx context.Context) (any, error) {
+			return obj.Hash, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CreateAccountExec_hash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateAccountExec",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateAccountExec_secret(ctx context.Context, field graphql.CollectedField, obj *model.CreateAccountExec) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CreateAccountExec_secret,
+		func(ctx context.Context) (any, error) {
+			return obj.Secret, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CreateAccountExec_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateAccountExec",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createAccountExec(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -417,9 +488,9 @@ func (ec *executionContext) _Mutation_createAccountExec(ctx context.Context, fie
 			return ec.resolvers.Mutation().CreateAccountExec(ctx, fc.Args["createAccount"].(model.CreateAccount), fc.Args["mint"].(*model.Mint))
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalOCreateAccountExec2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐCreateAccountExec,
 		true,
-		true,
+		false,
 	)
 }
 
@@ -430,7 +501,13 @@ func (ec *executionContext) fieldContext_Mutation_createAccountExec(ctx context.
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "hash":
+				return ec.fieldContext_CreateAccountExec_hash(ctx, field)
+			case "secret":
+				return ec.fieldContext_CreateAccountExec_secret(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateAccountExec", field.Name)
 		},
 	}
 	defer func() {
@@ -496,7 +573,7 @@ func (ec *executionContext) _Mutation_ninelivesMint(ctx context.Context, field g
 		ec.fieldContext_Mutation_ninelivesMint,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().NinelivesMint(ctx, fc.Args["eoa"].(*string), fc.Args["mint"].(model.Mint))
+			return ec.resolvers.Mutation().NinelivesMint(ctx, fc.Args["mint"].(model.Mint))
 		},
 		nil,
 		ec.marshalNString2string,
@@ -2422,6 +2499,50 @@ func (ec *executionContext) unmarshalInputSolveArgs(ctx context.Context, obj any
 
 // region    **************************** object.gotpl ****************************
 
+var createAccountExecImplementors = []string{"CreateAccountExec"}
+
+func (ec *executionContext) _CreateAccountExec(ctx context.Context, sel ast.SelectionSet, obj *model.CreateAccountExec) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createAccountExecImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateAccountExec")
+		case "hash":
+			out.Values[i] = ec._CreateAccountExec_hash(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "secret":
+			out.Values[i] = ec._CreateAccountExec_secret(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2445,9 +2566,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createAccountExec(ctx, field)
 			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "requestSecret":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_requestSecret(ctx, field)
@@ -3293,6 +3411,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOCreateAccountExec2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐCreateAccountExec(ctx context.Context, sel ast.SelectionSet, v *model.CreateAccountExec) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CreateAccountExec(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOMint2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐMint(ctx context.Context, v any) (*model.Mint, error) {

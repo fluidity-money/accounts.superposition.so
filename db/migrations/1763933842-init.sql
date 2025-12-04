@@ -27,7 +27,8 @@ BEGIN
 	END IF;
 END $$;
 
--- Secrets needed for the worker to execute a transaction.
+-- Secrets needed for the worker to execute a transaction. Whenever a user
+-- reauthenticates, they create a new one of these.
 CREATE TABLE accounts_secrets_1 (
 	id SERIAL PRIMARY KEY,
 	eoa_addr ADDRESS NOT NULL,
