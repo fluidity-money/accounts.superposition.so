@@ -137,7 +137,6 @@ dependencies = [
  "bobcat-maths",
  "bobcat-proxy",
  "bobcat-storage",
- "const-hex",
 ]
 
 [[package]]

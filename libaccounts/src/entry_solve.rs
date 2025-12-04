@@ -12,9 +12,17 @@ use bobcat_sdk::{
 
 use crate::{storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
 
+use ed25519_dalek::{Signature, VerifyingKey};
+
 pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
-    let owner = storage::ed25519_slot::get(&owner.into());
-    for SolveArgsSigArgs { sig: _sig, args } in args {
+    let eth_owner = storage::ethereum_owner::get();
+    let ed_owner =
+        VerifyingKey::from_bytes(storage::ed25519_slot::get(&owner.into()).as_slice()).unwrap();
+    for SolveArgsSigArgs { sig, args } in args {
+        let sig = Signature::from_bytes(&sig.0);
+        ed_owner
+            .verify_strict(&borsh::to_vec(&args).unwrap(), &sig)
+            .unwrap();
         let SolveArgs {
             permit,
             from,
@@ -34,7 +42,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token.0,
                 &make_fn_permit(
-                    owner.into(),
+                    eth_owner.into(),
                     contract_address(),
                     &U::MAX,
                     &deadline.into(),
@@ -49,7 +57,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
         for FromArgs { token, to_take, .. } in &from {
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
                 token.0,
-                &make_fn_transfer_from(owner.into(), contract_address(), &to_take),
+                &make_fn_transfer_from(eth_owner.into(), contract_address(), &to_take),
                 &U::ZERO,
                 u64::MAX,
             ));

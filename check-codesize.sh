@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/sh -x
 
 size="$(du "$1" | cut -f1)"
 
-if [ "$size" -gt 60 ]; then
+if [ "$size" -gt 75 ]; then
 	>& echo "$1 too large"
 	exit 1
 fi

@@ -54,10 +54,8 @@ storage! {
     was_created(),
     // The count of the number of ed25519 keys in this contract. Client only.
     ed25519_count(),
-    // Slot (u32) => ed25519 id.
+    // Slot (u32) => ed25519 public key.
     ed25519_slot(slot),
-    // Does this ed25519 address owns this contract? Client only.
-    ed25519_owner(addr),
     // Which Ethereum address owns this contract? Client only.
     ethereum_owner(),
     // Seen timestamps:
