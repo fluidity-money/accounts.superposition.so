@@ -1,0 +1,93 @@
+#!/usr/bin/env -S rc -e
+
+usdc_addr=0x6c030c5CC283F791B26816f325b9C632d964F8A1
+accounts_graph_addr=https://accounts.superposition.so
+accounts_addr=0x6221a9c005f6e47eb398fd867784cacfdcfff4e7
+
+prog=`{basename $0}
+
+fn usage {
+	echo $prog $* >[1=2]
+	exit 2
+}
+
+if(! which sign-hex >/dev/null) {
+	echo sign-hex not in path. Build from tools >[1=2]
+	exit 1
+}
+if(! which leftpad-int >/dev/null) {
+	echo leftpad-int not in path. Build from tools >[1=2]
+	exit 1
+}
+if(! which make-permit >/dev/null) {
+	echo make-permit not in path. Build from tools >[1=2]
+	exit 1
+}
+
+if(~ $SPN_SUPERPOSITION_URL '') usage SPN_SUPERPOSITION_URL unset
+if(~ $SPN_SUPERPOSITION_KEY '') usage SPN_SUPERPOSITION_KEY unset
+
+sender_pub_addr=`{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}
+
+fn no_0x { echo $* | sed -s 's/0x//g' }
+
+fn req {
+	curl -H 'Content-Type: application/json' -sd $* $accounts_graph_addr
+}
+
+fn get_public_key {
+	req '{"query":"{publickey}"}' \
+		| jq -r .data.publickey
+}
+
+fn call {
+	cast call --rpc-url $SPN_SUPERPOSITION_URL $*
+}
+
+fn onboard {
+	should_mint=yes
+	for(n in (1 2 3 4 5)) if(~ $$n '') should_mint=''
+	eoa=`{no_0x $1} market=`{no_0x $2} outcome=`{no_0x $3} amount=$4 referrer=`{no_0x $5}
+	should_permit=yes
+	if(~ $6 '') should_permit=''
+	if(! ~ $market '') {
+		for(n in (3 4 5)) if(~ $$n '') {
+			usage 'onboard eoa [market outcome amount referrer [should permit]]'
+		}
+	}
+	if(~ $eoa '') usage 'onboard eoa [market outcome amount referrer [should permit]]'
+	sig=`{get_public_key | sign-hex $SPN_SUPERPOSITION_KEY}
+	sig_r=`{echo $sig | jq -r .r}
+	sig_s=`{echo $sig | jq -r .s}
+	sig_v=`{echo $sig | jq -r .v}
+	mint_obj=''
+	if(~ $should_mint yes) {
+		amount_hex=`{leftpad-int $amount}
+		ms_ts=`{date +%s%3N}
+		permit_obj=''
+		if(~ $should_permit yes) {
+			echo $usdc_dadr $sender_pub_addr
+			nonce=`{call $usdc_addr 'nonces(address)(uint256)' $sender_pub_addr | cut -f1 -d' '}
+			deadline=`{echo `{date +%s}' + 3600' | bc}
+			permit=`{make-permit $SPN_SUPERPOSITION_KEY $accounts_addr $nonce $usdc_addr $deadline}
+			permit_r=`{echo $permit | jq -r .r}
+			permit_s=`{echo $permit | jq -r .s}
+			permit_v=`{echo $permit | jq -r .v}
+			permit_obj='permit: {\n      deadline: '$deadline',\n      permitV: '$permit_v',\n      permitR: \"'$permit_r'\",\n      permitS: \"'$permit_s'\"\n    }'
+		}
+		mint_obj='mint: {\n      market: \"'$market'\",\n      outcome: \"'$outcome'\",\n      amount: \"'$amount_hex'\",\n      referrer: \"'$referrer'\",\n      ms_ts: \"'$ms_ts'\",\n      '$permit_obj'    }'
+	}
+	req '
+{"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    },\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
+}
+
+switch($1) {
+case onboard
+	shift
+	onboard $*
+case mint
+	shift
+	mint $*
+case *
+	usage '(onboard|mint)'
+}

@@ -34,7 +34,6 @@ type Mutation struct {
 }
 
 type Permit struct {
-	Token    string `json:"token"`
 	Deadline int32  `json:"deadline"`
 	PermitV  int32  `json:"permitV"`
 	PermitR  string `json:"permitR"`

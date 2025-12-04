@@ -2453,20 +2453,13 @@ func (ec *executionContext) unmarshalInputPermit(ctx context.Context, obj any) (
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"token", "deadline", "permitV", "permitR", "permitS"}
+	fieldsInOrder := [...]string{"deadline", "permitV", "permitR", "permitS"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "token":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Token = data
 		case "deadline":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deadline"))
 			data, err := ec.unmarshalNInt2int32(ctx, v)

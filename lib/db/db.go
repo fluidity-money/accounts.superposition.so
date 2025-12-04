@@ -25,10 +25,7 @@ func PickPrivateKey(db *sql.DB) (*ecdsa.PrivateKey, *ethCommon.Address, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("hex to ecdsa: %v", err)
 	}
-	p, ok := key.Public().(*ecdsa.PublicKey)
-	if !ok {
-		return nil, nil, fmt.Errorf("public key: %T", key.Public())
-	}
+	p, _ := key.Public().(*ecdsa.PublicKey)
 	pub := ethCrypto.PubkeyToAddress(*p)
 	return key, &pub, nil
 }

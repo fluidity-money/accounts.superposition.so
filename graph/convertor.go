@@ -81,15 +81,11 @@ func CreateAccountToFreshBackwards(pubKey [32]byte, createAccount model.CreateAc
 }
 
 func NewPermit(
-	token string,
+	token [20]byte,
 	deadline uint64,
 	permitV int32,
 	permitR, permitS string,
 ) (*types.Permit, error) {
-	t, err := strToAddr(token)
-	if err != nil {
-		return nil, fmt.Errorf("addr: %v", err)
-	}
 	if permitV < 0 || permitV > math.MaxUint8 {
 		return nil, fmt.Errorf("v exceeds")
 	}
@@ -103,7 +99,7 @@ func NewPermit(
 		return nil, fmt.Errorf("permit s: %v", err)
 	}
 	return &types.Permit{
-		Token:    t,
+		Token:    token,
 		Deadline: deadline,
 		V:        v,
 		R:        r,
@@ -153,7 +149,7 @@ func CreateSolveArgsSigArgs(
 		}
 		d := uint64(permit.Deadline)
 		p, err := NewPermit(
-			permit.Token,
+			token,
 			d,
 			permit.PermitV,
 			permit.PermitR,

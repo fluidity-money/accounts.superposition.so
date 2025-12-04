@@ -15,7 +15,6 @@ type Query {
 }
 
 input Permit {
-  token: String!,
   deadline: Int!,
   permitV: Int!,
   permitR: String!,
