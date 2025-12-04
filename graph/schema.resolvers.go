@@ -14,6 +14,8 @@ import (
 	"github.com/fluidity-money/accounts.superposition.so/lib/client"
 	"github.com/fluidity-money/accounts.superposition.so/lib/db"
 	"github.com/fluidity-money/accounts.superposition.so/lib/types"
+
+	ethCommon "github.com/ethereum/go-ethereum/common"
 )
 
 // CreateAccountExec is the resolver for the createAccountExec field.
@@ -67,6 +69,11 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		r.Dryrun,
 	)
 	if err != nil {
+		slog.Error("sending arguments",
+			"sender", sender,
+			"fresh backwards", f,
+			"err", err,
+		)
 		return "", fmt.Errorf("send arguments: %v", err)
 	}
 	return h.Hex(), nil
@@ -79,7 +86,54 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 
 // NinelivesMint is the resolver for the ninelivesMint field.
 func (r *mutationResolver) NinelivesMint(ctx context.Context, eoa *string, mint model.Mint) (string, error) {
-	panic(fmt.Errorf("not implemented: NinelivesMint - ninelivesMint"))
+	if eoa == nil {
+		return "", fmt.Errorf("empty eoa")
+	}
+	e := ethCommon.HexToAddress(*eoa)
+	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, e)
+	privKey, sender, err := db.PickPrivateKey(r.Db)
+	if err != nil {
+		slog.Error("error picking private key",
+			"err", err,
+		)
+		return "", fmt.Errorf("picking private key: %v", err)
+	}
+	f, err := CreateSolveArgsSigArgs(
+		r.AccPrivKey,
+		r.Fusdc,
+		mint.Market,
+		mint.Outcome,
+		mint.Amount,
+		mint.Referrer,
+		*eoa,
+		mint.Permit,
+		mint.MsTs,
+	)
+	h, err := client.SendArguments(
+		ctx,
+		r.Client,
+		r.ChainId,
+		privKey,
+		*sender,
+		clientAddr,
+		types.Args{
+			Enum: types.ArgsSolve,
+			Solve: types.Solve{
+				Slot: 0,
+				Args: []types.SolveArgsSigArgs{*f},
+			},
+		},
+		r.Dryrun,
+	)
+	if err != nil {
+		slog.Error("sending arguments",
+			"sender", sender,
+			"solve", f,
+			"err", err,
+		)
+		return "", fmt.Errorf("sending: %v", err)
+	}
+	return h.Hex(), nil
 }
 
 // Publickey is the resolver for the publickey field.

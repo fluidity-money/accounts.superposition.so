@@ -109,33 +109,32 @@ func NewPermit(
 	}, nil
 }
 
-func TagFreshBackwardsWithMint(
-	f *types.FreshBackwards,
+func CreateSolveArgsSigArgs(
 	priv ed25519.PrivateKey,
 	token [20]byte,
 	market, outcome, amount, referrer, recipient string,
 	permit *model.Permit,
 	msTs string,
-) error {
+) (*types.SolveArgsSigArgs, error) {
 	m, err := strToAddr(market)
 	if err != nil {
-		return fmt.Errorf("addr: %v", err)
+		return nil, fmt.Errorf("addr: %v", err)
 	}
 	o, err := strToBytes8(outcome)
 	if err != nil {
-		return fmt.Errorf("outcome: %v", err)
+		return nil, fmt.Errorf("outcome: %v", err)
 	}
 	a, err := strToBytes32(amount)
 	if err != nil {
-		return fmt.Errorf("amount: %v", err)
+		return nil, fmt.Errorf("amount: %v", err)
 	}
 	ref, err := strToAddr(referrer)
 	if err != nil {
-		return fmt.Errorf("referrer: %v", err)
+		return nil, fmt.Errorf("referrer: %v", err)
 	}
 	rec, err := strToAddr(recipient)
 	if err != nil {
-		return fmt.Errorf("sender: %v", err)
+		return nil, fmt.Errorf("sender: %v", err)
 	}
 	cd := ninelives.NewMint(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
@@ -149,7 +148,7 @@ func TagFreshBackwardsWithMint(
 	}
 	if permit != nil {
 		if permit.Deadline < 0 {
-			return fmt.Errorf("negative deadline")
+			return nil, fmt.Errorf("negative deadline")
 		}
 		d := uint64(permit.Deadline)
 		p, err := NewPermit(
@@ -160,21 +159,42 @@ func TagFreshBackwardsWithMint(
 			permit.PermitS,
 		)
 		if err != nil {
-			return fmt.Errorf("permit: %v", err)
+			return nil, fmt.Errorf("permit: %v", err)
 		}
 		solveArgs.Permit = append(solveArgs.Permit, *p)
 	}
 	solveArgsDigest, err := borsh.Serialize(solveArgs)
 	if err != nil {
-		return fmt.Errorf("making digest: %v", err)
+		return nil, fmt.Errorf("making digest: %v", err)
 	}
 	var sigArr [64]byte
 	sig := ed25519.Sign(priv, solveArgsDigest)
 	copy(sigArr[:], sig)
-	f.SolveArgs = append(f.SolveArgs, types.SolveArgsSigArgs{
+	return &types.SolveArgsSigArgs{
 		Sig:  sigArr,
 		Args: solveArgs,
-	})
+	}, nil
+}
+
+func TagFreshBackwardsWithMint(
+	f *types.FreshBackwards,
+	priv ed25519.PrivateKey,
+	token [20]byte,
+	market, outcome, amount, referrer, recipient string,
+	permit *model.Permit,
+	msTs string,
+) error {
+	m, err := CreateSolveArgsSigArgs(
+		priv,
+		token,
+		market, outcome, amount, referrer, recipient,
+		permit,
+		msTs,
+	)
+	if err != nil {
+		return err
+	}
+	f.SolveArgs = append(f.SolveArgs, *m)
 	return nil
 }
 

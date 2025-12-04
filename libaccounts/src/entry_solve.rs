@@ -60,7 +60,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
                 u64::MAX
             ));
         }
-        revert_if_bad_call_unit_vec!(call_unit_err_vec(target.0, &cd, &U::ZERO, u64::MAX));
+        revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(target.0, &cd, &U::ZERO, u64::MAX));
         for FromArgs {
             token, max_unspent, ..
         } in from

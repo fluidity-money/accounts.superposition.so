@@ -3,7 +3,9 @@ package client
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"math/big"
 
 	"github.com/fluidity-money/accounts.superposition.so/lib/types"
@@ -76,11 +78,20 @@ func SendArguments(
 		return nil, fmt.Errorf("signed: %v", err)
 	}
 	if dryrun {
-		_, err = c.CallContract(ctx, ethereum.CallMsg{
-			From: from,
-			To:   &to,
-			Data: b,
-		}, nil)
+		resp, err := c.CallContract(ctx,
+			ethereum.CallMsg{
+				From: from,
+				To:   &to,
+				Data: b,
+			},
+			nil,
+		)
+		slog.Info("call contract results",
+			"resp", hex.EncodeToString(resp),
+			"to", to,
+			"from", from,
+			"cd", hex.EncodeToString(b),
+		)
 		if err != nil {
 			return nil, fmt.Errorf("dryrun simulate: %v", err)
 		}
