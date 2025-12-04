@@ -130,6 +130,8 @@ VALUES ($1, $2, $3)`,
 
 // RequestSecret is the resolver for the requestSecret field.
 func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) (string, error) {
+	// We validate that the user has signed this request and that they're not
+	// reusing the nonce, then we generate a new secret and send it to them.
 	panic(fmt.Errorf("not implemented: RequestSecret - requestSecret"))
 }
 

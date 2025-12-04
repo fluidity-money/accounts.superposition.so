@@ -88,7 +88,7 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		row := a.db.QueryRow(`
 SELECT salt
 FROM accounts_secrets_1
-WHERE eoa_addr = $1`,
+WHERE eoa_addr = $1 AND valid_until > CURRENT_TIMESTAMP`,
 			eoaPreferred,
 		)
 		var salt string

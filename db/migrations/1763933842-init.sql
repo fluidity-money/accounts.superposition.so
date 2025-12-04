@@ -36,7 +36,8 @@ CREATE TABLE accounts_secrets_1 (
 	-- account. This is the digest of the Argon2id hashing we do.
 	priv_key VARCHAR NOT NULL,
 	-- Salt for this address.
-	salt VARCHAR(16) NOT NULL
+	salt VARCHAR(16) NOT NULL,
+	valid_until TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + interval '1 month'
 );
 
 -- Unsent transcations that need executing. The timestamp is provided by the end user and ensured
