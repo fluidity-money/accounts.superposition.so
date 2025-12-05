@@ -2,6 +2,7 @@ use alloc::vec::Vec;
 
 use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec},
+    console::console,
     entry::{contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec},
     interfaces::{
         eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
@@ -19,6 +20,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     let ed_owner =
         VerifyingKey::from_bytes(storage::ed25519_slot::get(&owner.into()).as_slice()).unwrap();
     for SolveArgsSigArgs { sig, args } in args {
+        console!(sig.clone());
         let sig = Signature::from_bytes(&sig.0);
         ed_owner
             .verify_strict(&borsh::to_vec(&args).unwrap(), &sig)

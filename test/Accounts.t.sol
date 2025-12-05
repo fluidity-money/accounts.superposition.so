@@ -33,20 +33,19 @@ contract TestAccounts is Test {
         );
         erc20 = new TestErc20();
         target = new TestTarget();
-        string[] memory x = new string[](4);
+    }
+
+    function test_userFlow() public {
+        string[] memory x = new string[](3);
         x[0] = "./accounts-cli.out";
         x[1] = "sign-fresh";
-        x[2] = "1";
-        x[3] = vm.toString(address(this));
+        x[2] = "0";
         bytes memory cd = vm.parseBytes(vm.toString(vm.ffi(x)));
         (bool rc, bytes memory rd) = accounts.call(cd);
         assert(rc);
         client = abi.decode(rd, (address));
         assertNotEq(address(0), client);
-    }
-
-    function test_userFlow() public {
-        string[] memory x = new string[](8);
+        x = new string[](8);
         x[0] = "./accounts-cli.out";
         x[1] = "sign-token-spend";
         x[2] = "1";
@@ -56,8 +55,8 @@ contract TestAccounts is Test {
         x[6] = vm.toString(address(target));
         // The invoke selector:
         x[7] = "0xcab7f521";
-        bytes memory cd = vm.parseBytes(vm.toString(vm.ffi(x)));
-        (bool rc, bytes memory rd) = accounts.call(cd);
+        cd = vm.parseBytes(vm.toString(vm.ffi(x)));
+        (rc, rd) = accounts.call(cd);
         if (!rc) {
             assembly {
                 rd := add(rd, 4)

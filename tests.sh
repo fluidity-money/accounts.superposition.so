@@ -4,4 +4,4 @@
 
 make accounts.superposition.so.wasm
 
-arbos-forge test -vv --ffi $@
+arbos-forge test --stylus-debug -vv --ffi $@

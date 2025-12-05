@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 size="$(du "$1" | cut -f1)"
 

@@ -43,7 +43,7 @@ enum CliArgs {
     SignFresh {
         #[arg(value_parser = U::from_str)]
         priv_key: U,
-        solve_args: Vec<SolveArgs>,
+        solve_args: Option<Vec<SolveArgs>>,
     },
     SignSolve {
         #[arg(value_parser = U::from_str)]
@@ -72,6 +72,7 @@ fn entry(x: CliArgs) {
         } => {
             let k = SigningKey::from_bytes(&priv_key.0);
             let solve_args = solve_args
+                .unwrap_or(vec![])
                 .into_iter()
                 .map(|args| SolveArgsSigArgs {
                     sig: Sig(SigningKey::sign(&k, &borsh::to_vec(&args).unwrap()).to_bytes()),
