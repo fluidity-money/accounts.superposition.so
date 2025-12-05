@@ -70,12 +70,14 @@ func SendArguments(
 		new(big.Int).Mul(baseFee, big.NewInt(2)),
 	)
 	baseTx := ethTypes.DynamicFeeTx{
+		ChainID: chainId,
 		Nonce:     nonce,
 		GasFeeCap: gasFeeCap,
 		GasTipCap: gasTipCap,
 		Gas:       gasLimit,
 		Value:     new(big.Int),
 		Data:      b,
+		To:        &to,
 	}
 	unsigned := ethTypes.NewTx(&baseTx)
 	signer := ethTypes.NewLondonSigner(chainId)

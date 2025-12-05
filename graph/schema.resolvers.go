@@ -196,7 +196,7 @@ func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
 
 // EoaForAddress is the resolver for the eoaForAddress field.
 func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (string, error) {
-	if ethCommon.IsHexAddress(address) {
+	if !ethCommon.IsHexAddress(address) {
 		return "", fmt.Errorf("not address")
 	}
 	e := ethCommon.HexToAddress(address)

@@ -69,8 +69,8 @@ const (
 )
 
 type authMiddleware struct {
-	db  *sql.DB
-	srv http.Handler
+	db          *sql.DB
+	srv         http.Handler
 	adminSecret string
 }
 
@@ -160,7 +160,7 @@ func main() {
 		log.Fatalf("chain id not set")
 	}
 	accountsFactoryAddrS := os.Getenv(EnvAccountsFactoryAddr)
-	if accountsFactoryAddrS == "" {
+	if !ethCommon.IsHexAddress(accountsFactoryAddrS) {
 		log.Fatal("accounts factory addr not set")
 	}
 	accountsFactoryAddr := ethCommon.HexToAddress(accountsFactoryAddrS)
@@ -180,7 +180,7 @@ func main() {
 		AccountsFactoryAddr: accountsFactoryAddr,
 		AccPrivKey:          accPrivKey,
 		AccPubKey:           accPubKey,
-		Fusdc: fusdc,
+		Fusdc:               fusdc,
 		Dryrun:              dryrun,
 	}}))
 	srv.AddTransport(transport.Options{})

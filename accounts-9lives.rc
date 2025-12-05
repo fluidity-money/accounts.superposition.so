@@ -66,7 +66,6 @@ fn onboard {
 		ms_ts=`{date +%s%3N}
 		permit_obj=''
 		if(~ $should_permit yes) {
-			echo $usdc_dadr $sender_pub_addr
 			nonce=`{call $usdc_addr 'nonces(address)(uint256)' $sender_pub_addr | cut -f1 -d' '}
 			deadline=`{echo `{date +%s}' + 3600' | bc}
 			permit=`{make-permit $SPN_SUPERPOSITION_KEY $accounts_addr $nonce $usdc_addr $deadline}
