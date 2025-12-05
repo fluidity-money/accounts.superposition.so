@@ -63,6 +63,9 @@ const (
 
 	// EnvAdminSecret to use for users to perform administrative actions with.
 	EnvAdminSecret = "SPN_ADMIN_SECRET"
+
+	// EnvFusdcAddr to use to work with permit.
+	EnvFusdcAddr = "SPN_FUSDC_ADDR"
 )
 
 type authMiddleware struct {
@@ -167,6 +170,7 @@ func main() {
 	}
 	adminSecret := os.Getenv(EnvAdminSecret)
 	dryrun := os.Getenv(EnvDryrun) != ""
+	fusdc := ethCommon.HexToAddress(os.Getenv(EnvFusdcAddr))
 	accPrivKey := ed25519.PrivateKey(accPrivKeyB)
 	accPubKey, _ := accPrivKey.Public().(ed25519.PublicKey)
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
@@ -176,6 +180,7 @@ func main() {
 		AccountsFactoryAddr: accountsFactoryAddr,
 		AccPrivKey:          accPrivKey,
 		AccPubKey:           accPubKey,
+		Fusdc: fusdc,
 		Dryrun:              dryrun,
 	}}))
 	srv.AddTransport(transport.Options{})

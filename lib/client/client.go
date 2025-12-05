@@ -43,7 +43,13 @@ func SendArguments(
 		Data: b,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("estimate gas: %v", err)
+		return nil, fmt.Errorf(
+			"estimate gas: to: %x, from: %x, data %x, %v",
+			to,
+			from,
+			b,
+			err,
+		)
 	}
 	gasLimit += uint64(float64(gasLimit) * 0.15)
 	header, err := c.HeaderByNumber(context.Background(), nil)
