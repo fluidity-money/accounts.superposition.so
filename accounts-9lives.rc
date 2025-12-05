@@ -2,7 +2,7 @@
 
 usdc_addr=0x6c030c5CC283F791B26816f325b9C632d964F8A1
 accounts_graph_addr=https://accounts.superposition.so
-accounts_addr=0x4deb57efe97e2be14772fafe68773e96c75823eb
+accounts_addr=0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2
 
 prog=`{basename $0}
 

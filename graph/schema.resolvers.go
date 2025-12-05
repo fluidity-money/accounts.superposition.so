@@ -107,7 +107,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	keyX := hex.EncodeToString(key)
 	if !r.Dryrun {
 		_, err = r.Db.Exec(`
-INSERT INTO accounts_secrets_1 (eoa_addr, priv_key salt)
+INSERT INTO accounts_secrets_1 (eoa_addr, priv_key, salt)
 VALUES ($1, $2, $3)`,
 			eoa.String(),
 			keyX,

@@ -36,6 +36,11 @@ binary for deployment.
 
 3. Rust with wasm32-unknown-unknown.
 
+## Deployments
+
+`0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the accounts factory.
+`0x4DeB57eFe97e2bE14772FAfe68773E96c75823EB` is the implementation.
+
 ## Building
 
 	make
