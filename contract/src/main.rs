@@ -2,7 +2,8 @@
 #![no_std]
 
 use bobcat_sdk::{
-    entry::read_args_vec, proxy::SEL_MIGRATE, storage::reentrancy_guard_const_keccak,
+    cd::read_words, entry::read_args_vec, proxy::SEL_MIGRATE,
+    storage::reentrancy_guard_const_keccak,
 };
 
 use borsh::de::BorshDeserialize;
@@ -19,9 +20,10 @@ pub type OurLzss = lzss::Lzss<12, 11, 0, { 1 << 12 }, { 2 << 12 }>;
 pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
     let args = read_args_vec(len);
     if args[..4] == SEL_MIGRATE {
-        // Someone is migrating a client proxy! We need to call a special
-        // function here, and skip the usual entrypoint.
-        return entry_migrate();
+        // Someone is migrating a client proxy as this contract called itself! We
+        // need to call a special function here, and skip the usual entrypoint.
+        let (ed_key, eoa_owner) = read_words!(&args[4..], 2);
+        return entry_migrate(ed_key, eoa_owner);
     }
     reentrancy_guard_const_keccak(b"superposition.accounts", || {
         entry(

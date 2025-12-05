@@ -7,24 +7,23 @@ use bobcat_sdk::{
     maths::U,
     precompiles::ecrecover,
     proxy::{make_metamorphic_proxy, SEL_MIGRATE},
-    storage::transient_store,
 };
 
 use crate::{entry_solve, ArgsAddr, SolveArgsSigArgs};
 
-use ed25519_dalek::VerifyingKey;
+use array_concat::concat_arrays;
 
 pub fn entry_fresh(pub_key: U, solve_args: Vec<SolveArgsSigArgs>) -> usize {
-    let pub_key = VerifyingKey::from_bytes(pub_key.as_slice()).unwrap();
     let proxy = create2_pre_unit(
         &make_metamorphic_proxy(contract_address()),
         U::ZERO,
         &msg_sender(),
     )
     .unwrap();
-    transient_store(&U::ZERO, &pub_key.to_bytes().into());
+    let migrate_cd: [u8; 4 + 32 * 2] =
+        concat_arrays!(SEL_MIGRATE, pub_key.0, U::from(msg_sender()).0);
     assert!(
-        call_unit(proxy, &SEL_MIGRATE, &U::ZERO, u64::MAX),
+        call_unit(proxy, &migrate_cd, &U::ZERO, u64::MAX),
         "bad migration"
     );
     // After we've invoked the function again, we need to send it Solve:
@@ -44,16 +43,16 @@ pub fn entry_fresh_backwards(
     solve_args: Vec<SolveArgsSigArgs>,
 ) -> usize {
     assert_eq!(eoa_addr.0, ecrecover(pub_key, v, r, s, u64::MAX).unwrap());
-    let pub_key = VerifyingKey::from_bytes(pub_key.as_slice()).unwrap();
     let proxy = create2_pre_unit(
         &make_metamorphic_proxy(contract_address()),
         U::ZERO,
         &msg_sender(),
     )
     .unwrap();
-    transient_store(&U::ZERO, &pub_key.to_bytes().into());
+    let migrate_cd: [u8; 4 + 32 * 2] =
+        concat_arrays!(SEL_MIGRATE, pub_key.0, [0u8; 32 - 20], eoa_addr.0);
     assert!(
-        call_unit(proxy, &SEL_MIGRATE, &U::ZERO, u64::MAX),
+        call_unit(proxy, &migrate_cd, &U::ZERO, u64::MAX),
         "bad migration"
     );
     // After we've invoked the function again, we need to send it Solve:

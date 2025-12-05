@@ -3,6 +3,10 @@
 
 .DELETE_ON_ERROR:
 
+comma := ,
+CARGO_EXTRA_FEATURES := \
+	$(if ${SPN_PANIC_REVERT},--features panic-revert)
+
 build: accounts.superposition.so.wasm accounts-cli.out frontend bootstrap.zip
 
 accounts.superposition.so.wasm: $(shell find Cargo.* contract libaccounts -type f)

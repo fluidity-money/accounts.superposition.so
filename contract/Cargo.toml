@@ -9,9 +9,10 @@ name = "contract"
 
 [features]
 std = ["bobcat-sdk/std"]
+panic-revert = ["libaccounts/panic-revert"]
 
 [dependencies]
-bobcat-sdk = { workspace = true, features = ["panic-revert", "msg-on-sdk-err"] }
+bobcat-sdk = { workspace = true, features = ["panic"] }
 borsh.workspace = true
 libaccounts = { version = "0.1.0", path = "../libaccounts" }
 lzss.workspace = true

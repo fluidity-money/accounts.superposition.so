@@ -39,7 +39,7 @@ contract TestAccounts is Test {
         string[] memory x = new string[](3);
         x[0] = "./accounts-cli.out";
         x[1] = "sign-fresh";
-        x[2] = "0";
+        x[2] = "1";
         bytes memory cd = vm.parseBytes(vm.toString(vm.ffi(x)));
         (bool rc, bytes memory rd) = accounts.call(cd);
         assert(rc);
@@ -56,7 +56,7 @@ contract TestAccounts is Test {
         // The invoke selector:
         x[7] = "0xcab7f521";
         cd = vm.parseBytes(vm.toString(vm.ffi(x)));
-        (rc, rd) = accounts.call(cd);
+        (rc, rd) = client.call(cd);
         if (!rc) {
             assembly {
                 rd := add(rd, 4)

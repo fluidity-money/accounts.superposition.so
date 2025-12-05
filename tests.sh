@@ -2,6 +2,8 @@
 
 # cargo test --features std
 
-make accounts.superposition.so.wasm
+export SPN_PANIC_REVERT=yes
 
-arbos-forge test --stylus-debug -vv --ffi $@
+make -B accounts.superposition.so.wasm
+
+arbos-forge test --stylus-debug -vvv --ffi $@

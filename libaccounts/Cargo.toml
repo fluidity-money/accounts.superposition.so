@@ -8,6 +8,7 @@ license = "MIT"
 
 [features]
 std = ["bobcat-sdk/serde", "clap"]
+panic-revert = ["bobcat-sdk/panic-revert"]
 
 [dependencies]
 array-concat.workspace = true
