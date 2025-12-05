@@ -1,19 +1,24 @@
-use bobcat_sdk::maths::U;
+use bobcat_sdk::{
+    maths::U,
+    storage::{const_slot_off_curve, storage_store},
+};
 
 use crate::storage;
 
-pub fn entry_migrate(ed_key: &U, evm_owner: &U) -> usize {
-    // This function migrates the contract's storage to a v1 form
-    // (currently). Aka, it sets a storage field that says this contract can
-    // only be used by a pair of addresses.
+const SLOT_IMPL: U = const_slot_off_curve(b"eip1967.proxy.implementation");
+
+pub fn entry_migrate(ed_key: &U, evm_owner: &U, impl_addr: &U) -> usize {
+    // V1 migration function, setting up the contract state:
+    assert!(ed_key.is_some(), "zero ed");
+    assert!(evm_owner.is_some(), "zero evm owner");
+    assert!(impl_addr.is_some(), "zero impl addr");
     assert!(
         storage::ed25519_slot::get(&U::ZERO).is_zero(),
         "slot 0 is not empty"
     );
-    // In this function, we use transient storage to load the key that's used
-    // for the first time and the sender.
     storage::ed25519_slot::set(&U::ZERO, &ed_key);
     storage::ed25519_count::set(&U::ONE);
     storage::ethereum_owner::set(&evm_owner);
+    storage_store(&SLOT_IMPL, &impl_addr);
     0
 }

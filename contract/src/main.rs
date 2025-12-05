@@ -2,8 +2,10 @@
 #![no_std]
 
 use bobcat_sdk::{
-    cd::read_words, entry::read_args_vec, proxy::SEL_MIGRATE,
-    storage::reentrancy_guard_const_keccak,
+    cd::read_words,
+    entry::read_args_vec,
+    proxy::SEL_MIGRATE,
+    storage::{flush_guard, reentrancy_guard_const_keccak},
 };
 
 use borsh::de::BorshDeserialize;
@@ -18,25 +20,29 @@ pub type OurLzss = lzss::Lzss<12, 11, 0, { 1 << 12 }, { 2 << 12 }>;
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
-    let args = read_args_vec(len);
-    if args[..4] == SEL_MIGRATE {
-        // Someone is migrating a client proxy as this contract called itself! We
-        // need to call a special function here, and skip the usual entrypoint.
-        let (ed_key, eoa_owner) = read_words!(&args[4..], 2);
-        return entry_migrate(ed_key, eoa_owner);
-    }
-    reentrancy_guard_const_keccak(b"superposition.accounts", || {
-        entry(
-            Args::deserialize(
-                &mut OurLzss::decompress_stack(
-                    lzss::SliceReader::new(&args),
-                    lzss::VecWriter::with_capacity(1024 * 2),
+    flush_guard(|| {
+        let args = read_args_vec(len);
+        if args[..4] == SEL_MIGRATE {
+            // Someone is migrating a client proxy as this contract called itself! We
+            // need to call a special function here, and skip the usual entrypoint.
+            let (ed_key, eoa_owner, impl_addr) = read_words!(&args[4..], 3);
+            // We could probably reduce gas consumption here by mining the deployment
+            // address when this is invoked. But it's hard to maintain.
+            return entry_migrate(ed_key, eoa_owner, impl_addr);
+        }
+        reentrancy_guard_const_keccak(b"superposition.accounts", || {
+            entry(
+                Args::deserialize(
+                    &mut OurLzss::decompress_stack(
+                        lzss::SliceReader::new(&args),
+                        lzss::VecWriter::with_capacity(1024 * 2),
+                    )
+                    .unwrap()
+                    .as_slice(),
                 )
-                .unwrap()
-                .as_slice(),
+                .unwrap(),
             )
-            .unwrap(),
-        )
+        })
     })
 }
 
