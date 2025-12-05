@@ -23,8 +23,7 @@ pub fn entry_fresh(pub_key: U, solve_args: Vec<SolveArgsSigArgs>) -> usize {
         &msg_sender(),
     )
     .unwrap();
-    //let impl_addr = storage_load(&SLOT_IMPL);
-    let impl_addr: U = contract_address().into();
+    let impl_addr = storage_load(&SLOT_IMPL);
     let migrate_cd: [u8; 4 + 32 * 3] =
         concat_arrays!(SEL_MIGRATE, pub_key.0, U::from(msg_sender()).0, impl_addr.0);
     assert!(
