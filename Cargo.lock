@@ -111,7 +111,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-call"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "391e4de40aca3d65560458b763efd590f1a193d75eaa47542cb01acf0352eff1"
 dependencies = [
  "bobcat-entry",
  "bobcat-maths",
@@ -121,7 +123,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-cd"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4fddde955018ab326e6d3235f779f3ff8fd6526dc98186293c3f6c41eb6f429"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -131,11 +135,15 @@ dependencies = [
 
 [[package]]
 name = "bobcat-console"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d212eeadb2ee51a7e98ef558b8dcaff6948a6d18f419685eb91492321de21824"
 
 [[package]]
 name = "bobcat-create"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f042bd2a0706ee321ae4b64064917ba7f1142e3aafe6a65badecd846e526735a"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -145,7 +153,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-entry"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9da2da15b5aed27df0d89b898b54883c670b81760bf85049b3923908b604a6e1"
 dependencies = [
  "bobcat-cd",
  "bobcat-maths",
@@ -154,7 +164,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-events"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ecfce41798aba04d59c869a6c7b9915555729837dc6c4f7bffb52a55c9ed76f"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -162,7 +174,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-interfaces"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5478009e7e8e95df364604c52c158e1a75ef47e1017505efcccb008f5344c0d4"
 dependencies = [
  "array-concat",
  "bobcat-cd",
@@ -173,7 +187,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-maths"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "282b436ceaecf157af9d515867fffd37c184eb4cf141bc7790d278517a9799ef"
 dependencies = [
  "array-concat",
  "bobcat-panic",
@@ -189,7 +205,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-panic"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c82ff7f3bbaaa20c0d4a9584df536ee4e99b922ddd6c0f786ebe52fc2b948f8"
 dependencies = [
  "const-hex",
  "paste",
@@ -198,7 +216,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-precompiles"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "508a8be6c542b564683f520e667765b5f4ca8d0e78b2504d60e766a80da93169"
 dependencies = [
  "array-concat",
  "bobcat-call",
@@ -207,7 +227,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-proxy"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "055cd4feb2fcc4f5dc3d47821c309b5c9d28e7cf8d942407371a345f6e98d0fa"
 dependencies = [
  "array-concat",
  "bobcat-interfaces",
@@ -217,7 +239,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-sdk"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba4fbaef45d8ee797cf3146d20b2336a1b7f35aae534942c0e0143e9aa0e80a2"
 dependencies = [
  "bobcat-call",
  "bobcat-cd",
@@ -235,7 +259,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-storage"
-version = "0.7.2"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da4e0d04d973a5d15c6bcae8d0bfadb31ba5b79aeca38314ae6f5a17aadeeeef"
 dependencies = [
  "array-concat",
  "bobcat-maths",
