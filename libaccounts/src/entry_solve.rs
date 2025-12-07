@@ -80,7 +80,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
                 u64::MAX,
             ));
             assert!(
-                max_unspent >= bal,
+                bal >= max_unspent,
                 "max unspent exceeds: {max_unspent}, {bal}"
             );
         }

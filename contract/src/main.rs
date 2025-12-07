@@ -16,10 +16,9 @@ static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
 
 use libaccounts::{entry, entry_migrate::entry_migrate, Args};
 
-pub type OurLzss = lzss::Lzss<12, 11, 0, { 1 << 12 }, { 2 << 12 }>;
-
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
+    bobcat_sdk::events::emit!(123u32, 213u32);
     flush_guard(|| {
         let args = read_args_vec(len);
         if args[..4] == SEL_MIGRATE {
@@ -31,17 +30,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
             return entry_migrate(ed_key, eoa_owner, impl_addr);
         }
         reentrancy_guard_const_keccak(b"superposition.accounts", || {
-            entry(
-                Args::deserialize(
-                    &mut OurLzss::decompress_stack(
-                        lzss::SliceReader::new(&args),
-                        lzss::VecWriter::with_capacity(1024 * 2),
-                    )
-                    .unwrap()
-                    .as_slice(),
-                )
-                .unwrap(),
-            )
+            entry(Args::deserialize(&mut args.as_slice()).unwrap())
         })
     })
 }

@@ -21,8 +21,6 @@ use core::{
 
 use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
 
-pub type OurLzss = lzss::Lzss<12, 11, 0, { 1 << 12 }, { 2 << 12 }>;
-
 use entry_fresh::{entry_fresh, entry_fresh_backwards};
 use entry_solve::entry_solve;
 

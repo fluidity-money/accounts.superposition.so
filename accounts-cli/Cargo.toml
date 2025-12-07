@@ -15,5 +15,4 @@ clap = { version = "4.5.53", features = ["derive"] }
 const-hex.workspace = true
 ed25519-dalek.workspace = true
 libaccounts = { version = "0.1.0", path = "../libaccounts" }
-lzss.workspace = true
 mini-alloc.workspace = true

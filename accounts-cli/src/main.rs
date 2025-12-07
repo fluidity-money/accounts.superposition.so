@@ -4,7 +4,7 @@ use bobcat_sdk::maths::U;
 
 use ed25519_dalek::{Signer, SigningKey};
 
-use libaccounts::{Args, ArgsAddr, FromArgs, OurLzss, Sig, SolveArgs, SolveArgsSigArgs};
+use libaccounts::{Args, ArgsAddr, FromArgs, Sig, SolveArgs, SolveArgsSigArgs};
 
 use core::{
     fmt::{Display, Formatter},
@@ -150,12 +150,5 @@ fn main() {
 }
 
 fn create_blob(x: &[u8]) -> String {
-    const_hex::encode(
-        &OurLzss::compress_stack(
-            lzss::SliceReader::new(x),
-            lzss::VecWriter::with_capacity(1024 * 2),
-        )
-        .unwrap()
-        .as_slice(),
-    )
+    const_hex::encode(x)
 }

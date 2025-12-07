@@ -3,9 +3,8 @@ members = ["accounts-cli","contract", "libaccounts"]
 resolver = "3"
 
 [workspace.dependencies]
-bobcat-sdk = { version = "0.7.3", features = ["alloc", "serde", "borsh"] }
+bobcat-sdk = { version = "0.7.4", features = ["alloc", "serde", "borsh", "panic-revert"] }
 borsh = { version = "1.5.7", default-features = false }
-lzss = { version = "0.9.1", default-features = false, features = ["alloc", "safe"] }
 mini-alloc = { version = "1.0.0", default-features = false }
 ed25519-dalek = { version = "2.1.1", default-features = false, features = ["digest"] }
 array-concat = "0.5.5"
