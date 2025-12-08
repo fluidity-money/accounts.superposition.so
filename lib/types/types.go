@@ -7,15 +7,13 @@ import (
 )
 
 const (
-	ArgsFresh borsh.Enum = iota
-	ArgsFreshBackwards
+	ArgsFreshBackwards borsh.Enum = iota
 	ArgsSolve
 )
 
 type (
 	Args struct {
 		Enum borsh.Enum `borsh_enum:"true"`
-		Fresh
 		FreshBackwards
 		Solve
 	}
@@ -45,11 +43,6 @@ type (
 	SolveArgsSigArgs struct {
 		Sig [64]byte
 		Args SolveArgs
-	}
-
-	Fresh struct {
-		Key       [32]byte
-		SolveArgs []SolveArgsSigArgs
 	}
 
 	FreshBackwards struct {
