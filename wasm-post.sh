@@ -14,13 +14,8 @@ wasm-opt \
 	--strip \
 	-Oz \
 	"$1" \
-	-o "$f.wasm1"
+	-o $f.wasm1
 
 wasm2wat -o $f.wat $f.wasm1
 
-# We also strip the developer's path from the final result if they use
-# panic-revert:
-
-sed -i "s@$(pwd)@/n@g" $f.wat
-
-wat2wasm -o accounts.superposition.so.wasm $f.wat
+wat2wasm -o $2 $f.wat

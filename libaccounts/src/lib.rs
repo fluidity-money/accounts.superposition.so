@@ -21,7 +21,7 @@ use core::{
 
 use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
 
-use entry_fresh::{entry_fresh, entry_fresh_backwards};
+use entry_fresh::entry_fresh_backwards;
 use entry_solve::entry_solve;
 
 type Address = [u8; 20];
@@ -165,12 +165,6 @@ pub struct SolveArgsSigArgs {
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
 pub enum Args {
-    /// Create a new account and execute some calldata given. The sender
-    /// simply passes on the ed25519 sender address.
-    Fresh {
-        key: U,
-        solve_args: Vec<SolveArgsSigArgs>,
-    },
     /// Take a signature from a EVM EOA user that a ed25519 public key is
     /// authorised to spend on its behalf. Useful in a programmatic setup
     /// context.
@@ -191,7 +185,6 @@ pub enum Args {
 
 pub fn entry(x: Args) -> usize {
     match x {
-        Args::Fresh { key, solve_args } => entry_fresh(key, solve_args),
         Args::FreshBackwards {
             key,
             eoa_addr,

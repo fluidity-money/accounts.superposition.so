@@ -18,7 +18,6 @@ use libaccounts::{entry, entry_migrate::entry_migrate, Args};
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
-    bobcat_sdk::events::emit!(123u32, 213u32);
     flush_guard(|| {
         let args = read_args_vec(len);
         if args[..4] == SEL_MIGRATE {

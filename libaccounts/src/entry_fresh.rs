@@ -5,7 +5,7 @@ use bobcat_sdk::{
     create::create2_pre_unit,
     entry::{contract_address, msg_sender, write_result_word},
     maths::U,
-    precompiles::ecrecover,
+    precompiles::ethereum::ecrecover,
     proxy::{make_metamorphic_proxy, SEL_MIGRATE},
     storage::{const_slot_off_curve, storage_load},
 };
@@ -15,30 +15,6 @@ use crate::{entry_solve, ArgsAddr, SolveArgsSigArgs};
 use array_concat::concat_arrays;
 
 const SLOT_IMPL: U = const_slot_off_curve(b"eip1967.proxy.implementation");
-
-pub fn entry_fresh(pub_key: U, solve_args: Vec<SolveArgsSigArgs>) -> usize {
-    let proxy = create2_pre_unit(
-        &make_metamorphic_proxy(contract_address()),
-        U::ZERO,
-        &msg_sender(),
-    )
-    .unwrap();
-    let impl_addr = storage_load(&SLOT_IMPL);
-    let migrate_cd: [u8; 4 + 32 * 3] =
-        concat_arrays!(SEL_MIGRATE, pub_key.0, U::from(msg_sender()).0, impl_addr.0);
-    assert!(
-        call_unit(proxy, &migrate_cd, &U::ZERO, u64::MAX),
-        "bad migration"
-    );
-    if !solve_args.is_empty() {
-        // After we've invoked the function again, we need to send it Solve:
-        if entry_solve(0, solve_args) != 0 {
-            return 1;
-        }
-    }
-    write_result_word(&proxy.into());
-    0
-}
 
 pub fn entry_fresh_backwards(
     pub_key: U,

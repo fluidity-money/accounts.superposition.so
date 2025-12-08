@@ -40,9 +40,17 @@ impl core::error::Error for ErrArgsBytes {}
 #[derive(Parser, Debug, Clone, PartialEq)]
 #[command(version, about)]
 enum CliArgs {
-    SignFresh {
+    PubKeyForPriv {
         #[arg(value_parser = U::from_str)]
         priv_key: U,
+    },
+    SignFreshBackwards {
+        #[arg(value_parser = U::from_str)]
+        priv_key: U,
+        eoa_addr: ArgsAddr,
+        v: u8,
+        r: U,
+        s: U,
         solve_args: Option<Vec<SolveArgs>>,
     },
     SignSolve {
@@ -66,8 +74,16 @@ enum CliArgs {
 
 fn entry(x: CliArgs) {
     match x {
-        CliArgs::SignFresh {
+        CliArgs::PubKeyForPriv { priv_key } => {
+            let k = SigningKey::from_bytes(&priv_key.0);
+            println!("0x{}", const_hex::encode(k.verifying_key().as_bytes()));
+        },
+        CliArgs::SignFreshBackwards {
             priv_key,
+            eoa_addr,
+            v,
+            r,
+            s,
             solve_args,
         } => {
             let k = SigningKey::from_bytes(&priv_key.0);
@@ -82,8 +98,12 @@ fn entry(x: CliArgs) {
             println!(
                 "0x{}",
                 create_blob(
-                    &borsh::to_vec(&Args::Fresh {
+                    &borsh::to_vec(&Args::FreshBackwards {
                         key: U(*k.verifying_key().as_bytes()),
+                        eoa_addr,
+                        v,
+                        r,
+                        s,
                         solve_args,
                     })
                     .unwrap()
