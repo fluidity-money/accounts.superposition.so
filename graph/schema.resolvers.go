@@ -78,7 +78,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			"fresh backwards", f,
 			"err", err,
 		)
-		return nil, fmt.Errorf("send arguments: %v", err)
+		return nil, fmt.Errorf("send arguments: fresh backwards %+v: %v", f, err)
 	}
 	// We can tolerate a situation where the request drops off here due to a
 	// issue with the database, since the frontend willpresumably greedily

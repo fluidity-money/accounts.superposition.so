@@ -41,6 +41,22 @@ contract TestAccounts is Test {
         vm.store(accounts, slotImpl, bytes32(uint256(uint160(accounts))));
     }
 
+
+    function test_online() public {
+        vm.createSelectFork("https://rpc.superposition.so");
+        address mainnet = 0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2;
+        assertEq(mainnet.codehash, accounts.codehash);
+        vm.prank(0xBDD97993f4A72559461D63FbAA7Aa4C4A47D4d0B);
+        (bool rc, bytes memory rd) = mainnet.call(hex"008ba4c056a9ccd6e140b6aff29ca7c170d3a4c4cf9891cfd0390930a58542b1e0c5f336b6c332ce756100d466ca19c67291e90a831c48f8e66443f06154d4939253704c27544dd5ed517fb59f61512d9b01c85e46b34f597cc5dd5ef5d2634f8f16ca83069d941410c808d3ccfadb1e49d40969778300000000");
+        if (!rc) {
+            assembly {
+                rd := add(rd, 4)
+                mstore(rd, sub(mload(rd), 4))
+            }
+            string memory errorMessage = abi.decode(rd, (string));
+            revert(errorMessage);
+        }
+    }
     function test_fuzzUserFlow(uint256 key) public {
         vm.assume(key > 0 && key < CURVE_MAX);
         Vm.Wallet memory wallet = vm.createWallet(key);
