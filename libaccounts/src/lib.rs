@@ -21,6 +21,9 @@ use core::{
 
 use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
 
+#[cfg(feature = "arbitrary")]
+use arbitrary::Arbitrary;
+
 use entry_fresh::entry_fresh_backwards;
 use entry_solve::entry_solve;
 
@@ -36,6 +39,7 @@ type Address = [u8; 20];
     SerdeSerialize,
     SerdeDeserialize,
 )]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct ArgsAddr(pub Address);
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -63,6 +67,7 @@ impl FromStr for ArgsAddr {
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Permit {
     pub token: ArgsAddr,
     pub deadline: u64,
@@ -93,6 +98,7 @@ impl FromStr for Permit {
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct FromArgs {
     pub token: ArgsAddr,
     pub to_take: U,
@@ -121,6 +127,7 @@ impl FromStr for FromArgs {
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct SolveArgs {
     pub permit: Vec<Permit>,
     pub from: Vec<FromArgs>,
@@ -151,11 +158,13 @@ impl FromStr for SolveArgs {
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Sig(#[serde(with = "const_hex")] pub [u8; 64]);
 
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct SolveArgsSigArgs {
     pub sig: Sig,
     pub args: SolveArgs,
@@ -164,6 +173,7 @@ pub struct SolveArgsSigArgs {
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub enum Args {
     /// Take a signature from a EVM EOA user that a ed25519 public key is
     /// authorised to spend on its behalf. Useful in a programmatic setup

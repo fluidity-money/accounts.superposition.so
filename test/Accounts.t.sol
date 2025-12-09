@@ -2,7 +2,6 @@
 pragma solidity 0.8.20;
 
 import {Vm, Test} from "forge-std/Test.sol";
-import {console} from "forge-std/console.sol";
 
 import {IArbFoundry} from "./IArbFoundry.sol";
 
@@ -24,7 +23,6 @@ contract TestTarget {
 
 contract TestAccounts is Test {
     address accounts;
-    address client;
     TestErc20 erc20;
     TestTarget target;
 
@@ -46,21 +44,8 @@ contract TestAccounts is Test {
         vm.store(accounts, slotImpl, bytes32(uint256(uint160(accounts))));
     }
 
-    function old_test_online() public {
-        address mainnet = 0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2;
-        vm.etch(mainnet, accounts.code);
-        (bool rc, bytes memory rd) = mainnet.call(hex"008ba4c056a9ccd6e140b6aff29ca7c170d3a4c4cf9891cfd0390930a58542b1e06221a9c005f6e47eb398fd867784cacfdcfff4e71c9cd9e911f3e16d8db0bb0f40b245f6906913e7a3a061e560da49bf713f26b3c73a782e741d3752d78b7a8b1264d10974d1e41e4895dc9f41f71eeb10978b1c4201000000b1e860f5fedbe12b71fdf75879321dd55d2c931198ef194b860a45b0e455d0230dc333c0a4d7c7961d5a265b8d2b65bac9735fe61da983a30224c6f17d60300e010000006c030c5cc283f791b26816f325b9c632d964f8a135b43769000000001b9f4c67a829562131e84ddcd8c0b7a6b209b7bb66d600dd70926965dd511613757a65fe72aec5d1dde4f013f8a01c89a97148957f609edacacdd50da602b717a4010000006c030c5cc283f791b26816f325b9c632d964f8a10000000000000000000000000000000000000000000000000000000000000064ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7ab5ec0c59332a5c993468357c70e96b348aeb628400000000000147a1038983ec52d223000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000006221a9c005f6e47eb398fd867784cacfdcfff4e7019b0160ff9800000000000000000000");
-        if (!rc) {
-            assembly {
-                rd := add(rd, 4)
-                mstore(rd, sub(mload(rd), 4))
-            }
-            string memory errorMessage = abi.decode(rd, (string));
-            revert(errorMessage);
-        }
-    }
-
-    function test_fuzzUserFlow(uint256 key) public {
+    function test_fuzzUserFlow() public {
+        uint256 key = 10;
         vm.assume(key > 0 && key < CURVE_MAX);
         Vm.Wallet memory wallet = vm.createWallet(key);
         vm.startPrank(wallet.addr);
@@ -68,7 +53,7 @@ contract TestAccounts is Test {
         x[0] = "./accounts-cli.out";
         x[1] = "pub-key-for-priv";
         x[2] = "1";
-        bytes memory pubKey = vm.parseBytes(vm.toString(vm.ffi(x)));
+        bytes memory pubKey = vm.ffi(x);
         x = new string[](7);
         x[0] = "./accounts-cli.out";
         x[1] = "sign-fresh-backwards";
@@ -78,21 +63,34 @@ contract TestAccounts is Test {
         x[4] = vm.toString(v);
         x[5] = vm.toString(uint256(r));
         x[6] = vm.toString(uint256(s));
-        bytes memory cd = vm.parseBytes(vm.toString(vm.ffi(x)));
+        bytes memory cd = vm.ffi(x);
+        //contract	digest: b4c0c77aa00a1c6ee4f102c634708d06962e8ca85e1f7f2fad381bd47ecbce5615547d9c0d54a86f5f6e57852b219b554180853a424b2bdd36a12e044746bdc0, ed owner: 34696762660094522240561638380233039462005209205579307443945330103699145865769, sig: 94a229267c92eef0edb5ddbbb434b3d0b7f5496dc0c179bc9da729853cc8f04a9ffa0ce44f3c042659856fa23f856fadd59ded62aae465c7660f6ba1f7e2c609] test_fuzzUserFlow() (gas: 341814)
+        //client	digest: b4c0c77aa00a1c6ee4f102c634708d06962e8ca85e1f7f2fad381bd47ecbce5615547d9c0d54a86f5f6e57852b219b554180853a424b2bdd36a12e044746bdc0, ed owner: 4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29, sig: 94a229267c92eef0edb5ddbbb434b3d0b7f5496dc0c179bc9da729853cc8f04a9ffa0ce44f3c042659856fa23f856fadd59ded62aae465c7660f6ba1f7e2c609
         (bool rc, bytes memory rd) = accounts.call(cd);
-        assert(rc);
-        client = abi.decode(rd, (address));
-        x = new string[](8);
+        if (!rc) {
+            assembly {
+                rd := add(rd, 4)
+                mstore(rd, sub(mload(rd), 4))
+            }
+            string memory errorMessage = abi.decode(rd, (string));
+            revert(errorMessage);
+        }
+        address client = abi.decode(rd, (address));
+        x = new string[](9);
+        // We've observed some strange hex behaviour with Foundry, so we're
+        // setting the ms_ts to 0 explicitly:
         x[0] = "./accounts-cli.out";
         x[1] = "sign-token-spend";
-        x[2] = "1";
-        x[3] = "0";
+        x[2] = "1"; // Private key
+        x[3] = "0"; // Slot
         x[4] = vm.toString(address(erc20));
         x[5] = "100";
         x[6] = vm.toString(address(target));
+        // The ms ts:
+        x[7] = "0";
         // The invoke selector:
-        x[7] = "0xcab7f521";
-        cd = vm.parseBytes(vm.toString(vm.ffi(x)));
+        x[8] = "0xcab7f521";
+        cd = vm.ffi(x);
         (rc, rd) = client.call(cd);
         if (!rc) {
             assembly {

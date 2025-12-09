@@ -1,0 +1,25 @@
+[workspace]
+
+[package]
+name = "accounts-cli-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+borsh = "1.6.0"
+libfuzzer-sys = "0.4"
+
+[dependencies.libaccounts]
+path = "../libaccounts"
+features = ["arbitrary", "std", "alloy-enabled"]
+
+[[bin]]
+name = "encoding"
+path = "fuzz_targets/encoding.rs"
+test = false
+doc = false
+bench = false

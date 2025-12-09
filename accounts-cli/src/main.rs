@@ -2,7 +2,7 @@ use clap::Parser;
 
 use bobcat_sdk::maths::U;
 
-use ed25519_dalek::{Signer, SigningKey};
+use ed25519_dalek::{Digest, Sha512, SigningKey};
 
 use libaccounts::{Args, ArgsAddr, FromArgs, Sig, SolveArgs, SolveArgsSigArgs};
 
@@ -10,8 +10,6 @@ use core::{
     fmt::{Display, Formatter},
     str::FromStr,
 };
-
-use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ArgsBytes(Vec<u8>);
@@ -68,6 +66,7 @@ enum CliArgs {
         #[arg(value_parser = U::from_str, default_value_t = U::ZERO)]
         min_spend: U,
         target: ArgsAddr,
+        ms_ts: u128,
         cd: ArgsBytes,
     },
 }
@@ -77,7 +76,7 @@ fn entry(x: CliArgs) {
         CliArgs::PubKeyForPriv { priv_key } => {
             let k = SigningKey::from_bytes(&priv_key.0);
             println!("0x{}", const_hex::encode(k.verifying_key().as_bytes()));
-        },
+        }
         CliArgs::SignFreshBackwards {
             priv_key,
             eoa_addr,
@@ -90,9 +89,13 @@ fn entry(x: CliArgs) {
             let solve_args = solve_args
                 .unwrap_or(vec![])
                 .into_iter()
-                .map(|args| SolveArgsSigArgs {
-                    sig: Sig(SigningKey::sign(&k, &borsh::to_vec(&args).unwrap()).to_bytes()),
-                    args,
+                .map(|args| {
+                    let mut d = Sha512::new();
+                    d.update(&borsh::to_vec(&args).unwrap());
+                    SolveArgsSigArgs {
+                        sig: Sig(k.sign_prehashed(d, None).unwrap().to_bytes()),
+                        args,
+                    }
                 })
                 .collect::<Vec<_>>();
             println!(
@@ -118,9 +121,13 @@ fn entry(x: CliArgs) {
             let k = SigningKey::from_bytes(&priv_key.0);
             let solve_args = solve_args
                 .into_iter()
-                .map(|args| SolveArgsSigArgs {
-                    sig: Sig(SigningKey::sign(&k, &borsh::to_vec(&args).unwrap()).to_bytes()),
-                    args,
+                .map(|args| {
+                    let mut d = Sha512::new();
+                    d.update(&borsh::to_vec(&args).unwrap());
+                    SolveArgsSigArgs {
+                        sig: Sig(k.sign_prehashed(d, None).unwrap().to_bytes()),
+                        args,
+                    }
                 })
                 .collect::<Vec<_>>();
             println!(
@@ -140,28 +147,23 @@ fn entry(x: CliArgs) {
             from_token,
             min_spend,
             target,
+            ms_ts,
             cd,
-        } => {
-            let ms_ts = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_millis();
-            entry(CliArgs::SignSolve {
-                priv_key,
-                slot,
-                solve_args: vec![SolveArgs {
-                    permit: vec![],
-                    from: vec![FromArgs {
-                        token: from_token,
-                        to_take: min_spend,
-                        max_unspent: min_spend,
-                    }],
-                    target,
-                    cd: cd.0,
-                    ms_ts,
+        } => entry(CliArgs::SignSolve {
+            priv_key,
+            slot,
+            solve_args: vec![SolveArgs {
+                permit: vec![],
+                from: vec![FromArgs {
+                    token: from_token,
+                    to_take: min_spend,
+                    max_unspent: min_spend,
                 }],
-            })
-        }
+                target,
+                cd: cd.0,
+                ms_ts,
+            }],
+        }),
     }
 }
 

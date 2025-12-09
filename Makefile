@@ -39,4 +39,10 @@ bootstrap.zip: bootstrap
 	@zip bootstrap.zip bootstrap
 
 clean:
-	@rm -rf target accounts.superposition.so.wasm accounts-cli.out
+	@rm -rf \
+		target
+		accounts.superposition.so.wasm \
+		accounts-cli.out \
+		accounts-superposition.so \
+		bootstrap \
+		bootstrap.zip

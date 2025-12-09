@@ -9,6 +9,8 @@ license = "MIT"
 [features]
 std = ["bobcat-sdk/serde", "clap"]
 panic-revert = ["bobcat-sdk/panic-revert"]
+arbitrary = ["dep:arbitrary", "bobcat-sdk/arbitrary"]
+alloy-enabled = ["bobcat-sdk/alloy-enabled"]
 
 [dependencies]
 array-concat.workspace = true
@@ -19,6 +21,7 @@ const-hex.workspace = true
 serde = { version = ">=1.0.0", default-features = false, features = ["derive", "alloc"] }
 serde_json = { version = "1.0.145", default-features = false, features = ["alloc"] }
 sha2 = { version = "0.10.9", default-features = false }
-
-[dev-dependencies]
-proptest = "1.9.0"
+proptest = { version = "1.9.0", optional = true }
+proptest-derive = { version = "0.7.0", optional = true }
+arbitrary = { version = "1.4.2", features = ["derive"], optional = true }
+ed25519-dalek.workspace = true

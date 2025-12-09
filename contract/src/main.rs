@@ -24,8 +24,6 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
             // Someone is migrating a client proxy as this contract called itself! We
             // need to call a special function here, and skip the usual entrypoint.
             let (ed_key, eoa_owner, impl_addr) = read_words!(&args[4..], 3);
-            // We could probably reduce gas consumption here by mining the deployment
-            // address when this is invoked. But it's hard to maintain.
             return entry_migrate(ed_key, eoa_owner, impl_addr);
         }
         reentrancy_guard_const_keccak(b"superposition.accounts", || {

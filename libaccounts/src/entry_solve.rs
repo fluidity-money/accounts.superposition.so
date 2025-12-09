@@ -18,13 +18,11 @@ use crate::{storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
 pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     let eth_owner = storage::ethereum_owner::get();
     let ed_owner = storage::ed25519_slot::get(&owner.into());
+    assert!(ed_owner.is_some(), "no owner at slot: {owner}");
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
         d.update(&borsh::to_vec(&args).unwrap());
-        assert!(
-            edverify(d.finalize().into(), ed_owner, sig.0),
-            "bad signature"
-        );
+        assert!(edverify(d.finalize().into(), ed_owner, sig.0));
         let SolveArgs {
             permit,
             from,
@@ -65,7 +63,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
             ));
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token.0,
-                &make_fn_approve(target.0, to_take),
+                &make_fn_approve(target.clone().0, to_take),
                 &U::ZERO,
                 u64::MAX
             ));
