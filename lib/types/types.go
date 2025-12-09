@@ -1,10 +1,6 @@
 package types
 
-import (
-	"math/big"
-
-	"github.com/near/borsh-go"
-)
+import "github.com/near/borsh-go"
 
 const (
 	ArgsFreshBackwards borsh.Enum = iota
@@ -37,7 +33,7 @@ type (
 		From   []FromArgs
 		Target [20]byte
 		Cd     []byte
-		MsTs   *big.Int
+		MsTs   [16]byte
 	}
 
 	SolveArgsSigArgs struct {

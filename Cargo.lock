@@ -133,6 +133,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "bobcat-console"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eff2bd227892c0aedf03d8feb24f0b1953fe4a41073465f75e824b9347bc315b"
+
+[[package]]
 name = "bobcat-create"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -239,6 +245,7 @@ checksum = "401efd02374cfb8e1a1ba395a88e224356f7153d392f2ce0473edabb4c2323c0"
 dependencies = [
  "bobcat-call",
  "bobcat-cd",
+ "bobcat-console",
  "bobcat-create",
  "bobcat-entry",
  "bobcat-events",

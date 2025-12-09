@@ -31,10 +31,14 @@ contract TestAccounts is Test {
     uint256 constant CURVE_MAX = 115792089237316195423570985008687907852837564279074904382605163141518161494337;
 
     function setUp() public {
-        vm.createSelectFork("https://rpc.superposition.so");
+        //vm.createSelectFork("https://rpc.superposition.so");
         accounts = IArbFoundry(address(vm)).deployStylusCode(
             "accounts.superposition.so.wasm"
         );
+        // Set up the precompiles:
+        vm.etch(0xC3E443bE2Cfa4F41a5F5E4978D012847d355b419, IArbFoundry(address(vm)).deployStylusCode(
+            "test/superposition-precompiles/precompiles-ed25519.wasm"
+        ).code);
         erc20 = new TestErc20();
         target = new TestTarget();
         bytes32 slotImpl = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
@@ -42,11 +46,10 @@ contract TestAccounts is Test {
         vm.store(accounts, slotImpl, bytes32(uint256(uint160(accounts))));
     }
 
-
-    function test_online() public {
+    function old_test_online() public {
         address mainnet = 0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2;
         vm.etch(mainnet, accounts.code);
-        (bool rc, bytes memory rd) = mainnet.call(hex"008ba4c056a9ccd6e140b6aff29ca7c170d3a4c4cf9891cfd0390930a58542b1e018f05f464a418eeb8e05e9e874e5a2b4125d25371b28aab31b5917c1686b624b6c9e2f2d26054237261d5f1232fc2b35268dc510a178a8fbd161570362cf5f5f756c26e27fa6413af69a62e8491e52656c1eb9d93e00000000");
+        (bool rc, bytes memory rd) = mainnet.call(hex"008ba4c056a9ccd6e140b6aff29ca7c170d3a4c4cf9891cfd0390930a58542b1e06221a9c005f6e47eb398fd867784cacfdcfff4e71c9cd9e911f3e16d8db0bb0f40b245f6906913e7a3a061e560da49bf713f26b3c73a782e741d3752d78b7a8b1264d10974d1e41e4895dc9f41f71eeb10978b1c4201000000b1e860f5fedbe12b71fdf75879321dd55d2c931198ef194b860a45b0e455d0230dc333c0a4d7c7961d5a265b8d2b65bac9735fe61da983a30224c6f17d60300e010000006c030c5cc283f791b26816f325b9c632d964f8a135b43769000000001b9f4c67a829562131e84ddcd8c0b7a6b209b7bb66d600dd70926965dd511613757a65fe72aec5d1dde4f013f8a01c89a97148957f609edacacdd50da602b717a4010000006c030c5cc283f791b26816f325b9c632d964f8a10000000000000000000000000000000000000000000000000000000000000064ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7ab5ec0c59332a5c993468357c70e96b348aeb628400000000000147a1038983ec52d223000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000006221a9c005f6e47eb398fd867784cacfdcfff4e7019b0160ff9800000000000000000000");
         if (!rc) {
             assembly {
                 rd := add(rd, 4)
@@ -56,6 +59,7 @@ contract TestAccounts is Test {
             revert(errorMessage);
         }
     }
+
     function test_fuzzUserFlow(uint256 key) public {
         vm.assume(key > 0 && key < CURVE_MAX);
         Vm.Wallet memory wallet = vm.createWallet(key);

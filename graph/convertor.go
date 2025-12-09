@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"math"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
@@ -113,7 +114,7 @@ func CreateSolveArgsSigArgs(
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
 	permit *model.Permit,
-	msTs string,
+	msTs_ string,
 ) (*types.SolveArgsSigArgs, error) {
 	m, err := strToAddr(market)
 	if err != nil {
@@ -131,8 +132,16 @@ func CreateSolveArgsSigArgs(
 	if err != nil {
 		return nil, fmt.Errorf("referrer: %v", err)
 	}
-	var rec [20]byte
+	msTsI, ok := new(big.Int).SetString(msTs_, 10)
+	if !ok {
+		return nil, fmt.Errorf("ms ts: %v", msTs_)
+	}
+	var (
+		rec [20]byte
+		msTs [16]byte
+	)
 	copy(rec[:], recipient.Bytes())
+	copy(msTs[:], msTsI.Bytes())
 	cd := ninelives.NewMint(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
 		From: []types.FromArgs{{
@@ -142,6 +151,7 @@ func CreateSolveArgsSigArgs(
 		}},
 		Target: m,
 		Cd:     cd,
+		MsTs: msTs,
 	}
 	if permit != nil {
 		if permit.Deadline < 0 {

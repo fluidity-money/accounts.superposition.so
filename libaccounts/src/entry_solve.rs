@@ -7,8 +7,8 @@ use bobcat_sdk::{
         eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
         eip2612::make_fn_permit,
     },
-    precompiles::superposition::edverify,
     maths::U,
+    precompiles::superposition::edverify,
 };
 
 use sha2::{Digest, Sha512};
@@ -21,7 +21,10 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
         d.update(&borsh::to_vec(&args).unwrap());
-        assert!(edverify(d.finalize().into(), ed_owner, sig.0), "bad signature");
+        assert!(
+            edverify(d.finalize().into(), ed_owner, sig.0),
+            "bad signature"
+        );
         let SolveArgs {
             permit,
             from,
