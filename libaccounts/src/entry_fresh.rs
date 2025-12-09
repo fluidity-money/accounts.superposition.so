@@ -3,7 +3,7 @@ use alloc::vec::Vec;
 use bobcat_sdk::{
     call::call_unit,
     create::create2_pre_unit,
-    entry::{contract_address, msg_sender, write_result_word},
+    entry::{contract_address, write_result_word},
     maths::U,
     precompiles::ethereum::ecrecover,
     proxy::{make_metamorphic_proxy, SEL_MIGRATE},
@@ -28,7 +28,7 @@ pub fn entry_fresh_backwards(
     let proxy = create2_pre_unit(
         &make_metamorphic_proxy(contract_address()),
         U::ZERO,
-        &msg_sender(),
+        &eoa_addr.0
     )
     .unwrap();
     let impl_addr = storage_load(&SLOT_IMPL);

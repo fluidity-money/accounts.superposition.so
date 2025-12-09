@@ -73,10 +73,13 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		r.Dryrun,
 	)
 	if err != nil {
-		slog.Error("sending arguments",
+		slog.Error("error sending arguments",
 			"sender", sender,
 			"fresh backwards", f,
 			"err", err,
+			"create v", createAccount.SigV,
+			"create r", createAccount.SigR,
+			"create s", createAccount.SigS,
 		)
 		return nil, fmt.Errorf("send arguments: fresh backwards %+v: %v", f, err)
 	}
@@ -179,7 +182,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 		r.Dryrun,
 	)
 	if err != nil {
-		slog.Error("sending arguments",
+		slog.Error("error sending arguments",
 			"sender", sender,
 			"solve", f,
 			"err", err,

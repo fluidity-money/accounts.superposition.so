@@ -41,7 +41,7 @@ type (
 	}
 
 	SolveArgsSigArgs struct {
-		Sig [64]byte
+		Sig  [64]byte
 		Args SolveArgs
 	}
 
@@ -49,8 +49,7 @@ type (
 		Key       [32]byte
 		EoaAddr   [20]byte
 		V         uint8
-		R         [32]byte
-		S         [32]byte
+		R, S      [32]byte
 		SolveArgs []SolveArgsSigArgs
 	}
 

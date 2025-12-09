@@ -56,6 +56,7 @@ fn onboard {
 		}
 	}
 	eoa=`{no_0x `{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}}
+	echo public key: `{get_public_key} >[1=2]
 	sig=`{get_public_key | sign-hex $SPN_SUPERPOSITION_KEY}
 	sig_r=`{echo $sig | jq -r .r}
 	sig_s=`{echo $sig | jq -r .s}
