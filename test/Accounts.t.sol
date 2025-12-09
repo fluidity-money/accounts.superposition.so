@@ -29,7 +29,6 @@ contract TestAccounts is Test {
     uint256 constant CURVE_MAX = 115792089237316195423570985008687907852837564279074904382605163141518161494337;
 
     function setUp() public {
-        //vm.createSelectFork("https://rpc.superposition.so");
         accounts = IArbFoundry(address(vm)).deployStylusCode(
             "accounts.superposition.so.wasm"
         );
@@ -42,6 +41,22 @@ contract TestAccounts is Test {
         bytes32 slotImpl = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
         // Pretend to be a proxy with the factory during this test.
         vm.store(accounts, slotImpl, bytes32(uint256(uint160(accounts))));
+    }
+
+    function test_online() public {
+        vm.createSelectFork("https://rpc.superposition.so", 2385150);
+        vm.etch(0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2, IArbFoundry(address(vm)).deployStylusCode(
+            "accounts.superposition.so.wasm"
+        ).code);
+        (bool rc, bytes memory rd) = 0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2.call(hex"008ba4c056a9ccd6e140b6aff29ca7c170d3a4c4cf9891cfd0390930a58542b1e06221a9c005f6e47eb398fd867784cacfdcfff4e71c9cd9e911f3e16d8db0bb0f40b245f6906913e7a3a061e560da49bf713f26b3c73a782e741d3752d78b7a8b1264d10974d1e41e4895dc9f41f71eeb10978b1c4201000000c79ab40c57e6fb44fd3beb9acf339e685c60e3047bb48d72adf40811d2918047e273491833743a3d777ea3316f8dce2fb11b37ea470f4f4b796fc825efb4310b010000006c030c5cc283f791b26816f325b9c632d964f8a11c0c3869000000001c2619d3e4bbe2e5eabef34b03bd1e13ad71d931a848a32416be2c515fe1d5bc283afb8731be0e953d8fd514e1919c50e2d587a78cffacdc5b74bf081d0ed4fed2010000006c030c5cc283f791b26816f325b9c632d964f8a100000000000000000000000000000000000000000000000000000000000003e8ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7ab5ec0c59332a5c993468357c70e96b348aeb628400000000000147a1038983ec52d22300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000000000000000000000000000006221a9c005f6e47eb398fd867784cacfdcfff4e7019b02b85f8b00000000000000000000");
+        if (!rc) {
+            assembly {
+                rd := add(rd, 4)
+                mstore(rd, sub(mload(rd), 4))
+            }
+            string memory errorMessage = abi.decode(rd, (string));
+            revert(errorMessage);
+        }
     }
 
     function test_fuzzUserFlow() public {

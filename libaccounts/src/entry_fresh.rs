@@ -1,9 +1,9 @@
 use alloc::vec::Vec;
 
 use bobcat_sdk::{
-    call::call_unit,
+    call::{call_unit_err_vec, call_unit},
     create::create2_pre_unit,
-    entry::{contract_address, write_result_word},
+    entry::{revert_if_bad_call_unit_vec, contract_address, write_result_word},
     maths::U,
     precompiles::ethereum::ecrecover,
     proxy::{make_metamorphic_proxy, SEL_MIGRATE},
@@ -39,7 +39,7 @@ pub fn entry_fresh_backwards(
         "bad migration"
     );
     if !solve_args.is_empty() {
-        assert!(call_unit(
+        revert_if_bad_call_unit_vec!(call_unit_err_vec(
             proxy,
             &borsh::to_vec(&Args::Solve {
                 slot: 0,
