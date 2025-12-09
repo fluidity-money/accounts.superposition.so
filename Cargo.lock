@@ -135,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-call"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "bobcat-entry",
  "bobcat-maths",
@@ -145,7 +145,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-cd"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -155,7 +155,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-create"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -165,7 +165,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-entry"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "bobcat-cd",
  "bobcat-maths",
@@ -174,7 +174,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-events"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -182,7 +182,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-interfaces"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "array-concat",
  "bobcat-cd",
@@ -193,7 +193,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-maths"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "alloy-primitives",
  "arbitrary",
@@ -211,7 +211,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-panic"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "const-hex",
  "paste",
@@ -220,7 +220,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-precompiles"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "array-concat",
  "bobcat-call",
@@ -230,7 +230,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-proxy"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "array-concat",
  "bobcat-interfaces",
@@ -240,7 +240,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-sdk"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "bobcat-call",
  "bobcat-cd",
@@ -257,7 +257,7 @@ dependencies = [
 
 [[package]]
 name = "bobcat-storage"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -606,7 +606,6 @@ dependencies = [
  "borsh",
  "clap",
  "const-hex",
- "ed25519-dalek",
  "proptest",
  "proptest-derive",
  "serde",

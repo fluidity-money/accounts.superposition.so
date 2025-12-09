@@ -3,7 +3,7 @@ members = ["accounts-cli","contract", "libaccounts"]
 resolver = "3"
 
 [workspace.dependencies]
-bobcat-sdk = { path = "/home/user/Documents/fluidity/bobcat-sdk/bobcat-sdk", features = ["alloc", "serde", "borsh", "panic-revert"] }
+bobcat-sdk = { version = "0.7.6", features = ["alloc", "serde", "borsh", "panic-revert"] }
 borsh = { version = "1.5.7", default-features = false }
 mini-alloc = { version = "1.0.0", default-features = false }
 ed25519-dalek = { version = "2.1.1", default-features = false, features = ["digest"] }
