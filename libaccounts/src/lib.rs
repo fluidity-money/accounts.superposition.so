@@ -135,7 +135,7 @@ pub struct SolveArgs {
     pub from: Vec<FromArgs>,
     pub target: ArgsAddr,
     pub cd: Vec<u8>,
-    pub ms_ts: u128,
+    pub ms_ts: [u8; 16],
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]

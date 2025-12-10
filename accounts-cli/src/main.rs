@@ -11,6 +11,10 @@ use core::{
     str::FromStr,
 };
 
+use borsh::BorshDeserialize;
+
+use std::io::{stdin, Read};
+
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ArgsBytes(Vec<u8>);
 
@@ -69,6 +73,7 @@ enum CliArgs {
         ms_ts: u128,
         cd: ArgsBytes,
     },
+    DecodeBorsh,
 }
 
 fn entry(x: CliArgs) {
@@ -161,9 +166,17 @@ fn entry(x: CliArgs) {
                 }],
                 target,
                 cd: cd.0,
-                ms_ts,
+                ms_ts: ms_ts.to_be_bytes(),
             }],
         }),
+        CliArgs::DecodeBorsh => {
+            let mut buf = Vec::new();
+            stdin().read_to_end(&mut buf).unwrap();
+            println!(
+                "{:?}",
+                Args::try_from_slice(&const_hex::decode(&buf).unwrap()).unwrap()
+            )
+        }
     }
 }
 

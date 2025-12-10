@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"crypto/ed25519"
 	"database/sql"
 	"encoding/hex"
 	"log"
@@ -57,6 +56,10 @@ const (
 
 	// EnvAccPrivateKey to execute transactions on the behalf of users with.
 	EnvAccPrivateKey = "SPN_ACCOUNTS_PRIVATE_KEY"
+
+	// EnvAccPublicKey, set since we feed the Rust code the private key, and
+	// it expects a differently sized key, so we can't derive the same key reliably here.
+	EnvAccPublicKey = "SPN_ACCOUNTS_PUBLIC_KEY"
 
 	// EnvDryrun disables the sending of transactions, instead simulating.
 	EnvDryrun = "SPN_DRYRUN"
@@ -164,21 +167,23 @@ func main() {
 		log.Fatal("accounts factory addr not set")
 	}
 	accountsFactoryAddr := ethCommon.HexToAddress(accountsFactoryAddrS)
-	accPrivKeyB, err := hex.DecodeString(os.Getenv(EnvAccPrivateKey))
-	if err != nil {
-		log.Fatalf("accounts private key: %v", err)
+	if _, err := hex.DecodeString(os.Getenv(EnvAccPrivateKey)); err != nil {
+		log.Fatalf("accounts private key needs to be set: %v", err)
 	}
+	accPubKeyB, err := hex.DecodeString(os.Getenv(EnvAccPublicKey))
+	if err != nil {
+		log.Fatalf("accounts public key: %v", err)
+	}
+	var accPubKey [32]byte
+	copy(accPubKey[:], accPubKeyB)
 	adminSecret := os.Getenv(EnvAdminSecret)
 	dryrun := os.Getenv(EnvDryrun) != ""
 	fusdc := ethCommon.HexToAddress(os.Getenv(EnvFusdcAddr))
-	accPrivKey := ed25519.PrivateKey(accPrivKeyB)
-	accPubKey, _ := accPrivKey.Public().(ed25519.PublicKey)
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
 		Client:              c,
 		Db:                  db,
 		ChainId:             chainId,
 		AccountsFactoryAddr: accountsFactoryAddr,
-		AccPrivKey:          accPrivKey,
 		AccPubKey:           accPubKey,
 		Fusdc:               fusdc,
 		Dryrun:              dryrun,

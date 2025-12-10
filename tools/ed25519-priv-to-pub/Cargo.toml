@@ -1,0 +1,10 @@
+[workspace]
+
+[package]
+name = "ed25519-priv-to-pub"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+const-hex = "1.17.0"
+ed25519-dalek = "2.2.0"

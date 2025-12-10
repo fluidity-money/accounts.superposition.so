@@ -1,10 +1,11 @@
 package graph
 
 import (
-	"crypto/ed25519"
 	"encoding/hex"
+	"crypto/sha512"
 	"fmt"
 	"math/big"
+	"os/exec"
 	"math"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
@@ -109,7 +110,6 @@ func NewPermit(
 }
 
 func CreateSolveArgsSigArgs(
-	priv ed25519.PrivateKey,
 	token [20]byte,
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
@@ -175,7 +175,15 @@ func CreateSolveArgsSigArgs(
 		return nil, fmt.Errorf("making digest: %v", err)
 	}
 	var sigArr [64]byte
-	sig := ed25519.Sign(priv, solveArgsDigest)
+	d := sha512.Sum512(solveArgsDigest)
+	sig, err := exec.Command(
+		"/var/task/ed25519-dalek-ph.out",
+		hex.EncodeToString(d[:]),
+	).
+		CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("invoking dalekph: %v, %v", string(sig), err)
+	}
 	copy(sigArr[:], sig)
 	return &types.SolveArgsSigArgs{
 		Sig:  sigArr,
@@ -185,7 +193,6 @@ func CreateSolveArgsSigArgs(
 
 func TagFreshBackwardsWithMint(
 	f *types.FreshBackwards,
-	priv ed25519.PrivateKey,
 	token [20]byte,
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
@@ -193,7 +200,6 @@ func TagFreshBackwardsWithMint(
 	msTs string,
 ) error {
 	m, err := CreateSolveArgsSigArgs(
-		priv,
 		token,
 		market, outcome, amount, referrer, recipient,
 		permit,

@@ -26,7 +26,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
     }
     flush_guard(|| {
         let args = read_args_vec(len);
-        if args[..4] == SEL_MIGRATE {
+        if args.len() >= 4 && args[..4] == SEL_MIGRATE {
             // Someone is migrating a client proxy as this contract called itself! We
             // need to call a special function here, and skip the usual entrypoint.
             let (ed_key, eoa_owner, impl_addr) = read_words!(&args[4..], 3);

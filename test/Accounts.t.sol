@@ -43,12 +43,7 @@ contract TestAccounts is Test {
         accounts = address(new TransparentUpgradeableProxy(impl, address(this), ""));
     }
 
-    function old_test() public {
-        vm.createSelectFork("https://rpc.superposition.so", 2385150);
-        vm.etch(0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2, IArbFoundry(address(vm)).deployStylusCode(
-            "accounts.superposition.so.wasm"
-        ).code);
-        (bool rc, bytes memory rd) = 0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2.call(hex"008ba4c056a9ccd6e140b6aff29ca7c170d3a4c4cf9891cfd0390930a58542b1e06221a9c005f6e47eb398fd867784cacfdcfff4e71c9cd9e911f3e16d8db0bb0f40b245f6906913e7a3a061e560da49bf713f26b3c73a782e741d3752d78b7a8b1264d10974d1e41e4895dc9f41f71eeb10978b1c4201000000c79ab40c57e6fb44fd3beb9acf339e685c60e3047bb48d72adf40811d2918047e273491833743a3d777ea3316f8dce2fb11b37ea470f4f4b796fc825efb4310b010000006c030c5cc283f791b26816f325b9c632d964f8a11c0c3869000000001c2619d3e4bbe2e5eabef34b03bd1e13ad71d931a848a32416be2c515fe1d5bc283afb8731be0e953d8fd514e1919c50e2d587a78cffacdc5b74bf081d0ed4fed2010000006c030c5cc283f791b26816f325b9c632d964f8a100000000000000000000000000000000000000000000000000000000000003e8ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7ab5ec0c59332a5c993468357c70e96b348aeb628400000000000147a1038983ec52d22300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000000000000000000000000000006221a9c005f6e47eb398fd867784cacfdcfff4e7019b02b85f8b00000000000000000000");
+    function revertMsg(bool rc, bytes memory rd) internal {
         if (!rc) {
             assembly {
                 rd := add(rd, 4)
@@ -57,6 +52,21 @@ contract TestAccounts is Test {
             string memory errorMessage = abi.decode(rd, (string));
             revert(errorMessage);
         }
+    }
+
+    function test_go() public {
+        uint256 keyA = 100;
+        uint256 keyB = 200;
+        int64 seed = 10;
+        bytes32 ecdsaKey = bytes32(abi.encode(123));
+        string[] memory x = new string[](4);
+        x[0] = "convertor-fuzz";
+        x[1] = vm.toString(abi.encode(keyA, keyB));
+        x[2] = vm.toString(seed);
+        x[3] = vm.toString(ecdsaKey);
+        bytes memory cd = vm.ffi(x);
+        (bool rc, bytes memory rd) = accounts.call(cd);
+        revertMsg(rc, rd);
     }
 
     function test_fuzzUserFlow() public {
@@ -80,14 +90,7 @@ contract TestAccounts is Test {
         x[6] = vm.toString(uint256(s));
         bytes memory cd = vm.ffi(x);
         (bool rc, bytes memory rd) = accounts.call(cd);
-        if (!rc) {
-            assembly {
-                rd := add(rd, 4)
-                mstore(rd, sub(mload(rd), 4))
-            }
-            string memory errorMessage = abi.decode(rd, (string));
-            revert(errorMessage);
-        }
+        revertMsg(rc, rd);
         address client = abi.decode(rd, (address));
         assertNotEq(address(0), client);
         x = new string[](9);
@@ -106,14 +109,7 @@ contract TestAccounts is Test {
         x[8] = "0xcab7f521";
         cd = vm.ffi(x);
         (rc, rd) = client.call(cd);
-        if (!rc) {
-            assembly {
-                rd := add(rd, 4)
-                mstore(rd, sub(mload(rd), 4))
-            }
-            string memory errorMessage = abi.decode(rd, (string));
-            revert(errorMessage);
-        }
+        revertMsg(rc, rd);
         assert(target.wasCalled());
     }
 }

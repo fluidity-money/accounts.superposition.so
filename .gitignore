@@ -12,3 +12,5 @@ bootstrap.zip
 sign-hex
 leftpad-int
 make-permit
+convertor-fuzz
+ed25519-dalek-ph.out

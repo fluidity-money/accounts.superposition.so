@@ -22,6 +22,8 @@ pub fn entry_fresh_backwards(
     s: U,
     solve_args: Vec<SolveArgsSigArgs>,
 ) -> usize {
+    assert!(pub_key.is_some());
+    assert!(eoa_addr.0 != [0u8; 20]);
     assert_eq!(eoa_addr.0, ecrecover(pub_key, v, r, s, u64::MAX).unwrap());
     // This code reenters the transparent upgradeable proxy used here when
     // the migrate function is called. But it uses a slot for its

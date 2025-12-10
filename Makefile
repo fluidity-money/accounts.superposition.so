@@ -22,6 +22,12 @@ accounts-cli.out: $(shell find Cargo.* libaccounts accounts-cli -type f)
 	@cargo build --release --bin accounts-cli
 	@mv target/release/accounts-cli accounts-cli.out
 
+ed25519-dalek-ph.out: $(shell find Cargo.* ed25519-dalek-ph -type f)
+	@rm -f ed25519-dalek-ph.out
+	@cd ed25519-dalek-ph && \
+		cargo build --release --bin ed25519-dalek-ph && \
+		mv target/release/ed25519-dalek-ph ../ed25519-dalek-ph.out
+
 frontend: out/frontend_bg.wasm
 
 out/frontend_bg.wasm: $(shell find Cargo.* libaccounts frontend -type f)
@@ -29,14 +35,14 @@ out/frontend_bg.wasm: $(shell find Cargo.* libaccounts frontend -type f)
 		cargo build --release --target wasm32-wasip1 && \
 		wasm-bindgen target/wasm32-wasip1/release/frontend.wasm --out-dir ../out
 
-accounts.superposition.so: $(shell find -name '*.go')
+accounts.superposition.so: $(shell find -name '*.go') ed25519-dalek-ph.out
 	@go build
 
 bootstrap: accounts.superposition.so
 	@cp accounts.superposition.so bootstrap
 
-bootstrap.zip: bootstrap
-	@zip bootstrap.zip bootstrap
+bootstrap.zip: bootstrap ed25519-dalek-ph.out
+	@zip bootstrap.zip bootstrap ed25519-dalek-ph.out
 
 clean:
 	@rm -rf \
@@ -45,4 +51,5 @@ clean:
 		accounts-cli.out \
 		accounts-superposition.so \
 		bootstrap \
-		bootstrap.zip
+		bootstrap.zip \
+		ed25519-dalek-ph.out

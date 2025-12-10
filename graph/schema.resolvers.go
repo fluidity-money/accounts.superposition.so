@@ -20,9 +20,7 @@ import (
 
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (*model.CreateAccountExec, error) {
-	var pubKey [32]byte
-	copy(pubKey[:], r.AccPubKey)
-	f, err := CreateAccountToFreshBackwards(pubKey, createAccount)
+	f, err := CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
 	if err != nil {
 		slog.Error("create account",
 			"create account", createAccount,
@@ -38,7 +36,6 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	if mint != nil {
 		err = TagFreshBackwardsWithMint(
 			f,
-			r.AccPrivKey,
 			r.Fusdc,
 			mint.Market,
 			mint.Outcome,
@@ -155,7 +152,6 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 		return "", fmt.Errorf("picking private key: %v", err)
 	}
 	f, err := CreateSolveArgsSigArgs(
-		r.AccPrivKey,
 		r.Fusdc,
 		mint.Market,
 		mint.Outcome,
@@ -194,7 +190,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 
 // Publickey is the resolver for the publickey field.
 func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
-	return hex.EncodeToString(r.AccPubKey), nil
+	return hex.EncodeToString(r.AccPubKey[:]), nil
 }
 
 // EoaForAddress is the resolver for the eoaForAddress field.

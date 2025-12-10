@@ -8,7 +8,7 @@ use bobcat_sdk::{
         eip2612::make_fn_permit,
     },
     maths::U,
-    precompiles::superposition::edverify,
+    precompiles::superposition::edphverify,
 };
 
 use sha2::{Digest, Sha512};
@@ -18,11 +18,10 @@ use crate::{storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
 pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     let eth_owner = storage::ethereum_owner::get();
     let ed_owner = storage::ed25519_slot::get(&owner.into());
-    assert!(ed_owner.is_some(), "no owner at slot: {owner}");
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
         d.update(&borsh::to_vec(&args).unwrap());
-        assert!(edverify(d.finalize().into(), ed_owner, sig.0));
+        assert!(edphverify(d.finalize().into(), ed_owner, sig.0),);
         let SolveArgs {
             permit,
             from,

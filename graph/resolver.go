@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"crypto/ed25519"
 	"database/sql"
 	"math/big"
 
@@ -14,8 +13,7 @@ type Resolver struct {
 	Db                  *sql.DB
 	ChainId             *big.Int
 	AccountsFactoryAddr ethCommon.Address
-	AccPrivKey          ed25519.PrivateKey
-	AccPubKey           ed25519.PublicKey
+	AccPubKey           [32]byte
 	Fusdc               [20]byte
 	Dryrun              bool
 }
