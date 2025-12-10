@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use bobcat_sdk::maths::U;
+use bobcat_sdk::{storage::const_slot_off_curve, maths::U};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 
@@ -28,6 +28,8 @@ use entry_fresh::entry_fresh_backwards;
 use entry_solve::entry_solve;
 
 type Address = [u8; 20];
+
+pub const SLOT_IMPL: U = const_slot_off_curve(b"eip1967.proxy.implementation");
 
 #[derive(
     Debug,

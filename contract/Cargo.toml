@@ -14,5 +14,6 @@ panic-revert = ["libaccounts/panic-revert"]
 [dependencies]
 bobcat-sdk = { workspace = true, features = ["panic"] }
 borsh.workspace = true
+const-hex.workspace = true
 libaccounts = { version = "0.1.0", path = "../libaccounts" }
 mini-alloc.workspace = true

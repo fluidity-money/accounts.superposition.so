@@ -1,20 +1,18 @@
 use alloc::vec::Vec;
 
 use bobcat_sdk::{
-    call::{call_unit_err_vec, call_unit},
+    call::{call_unit, call_unit_err_vec},
     create::create2_pre_unit,
-    entry::{revert_if_bad_call_unit_vec, contract_address, write_result_word},
+    entry::{contract_address, revert_if_bad_call_unit_vec, write_result_word},
     maths::U,
     precompiles::ethereum::ecrecover,
-    proxy::{make_metamorphic_proxy, SEL_MIGRATE},
-    storage::{const_slot_off_curve, storage_load},
+    proxy::{make_metamorphic_beacon_proxy, SEL_MIGRATE},
+    storage::storage_load,
 };
 
-use crate::{Args, ArgsAddr, SolveArgsSigArgs};
+use crate::{Args, ArgsAddr, SolveArgsSigArgs, SLOT_IMPL};
 
 use array_concat::concat_arrays;
-
-const SLOT_IMPL: U = const_slot_off_curve(b"eip1967.proxy.implementation");
 
 pub fn entry_fresh_backwards(
     pub_key: U,
@@ -25,13 +23,17 @@ pub fn entry_fresh_backwards(
     solve_args: Vec<SolveArgsSigArgs>,
 ) -> usize {
     assert_eq!(eoa_addr.0, ecrecover(pub_key, v, r, s, u64::MAX).unwrap());
+    // This code reenters the transparent upgradeable proxy used here when
+    // the migrate function is called. But it uses a slot for its
+    // implementation when it's delegatecalled into.
+    let impl_addr = storage_load(&SLOT_IMPL);
+    assert!(impl_addr.is_some(), "not proxy");
     let proxy = create2_pre_unit(
-        &make_metamorphic_proxy(contract_address()),
+        &make_metamorphic_beacon_proxy(contract_address()),
         U::ZERO,
         &eoa_addr.0,
     )
     .unwrap();
-    let impl_addr = storage_load(&SLOT_IMPL);
     let migrate_cd: [u8; 4 + 32 * 3] =
         concat_arrays!(SEL_MIGRATE, pub_key.0, U::from(eoa_addr.0).0, impl_addr.0);
     assert!(
@@ -67,7 +69,7 @@ mod test {
             "{}",
             const_hex::encode(const_estimate_addr_pre(
                 address!(b"0000000000000000000000000000000000000000"),
-                &make_metamorphic_proxy(address!(b"0000000000000000000000000000000000000000")),
+                &make_metamorphic_beacon_proxy(address!(b"0000000000000000000000000000000000000000")),
                 &address!(b"feb6034fc7df27df18a3a6bad5fb94c0d3dcb6d5"),
             ))
         );

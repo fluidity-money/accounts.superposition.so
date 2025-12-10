@@ -39,7 +39,7 @@ binary for deployment.
 ## Deployments
 
 `0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the accounts factory.
-`0x46f5198bed61d2b992f06fe5d61b07efae47aa2f` is the implementation.
+`0xac83d7fec0aaadd8d37699e0724ffa7034aee8e0` is the implementation.
 
 ## Building
 
@@ -48,3 +48,8 @@ binary for deployment.
 ## Testing
 
 	./tests.sh
+
+## Shoutouts
+
+Special shoutout to arbos-foundry and Bernard Wagner for being proactive in resolving
+feedback with arbos-foundry.

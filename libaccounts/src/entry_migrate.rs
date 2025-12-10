@@ -1,11 +1,6 @@
-use bobcat_sdk::{
-    maths::U,
-    storage::{const_slot_off_curve, storage_store},
-};
+use bobcat_sdk::{maths::U, storage::storage_store};
 
-use crate::storage;
-
-const SLOT_IMPL: U = const_slot_off_curve(b"eip1967.proxy.implementation");
+use crate::{storage, SLOT_IMPL};
 
 pub fn entry_migrate(ed_key: &U, evm_owner: &U, impl_addr: &U) -> usize {
     // V1 migration function, setting up the contract state:
@@ -16,6 +11,7 @@ pub fn entry_migrate(ed_key: &U, evm_owner: &U, impl_addr: &U) -> usize {
     storage::ed25519_slot::set(&U::ZERO, ed_key);
     storage::ed25519_count::set(&U::ONE);
     storage::ethereum_owner::set(evm_owner);
+    assert!(impl_addr.is_some());
     storage_store(&SLOT_IMPL, impl_addr);
     0
 }

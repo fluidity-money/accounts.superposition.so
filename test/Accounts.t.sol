@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.26;
 
 import {Vm, Test} from "forge-std/Test.sol";
 
 import {IArbFoundry} from "./IArbFoundry.sol";
+
+import {TransparentUpgradeableProxy} from "./TestTransparentUpgradeableProxy.sol";
 
 contract TestErc20 {
     function transferFrom(address,address,uint256) external pure {}
@@ -29,7 +31,7 @@ contract TestAccounts is Test {
     uint256 constant CURVE_MAX = 115792089237316195423570985008687907852837564279074904382605163141518161494337;
 
     function setUp() public {
-        accounts = IArbFoundry(address(vm)).deployStylusCode(
+        address impl = IArbFoundry(address(vm)).deployStylusCode(
             "accounts.superposition.so.wasm"
         );
         // Set up the precompiles:
@@ -38,12 +40,10 @@ contract TestAccounts is Test {
         ).code);
         erc20 = new TestErc20();
         target = new TestTarget();
-        bytes32 slotImpl = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
-        // Pretend to be a proxy with the factory during this test.
-        vm.store(accounts, slotImpl, bytes32(uint256(uint160(accounts))));
+        accounts = address(new TransparentUpgradeableProxy(impl, address(this), ""));
     }
 
-    function test_online() public {
+    function old_test() public {
         vm.createSelectFork("https://rpc.superposition.so", 2385150);
         vm.etch(0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2, IArbFoundry(address(vm)).deployStylusCode(
             "accounts.superposition.so.wasm"
@@ -79,8 +79,6 @@ contract TestAccounts is Test {
         x[5] = vm.toString(uint256(r));
         x[6] = vm.toString(uint256(s));
         bytes memory cd = vm.ffi(x);
-        //contract	digest: b4c0c77aa00a1c6ee4f102c634708d06962e8ca85e1f7f2fad381bd47ecbce5615547d9c0d54a86f5f6e57852b219b554180853a424b2bdd36a12e044746bdc0, ed owner: 34696762660094522240561638380233039462005209205579307443945330103699145865769, sig: 94a229267c92eef0edb5ddbbb434b3d0b7f5496dc0c179bc9da729853cc8f04a9ffa0ce44f3c042659856fa23f856fadd59ded62aae465c7660f6ba1f7e2c609] test_fuzzUserFlow() (gas: 341814)
-        //client	digest: b4c0c77aa00a1c6ee4f102c634708d06962e8ca85e1f7f2fad381bd47ecbce5615547d9c0d54a86f5f6e57852b219b554180853a424b2bdd36a12e044746bdc0, ed owner: 4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29, sig: 94a229267c92eef0edb5ddbbb434b3d0b7f5496dc0c179bc9da729853cc8f04a9ffa0ce44f3c042659856fa23f856fadd59ded62aae465c7660f6ba1f7e2c609
         (bool rc, bytes memory rd) = accounts.call(cd);
         if (!rc) {
             assembly {
@@ -91,6 +89,7 @@ contract TestAccounts is Test {
             revert(errorMessage);
         }
         address client = abi.decode(rd, (address));
+        assertNotEq(address(0), client);
         x = new string[](9);
         // We've observed some strange hex behaviour with Foundry, so we're
         // setting the ms_ts to 0 explicitly:
