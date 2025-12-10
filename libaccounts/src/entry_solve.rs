@@ -54,6 +54,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
             ));
         }
         for FromArgs { token, to_take, .. } in &from {
+            panic!("i made it here");
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
                 token.0,
                 &make_fn_transfer_from(eth_owner.into(), contract_address(), to_take),

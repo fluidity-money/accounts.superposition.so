@@ -1,5 +1,5 @@
 [workspace]
-members = ["accounts-cli","contract", "libaccounts", "tools/ed25519-priv-to-pub"]
+members = ["accounts-cli","contract", "libaccounts"]
 resolver = "3"
 
 [workspace.dependencies]
