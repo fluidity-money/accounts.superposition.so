@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use bobcat_sdk::{storage::const_slot_off_curve, maths::U};
+use bobcat_sdk::{maths::U, storage::const_slot_off_curve};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 
@@ -136,6 +136,10 @@ pub struct SolveArgs {
     pub target: ArgsAddr,
     pub cd: Vec<u8>,
     pub ms_ts: [u8; 16],
+    /// Fee in percent that we take from every amount deposited by a user in
+    /// the token they supply in. This is marked as being accessible by the sweeper
+    /// address.
+    fee: u8,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]

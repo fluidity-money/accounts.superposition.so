@@ -147,7 +147,7 @@ func CreateSolveArgsSigArgs(
 		From: []types.FromArgs{{
 			Token:      token,
 			ToTake:     a,
-			MaxUnspent: MaxBytes32,
+			//MaxUnspent: [32]byte{},
 		}},
 		Target: m,
 		Cd:     cd,
@@ -180,7 +180,7 @@ func CreateSolveArgsSigArgs(
 		"/var/task/ed25519-dalek-ph.out",
 		hex.EncodeToString(d[:]),
 	).
-		CombinedOutput()
+		Output()
 	if err != nil {
 		return nil, fmt.Errorf("invoking dalekph: %v, %v", string(sig), err)
 	}

@@ -72,8 +72,7 @@ contract TestAccounts is Test {
         }
     }
 
-    function test_fuzzUserFlow() public {
-        uint256 key = 10;
+    function test_fuzzUserFlow(uint256 key) public {
         vm.assume(key > 0 && key < CURVE_MAX);
         Vm.Wallet memory wallet = vm.createWallet(key);
         vm.startPrank(wallet.addr);

@@ -28,6 +28,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
             target,
             cd,
             ms_ts,
+            ..
         } = args;
         storage::timestamps::exchange(&ms_ts.into());
         for Permit {
@@ -81,7 +82,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
                 const_hex::encode(target.0),
                 const_hex::encode(cd)
             ),
-            _ => ()
+            _ => (),
         };
         for FromArgs {
             token, max_unspent, ..
