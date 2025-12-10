@@ -1,14 +1,14 @@
 use alloc::vec::Vec;
 
 use bobcat_sdk::{
-    call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec},
+    call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec, safe_call_unit_err_vec},
     entry::{contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec},
     interfaces::{
         eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
         eip2612::make_fn_permit,
     },
     maths::U,
-    precompiles::superposition::edphverify,
+    precompiles::superposition::edverify,
 };
 
 use sha2::{Digest, Sha512};
@@ -21,7 +21,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
         d.update(&borsh::to_vec(&args).unwrap());
-        assert!(edphverify(d.finalize().into(), ed_owner, sig.0),);
+        assert!(edverify(d.finalize().into(), ed_owner, sig.0),);
         let SolveArgs {
             permit,
             from,
@@ -54,7 +54,6 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
             ));
         }
         for FromArgs { token, to_take, .. } in &from {
-            panic!("i made it here");
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
                 token.0,
                 &make_fn_transfer_from(eth_owner.into(), contract_address(), to_take),
@@ -68,7 +67,22 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
                 u64::MAX
             ));
         }
-        revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(target.0, &cd, &U::ZERO, u64::MAX));
+        match safe_call_unit_err_vec(target.0, &cd, &U::ZERO, u64::MAX) {
+            (false, Some(v)) => {
+                panic!(
+                    "error calling: {}, cd: {}, res: {}",
+                    const_hex::encode(target.0),
+                    const_hex::encode(cd),
+                    const_hex::encode(v)
+                )
+            }
+            (false, None) => panic!(
+                "error calling: {}, cd: {}, no res",
+                const_hex::encode(target.0),
+                const_hex::encode(cd)
+            ),
+            _ => ()
+        };
         for FromArgs {
             token, max_unspent, ..
         } in from

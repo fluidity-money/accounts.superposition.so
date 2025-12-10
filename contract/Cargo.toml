@@ -12,7 +12,7 @@ std = ["bobcat-sdk/std"]
 panic-revert = ["libaccounts/panic-revert"]
 
 [dependencies]
-bobcat-sdk = { workspace = true, features = ["panic"] }
+bobcat-sdk.workspace = true
 borsh.workspace = true
 const-hex.workspace = true
 libaccounts = { version = "0.1.0", path = "../libaccounts" }

@@ -46,7 +46,7 @@ bootstrap.zip: bootstrap ed25519-dalek-ph.out
 
 clean:
 	@rm -rf \
-		target
+		target \
 		accounts.superposition.so.wasm \
 		accounts-cli.out \
 		accounts-superposition.so \
