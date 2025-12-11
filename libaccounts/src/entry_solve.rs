@@ -2,7 +2,9 @@ use alloc::vec::Vec;
 
 use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec, safe_call_unit_err_vec},
-    entry::{contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec},
+    entry::{
+        code_hash, contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec,
+    },
     interfaces::{
         eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
         eip2612::make_fn_permit,
@@ -13,14 +15,14 @@ use bobcat_sdk::{
 
 use sha2::{Digest, Sha512};
 
-use crate::{storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
+use crate::{codehashes, storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
 
 pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     let eth_owner = storage::ethereum_owner::get();
     let ed_owner = storage::ed25519_slot::get(&owner.into());
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
-        d.update(&borsh::to_vec(&args).unwrap());
+        d.update(borsh::to_vec(&args).unwrap());
         assert!(edverify(d.finalize().into(), ed_owner, sig.0),);
         let SolveArgs {
             permit,
@@ -68,6 +70,10 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
                 u64::MAX
             ));
         }
+        match code_hash(target.0) {
+            codehashes::NINELIVES_AMM | codehashes::NINELIVES_DPPM | codehashes::NINELIVES_DPM => {}
+            hash => panic!("target not whitelisted: {}", const_hex::encode(hash)),
+        };
         match safe_call_unit_err_vec(target.0, &cd, &U::ZERO, u64::MAX) {
             (false, Some(v)) => {
                 panic!(

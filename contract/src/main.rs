@@ -31,7 +31,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
                 // Someone is migrating a client proxy as this contract called itself! We
                 // need to call a special function here, and skip the usual entrypoint.
                 let (ed_key, eoa_owner, impl_addr) = read_words!(&args[4..], 3);
-                entry_migrate(ed_key, eoa_owner, impl_addr);
+                entry_migrate(ed_key, eoa_owner, impl_addr)
             }
             _ => reentrancy_guard_const_keccak(b"superposition.accounts", || {
                 entry(

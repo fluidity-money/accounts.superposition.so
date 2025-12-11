@@ -9,6 +9,8 @@ pub mod storage;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;
+pub mod entry_version;
+pub mod codehashes;
 
 extern crate alloc;
 
@@ -26,6 +28,7 @@ use arbitrary::Arbitrary;
 
 use entry_fresh::entry_fresh_backwards;
 use entry_solve::entry_solve;
+use entry_version::entry_version;
 
 type Address = [u8; 20];
 
@@ -135,11 +138,7 @@ pub struct SolveArgs {
     pub from: Vec<FromArgs>,
     pub target: ArgsAddr,
     pub cd: Vec<u8>,
-    pub ms_ts: [u8; 16],
-    /// Fee in percent that we take from every amount deposited by a user in
-    /// the token they supply in. This is marked as being accessible by the sweeper
-    /// address.
-    fee: u8,
+    pub ms_ts: [u8; 16]
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -197,6 +196,7 @@ pub enum Args {
         slot: u32,
         args: Vec<SolveArgsSigArgs>,
     },
+    Version,
 }
 
 pub fn entry(x: Args) -> usize {
@@ -210,5 +210,6 @@ pub fn entry(x: Args) -> usize {
             solve_args,
         } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args),
         Args::Solve { slot, args } => entry_solve(slot, args),
+        Args::Version => entry_version()
     }
 }

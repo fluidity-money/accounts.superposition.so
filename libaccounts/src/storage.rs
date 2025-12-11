@@ -59,5 +59,7 @@ storage! {
     // Which Ethereum address owns this contract? Client only.
     ethereum_owner(),
     // Seen timestamps:
-    timestamps(ms)
+    timestamps(ms),
+    // The version number of this contract release.
+    version()
 }
