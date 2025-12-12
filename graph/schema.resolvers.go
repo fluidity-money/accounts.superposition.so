@@ -177,6 +177,7 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 	key := MakeKey(secret, salt)
 	keyX := hex.EncodeToString(key)
 	if !r.Dryrun {
+		slog.Info("inserting salt", "salt", saltX, "key", keyX)
 		eoaS := strings.ToLower(eoaAddr_.String())
 		_, err = r.Db.Exec(`
 WITH nonce_insert AS (
@@ -189,7 +190,10 @@ VALUES ($1, $3, $4)`,
 			keyX,
 			saltX,
 		)
-
+		if err != nil {
+			slog.Error("error inserting a secret", "err", err)
+			return "", fmt.Errorf("error inserting secret")
+		}
 	}
 	return secretX, nil
 }

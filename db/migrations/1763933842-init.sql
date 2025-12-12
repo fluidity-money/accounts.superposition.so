@@ -21,9 +21,21 @@ BEGIN
 	END IF;
 
 	IF NOT EXISTS (
+		SELECT 1 FROM pg_type WHERE typname = 'bytes16'
+	) THEN
+		CREATE DOMAIN BYTES16 AS CHAR(32);
+	END IF;
+
+	IF NOT EXISTS (
 		SELECT 1 FROM pg_type WHERE typname = 'bytes32'
 	) THEN
 		CREATE DOMAIN BYTES32 AS CHAR(64);
+	END IF;
+
+	IF NOT EXISTS (
+		SELECT 1 FROM pg_type WHERE typname = 'bytes64'
+	) THEN
+		CREATE DOMAIN BYTES64 AS CHAR(128);
 	END IF;
 END $$;
 
@@ -34,9 +46,9 @@ CREATE TABLE accounts_secrets_1 (
 	eoa_addr ADDRESS NOT NULL,
 	-- The secret that's needed to spend for a user to send instructions to this
 	-- account. This is the digest of the Argon2id hashing we do.
-	priv_key VARCHAR NOT NULL,
+	priv_key BYTES32 NOT NULL,
 	-- Salt for this address.
-	salt BYTES32 NOT NULL,
+	salt BYTES16 NOT NULL,
 	valid_until TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + interval '1 month'
 );
 

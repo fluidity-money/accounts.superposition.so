@@ -95,11 +95,14 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// since we have an open database storage situation acrouss our
 		// monitoring stack. We avoid a roundtrip of the secret this way!
 		bearerS := strings.Split(bearer, ":")
-		eoaPreferred := bearerS[0]
-		if !ethCommon.IsHexAddress(eoaPreferred) {
+		eoaPreferred_ := bearerS[0]
+		if !ethCommon.IsHexAddress(eoaPreferred_) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		// Normalise with ethCommon's representation of addresses (which include
+		// the 0x):
+		eoaPreferred := strings.ToLower(ethCommon.HexToAddress(eoaPreferred_).String())
 		secret, err := hex.DecodeString(bearerS[1])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -114,8 +117,13 @@ WHERE eoa_addr = $1 AND valid_until > CURRENT_TIMESTAMP`,
 		var salt string
 		switch err := row.Scan(&salt); err {
 		case nil:
-		default:
+		case sql.ErrNoRows:
 			w.WriteHeader(http.StatusUnauthorized)
+			slog.Error("no rows", "err", err)
+			return
+		default:
+			slog.Error("bad salt scan", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		saltB, err := hex.DecodeString(salt)
@@ -137,6 +145,7 @@ WHERE priv_key = $1 AND eoa_addr = $2`,
 		switch err := row.Scan(&sink); err {
 		case nil:
 		default:
+			slog.Info("error matching salt", "keyS", keyS, "eoa preferred", eoaPreferred,"err", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
