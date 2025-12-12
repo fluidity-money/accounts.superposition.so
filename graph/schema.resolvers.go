@@ -6,12 +6,15 @@ package graph
 
 import (
 	"context"
-	"crypto/rand"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
+	ethCrypto "github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	"github.com/fluidity-money/accounts.superposition.so/lib/client"
 	"github.com/fluidity-money/accounts.superposition.so/lib/db"
@@ -83,21 +86,9 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	// We can tolerate a situation where the request drops off here due to a
 	// issue with the database, since the frontend willpresumably greedily
 	// reauthenticate when the user tries.
-	secret := make([]byte, 32)
-	if n, err := rand.Read(secret); n != 32 || err != nil {
-		slog.Error("error seeding randomness",
-			"err", err,
-		)
-		return nil, fmt.Errorf("error with randomness")
-	}
-	salt := make([]byte, 16)
-	if n, err := rand.Read(salt); n != 16 || err != nil {
-		// This isn't very likely, but with Lambda (and money) it's good to
-		// exercise caution.
-		slog.Error("error seeding randomness",
-			"err", err,
-		)
-		return nil, fmt.Errorf("error with randomness")
+	salt, secret, err := makeSecrets()
+	if err != nil {
+		return nil, fmt.Errorf("make secrets: %v", err)
 	}
 	var (
 		secretX = hex.EncodeToString(secret)
@@ -106,10 +97,11 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	key := MakeKey(secret, salt)
 	keyX := hex.EncodeToString(key)
 	if !r.Dryrun {
+		eoaS := strings.ToLower(eoa.String())
 		_, err = r.Db.Exec(`
 INSERT INTO accounts_secrets_1 (eoa_addr, priv_key, salt)
 VALUES ($1, $2, $3)`,
-			eoa.String(),
+			eoaS,
 			keyX,
 			saltX,
 		)
@@ -129,9 +121,71 @@ VALUES ($1, $2, $3)`,
 
 // RequestSecret is the resolver for the requestSecret field.
 func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) (string, error) {
-	// We validate that the user has signed this request and that they're not
-	// reusing the nonce, then we generate a new secret and send it to them.
-	panic(fmt.Errorf("not implemented: RequestSecret - requestSecret"))
+	if !ethCommon.IsHexAddress(eoaAddr) {
+		return "", fmt.Errorf("decoding address")
+	}
+	eoaAddr_ := ethCommon.HexToAddress(eoaAddr)
+	var sig [32*2 + 1]byte
+	b, err := hex.DecodeString(sigR)
+	if err != nil {
+		return "", fmt.Errorf("decoding r: %v", err)
+	}
+	copy(sig[:32], b)
+	b, err = hex.DecodeString(sigS)
+	if err != nil {
+		return "", fmt.Errorf("decoding s: %v", err)
+	}
+	copy(sig[32:32*2], b)
+	if sigV < 0 || sigV > 255 {
+		return "", fmt.Errorf("decoding v: too large")
+	}
+	sig[64] = uint8(sigV)
+	b = make([]byte, 4)
+	if _, err := binary.Encode(b, binary.BigEndian, nonce); err != nil {
+		return "", fmt.Errorf("encoding: %v", err)
+	}
+	pubKey, err := ethCrypto.SigToPub(
+		ethCrypto.Keccak256Hash(
+			[]byte("\x19\x01"),
+			r.AccPubKey[:],
+			b,
+		).
+			Bytes(),
+		sig[:],
+	)
+	if err != nil {
+		return "", fmt.Errorf("recover pubkey: %v", err)
+	}
+	expAddr := ethCrypto.PubkeyToAddress(*pubKey)
+	if eoaAddr_ != expAddr {
+		return "", fmt.Errorf("bad derivation")
+	}
+	salt, secret, err := makeSecrets()
+	if err != nil {
+		return "", fmt.Errorf("make secrets: %v", err)
+	}
+	var (
+		secretX = hex.EncodeToString(secret)
+		saltX   = hex.EncodeToString(salt)
+	)
+	key := MakeKey(secret, salt)
+	keyX := hex.EncodeToString(key)
+	if !r.Dryrun {
+		eoaS := strings.ToLower(eoaAddr_.String())
+		_, err = r.Db.Exec(`
+WITH nonce_insert AS (
+	SELECT accounts_insert_nonce_1($1, $2)
+)
+INSERT INTO accounts_secrets_1 (eoa_addr, priv_key, salt)
+VALUES ($1, $3, $4)`,
+			eoaS,
+			nonce,
+			keyX,
+			saltX,
+		)
+
+	}
+	return secretX, nil
 }
 
 // NinelivesMint is the resolver for the ninelivesMint field.
@@ -207,7 +261,7 @@ func (r *queryResolver) HasCreated(ctx context.Context, address string) (bool, e
 	var count int
 	err := r.Db.QueryRow(`
 SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
-		address,
+		strings.ToLower(address),
 	)
 	if err != nil {
 		slog.Error("error querying accounts secrets row",

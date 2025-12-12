@@ -79,13 +79,32 @@ fn onboard {
 {"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    },\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
 }
 
+fn get_secret {
+	eoa=`{no_0x `{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}}
+	sig=`{get_public_key | sign-hex $SPN_SUPERPOSITION_KEY}
+	sig_r=`{echo $sig | jq -r .r}
+	sig_s=`{echo $sig | jq -r .s}
+	sig_v=`{echo $sig | jq -r .v}
+	echo $sig_r $sig_s $sig_v $eoa
+}
+
+fn mint {
+	market=`{no_0x $1} outcome=`{no_0x $2} amount=$3 referrer=`{no_0x $4}
+	should_permit=yes
+	if(~ $5 '') should_permit=''
+
+}
+
 switch($1) {
 case onboard
 	shift
 	onboard $*
+case get-secret
+	shift
+	get_secret
 case mint
 	shift
 	mint $*
 case *
-	usage '(onboard|mint)'
+	usage '(onboard|mint|get-secret)'
 }

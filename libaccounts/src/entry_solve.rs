@@ -71,8 +71,15 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
             ));
         }
         match code_hash(target.0) {
-            codehashes::NINELIVES_AMM | codehashes::NINELIVES_DPPM | codehashes::NINELIVES_DPM => {}
-            hash => panic!("target not whitelisted: {}", const_hex::encode(hash)),
+            codehashes::TEST_TARGET
+            | codehashes::NINELIVES_AMM
+            | codehashes::NINELIVES_DPPM
+            | codehashes::NINELIVES_DPM => {}
+            hash => panic!(
+                "target {}, not whitelisted: {}",
+                const_hex::encode(target.0),
+                const_hex::encode(hash)
+            ),
         };
         match safe_call_unit_err_vec(target.0, &cd, &U::ZERO, u64::MAX) {
             (false, Some(v)) => {

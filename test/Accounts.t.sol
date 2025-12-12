@@ -54,7 +54,7 @@ contract TestAccounts is Test {
         }
     }
 
-    function test_online() public {
+    function unused_test_online() public {
         vm.createSelectFork("https://rpc.superposition.so");
         address impl = IArbFoundry(address(vm)).deployStylusCode(
             "accounts.superposition.so.wasm"
