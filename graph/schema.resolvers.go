@@ -126,7 +126,7 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 		return "", fmt.Errorf("decoding address")
 	}
 	eoaAddr_ := ethCommon.HexToAddress(eoaAddr)
-	var sig [32*2 + 1]byte
+	var sig [65]byte
 	b, err := hex.DecodeString(sigR)
 	if err != nil {
 		return "", fmt.Errorf("decoding r: %v", err)
@@ -144,6 +144,9 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 		return "", fmt.Errorf("decoding v: too large")
 	}
 	sig[64] = uint8(sigV)
+	if sig[64] == 27 || sig[64] == 28 {
+		sig[64] -= 27
+	}
 	b = make([]byte, 4)
 	if _, err := binary.Encode(b, binary.BigEndian, nonce); err != nil {
 		return "", fmt.Errorf("encoding: %v", err)
