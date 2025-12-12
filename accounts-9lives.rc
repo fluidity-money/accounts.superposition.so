@@ -11,17 +11,11 @@ fn usage {
 	exit 2
 }
 
-if(! which sign-hex >/dev/null) {
-	echo sign-hex not in path. Build from tools >[1=2]
-	exit 1
-}
-if(! which leftpad-int >/dev/null) {
-	echo leftpad-int not in path. Build from tools >[1=2]
-	exit 1
-}
-if(! which make-permit >/dev/null) {
-	echo make-permit not in path. Build from tools >[1=2]
-	exit 1
+for(n in (sign-hex leftpad-int make-permit keccak256-hex)) {
+	if(! which $n >/dev/null) {
+		echo $n not in path. Build from tools >[1=2]
+		exit 1
+	}
 }
 
 if(~ $SPN_SUPERPOSITION_URL '') usage SPN_SUPERPOSITION_URL unset
@@ -79,20 +73,28 @@ fn onboard {
 {"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    },\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
 }
 
+fn random_bytes3 {
+	dd if=/dev/urandom bs=1 count=3 status=none | xxd -p
+}
+
 fn get_secret {
 	eoa=`{no_0x `{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}}
-	sig=`{get_public_key | sign-hex $SPN_SUPERPOSITION_KEY}
+	# We use a bytes3 here so that one number is always 0 so that we can stay below
+	# the signed limit:
+	nonce_hex=`{echo 00`{random_bytes3} | tr '[:lower:]' '[:upper:]'}
+	nonce=`{echo 'ibase=16; '$nonce_hex | bc}
+	sig=`{echo `{get_public_key}$nonce_hex | keccak256-hex | sign-hex $SPN_SUPERPOSITION_KEY}
 	sig_r=`{echo $sig | jq -r .r}
 	sig_s=`{echo $sig | jq -r .s}
 	sig_v=`{echo $sig | jq -r .v}
-	echo $sig_r $sig_s $sig_v $eoa
+	req '
+{"query":"mutation {\n\trequestSecret(\n    sigR: \"'$sig_r'\",\n    sigS: \"'$sig_s'\",\n    sigV: '$sig_v',\n    nonce: '$nonce',\n    eoa_addr: \"'$eoa'\"\n  )\n}"}'
 }
 
 fn mint {
 	market=`{no_0x $1} outcome=`{no_0x $2} amount=$3 referrer=`{no_0x $4}
 	should_permit=yes
 	if(~ $5 '') should_permit=''
-
 }
 
 switch($1) {
