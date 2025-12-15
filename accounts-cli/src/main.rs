@@ -80,7 +80,7 @@ fn entry(x: CliArgs) {
     match x {
         CliArgs::PubKeyForPriv { priv_key } => {
             let k = SigningKey::from_bytes(&priv_key.0);
-            println!("0x{}", const_hex::encode(k.verifying_key().as_bytes()));
+            println!("{}", const_hex::encode(k.verifying_key().as_bytes()));
         }
         CliArgs::SignFreshBackwards {
             priv_key,
@@ -104,7 +104,7 @@ fn entry(x: CliArgs) {
                 })
                 .collect::<Vec<_>>();
             println!(
-                "0x{}",
+                "{}",
                 create_blob(
                     &borsh::to_vec(&Args::FreshBackwards {
                         key: U(*k.verifying_key().as_bytes()),

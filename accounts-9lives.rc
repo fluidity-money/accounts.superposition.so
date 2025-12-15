@@ -11,9 +11,9 @@ fn usage {
 	exit 2
 }
 
-for(n in (sign-hex leftpad-int make-permit keccak256-hex)) {
+for(n in (sign-stdin leftpad-int make-permit keccak256-hex)) {
 	if(! which $n >/dev/null) {
-		echo $n not in path. Build from tools >[1=2]
+		echo $n not in path. Install from tools >[1=2]
 		exit 1
 	}
 }
@@ -30,7 +30,7 @@ fn req {
 }
 
 fn get_public_key {
-	req -d '{"query":"{publickey}"}' | jq -r .data.publickey
+	echo -n `{req -d '{"query":"{publickey}"}' | jq -r .data.publickey}
 }
 
 fn call {
@@ -60,7 +60,7 @@ fn onboard {
 		}
 	}
 	eoa=`{no_0x `{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}}
-	sig=`{get_public_key | sign-hex $SPN_SUPERPOSITION_KEY}
+	sig=`{get_public_key | sign-stdin $SPN_SUPERPOSITION_KEY}
 	sig_r=`{echo $sig | jq -r .r}
 	sig_s=`{echo $sig | jq -r .s}
 	sig_v=`{echo $sig | jq -r .v}
@@ -82,7 +82,7 @@ fn get_secret {
 	# the signed limit:
 	nonce_hex=`{echo 00`{random_bytes3} | tr '[:lower:]' '[:upper:]'}
 	nonce=`{echo 'ibase=16; '$nonce_hex | bc}
-	sig=`{echo 1901`{get_public_key}$nonce_hex | keccak256-hex | sign-hex $SPN_SUPERPOSITION_KEY}
+	sig=`{echo 1901`{get_public_key}$nonce_hex | sign-stdin $SPN_SUPERPOSITION_KEY}
 	sig_r=`{echo $sig | jq -r .r}
 	sig_s=`{echo $sig | jq -r .s}
 	sig_v=`{echo $sig | jq -r .v}

@@ -24,11 +24,10 @@ pub fn entry_fresh_backwards(
 ) -> usize {
     assert!(pub_key.is_some());
     assert!(eoa_addr.0 != [0u8; 20]);
-    let msg_preimage: [u8; 1 + 28 + 64] = concat_arrays!(
-        [0x19],
-        // Public key in hex size (32):
-        *b"Ethereum Signed Message:\n32",
-        *const_hex::const_encode::<32, false>(&pub_key.0).as_byte_array::<32>()
+    let msg_preimage: [u8; 1 + 28 + 63] = concat_arrays!(
+        // Public key in hex size (64):
+        *b"\x19Ethereum Signed Message:\n64",
+        *const_hex::const_encode::<32, false>(&pub_key.0).as_byte_array::<64>()
     );
     let msg_digest = keccak256(&msg_preimage);
     assert_eq!(

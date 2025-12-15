@@ -15,4 +15,6 @@ make accounts-cli.out
 
 make -B accounts.superposition.so.wasm
 
-arbos-forge test --stylus-debug -vvvvv --ffi $@
+# arbos-forge test --stylus-debug -vvvvv --ffi $@
+
+arbos-forge test --stylus-debug --ffi -vv $@

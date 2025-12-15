@@ -149,8 +149,7 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 	}
 	pubKey, err := ethCrypto.SigToPub(
 		ethCrypto.Keccak256(
-			[]byte("\x19"),
-			[]byte("Ethereum Signed Message:\n"),
+			[]byte("\x19Ethereum Signed Message:\n"),
 			// Length of the private key in hex + size of the encoded u64 as a big
 			// endian number:
 			[]byte(strconv.Itoa(64 + 8)),

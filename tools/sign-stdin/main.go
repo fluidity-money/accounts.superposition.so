@@ -1,30 +1,31 @@
 package main
 
 import (
-	"bufio"
-	"strings"
+	"bytes"
 	"encoding/hex"
 	"encoding/json"
 	"os"
+	"strconv"
+	"strings"
 
 	ethCrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 func main() {
-	p, err := ethCrypto.HexToECDSA(os.Args[1])
+	p, err := ethCrypto.HexToECDSA(strings.TrimPrefix(os.Args[1], "0x"))
 	if err != nil {
 		panic(err)
 	}
-	r := bufio.NewReader(os.Stdin)
-	l, _, err := r.ReadLine()
-	if err != nil {
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(os.Stdin); err != nil {
 		panic(err)
 	}
-	b, err := hex.DecodeString(strings.TrimPrefix(string(l), "0x"))
-	if err != nil {
-		panic(err)
-	}
-	s, err := ethCrypto.Sign(b, p)
+	d := ethCrypto.Keccak256(
+		[]byte("\x19Ethereum Signed Message:\n"),
+		[]byte(strconv.Itoa(buf.Len())),
+		buf.Bytes(),
+	)
+	s, err := ethCrypto.Sign(d, p)
 	if err != nil {
 		panic(err)
 	}

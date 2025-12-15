@@ -11,7 +11,7 @@ macro_rules! hash {
 }
 
 pub const TEST_TARGET: [u8; 32] =
-    hash!(b"f1551e4ce13adaacbf51b67ee3e5afd2d09b07a6c51bd9e51082fe4442da1a93");
+    hash!(b"be20cb1acdfe5afcf95ac8b88ae9de1db3f073f6d36a033695974d65285eafee");
 
 pub const NINELIVES_AMM: [u8; 32] =
     hash!(b"79b617bf8b0a9467570172a9320058be29e22e847e56ac01933f44c7cc1cf7df");
