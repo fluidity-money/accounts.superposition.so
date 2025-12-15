@@ -293,7 +293,8 @@ func (r *queryResolver) HasCreated(ctx context.Context, address string) (bool, e
 	err := r.Db.QueryRow(`
 SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
 		strings.ToLower(address),
-	)
+	).
+		Scan(&count)
 	if err != nil {
 		slog.Error("error querying accounts secrets row",
 			"err", err,
