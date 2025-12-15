@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -20,11 +21,12 @@ func main() {
 	if _, err := buf.ReadFrom(os.Stdin); err != nil {
 		panic(err)
 	}
-	d := ethCrypto.Keccak256(
+	preimage := append(
 		[]byte("\x19Ethereum Signed Message:\n"),
-		[]byte(strconv.Itoa(buf.Len())),
-		buf.Bytes(),
+		append([]byte(strconv.Itoa(buf.Len())), buf.Bytes()...)...,
 	)
+	d := ethCrypto.Keccak256(preimage)
+	log.Printf("pre: %x, %x", preimage, d)
 	s, err := ethCrypto.Sign(d, p)
 	if err != nil {
 		panic(err)

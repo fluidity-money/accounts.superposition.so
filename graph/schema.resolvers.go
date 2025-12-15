@@ -152,23 +152,27 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 	if _, err := binary.Encode(b, binary.BigEndian, nonce); err != nil {
 		return "", fmt.Errorf("encoding: %v", err)
 	}
-	pubKey, err := ethCrypto.SigToPub(
-		ethCrypto.Keccak256(
-			[]byte("\x19Ethereum Signed Message:\n"),
-			// Length of the private key in hex + size of the encoded u64 as a big
-			// endian number:
-			[]byte(strconv.Itoa(64+8)),
+	preimage := append(
+		[]byte("\x19Ethereum Signed Message:\n72"),
+		// Length of the private key in hex + size of the encoded u64 as a big
+		// endian number:
+		append(
 			[]byte(hex.EncodeToString(r.AccPubKey[:])),
-			[]byte(hex.EncodeToString(b)),
-		),
-		sig[:],
+			[]byte(hex.EncodeToString(b))...,
+		)...,
 	)
+	digest := ethCrypto.Keccak256(preimage)
+	pubKey, err := ethCrypto.SigToPub(digest, sig[:])
 	if err != nil {
 		return "", fmt.Errorf("recover pubkey: %v", err)
 	}
 	expAddr := ethCrypto.PubkeyToAddress(*pubKey)
 	if eoaAddr_ != expAddr {
-		return "", fmt.Errorf("bad derivation")
+		slog.Error("error deriving public key",
+			"preimage", fmt.Sprintf("%x", preimage),
+			"digest", fmt.Sprintf("%x", digest),
+		)
+		return "", fmt.Errorf("bad derivation: %v, expected: %v", eoaAddr_, expAddr)
 	}
 	eoaS := strings.ToLower(eoaAddr_.String())
 	var count int

@@ -82,10 +82,13 @@ fn get_secret {
 	# the signed limit:
 	nonce_hex=`{echo 00`{random_bytes3} | tr '[:lower:]' '[:upper:]'}
 	nonce=`{echo 'ibase=16; '$nonce_hex | bc}
-	sig=`{echo 1901`{get_public_key}$nonce_hex | sign-stdin $SPN_SUPERPOSITION_KEY}
+	sig=`{echo -n `{get_public_key}`{echo $nonce_hex | tr [:upper:] [:lower:]} | sign-stdin $SPN_SUPERPOSITION_KEY}
 	sig_r=`{echo $sig | jq -r .r}
 	sig_s=`{echo $sig | jq -r .s}
 	sig_v=`{echo $sig | jq -r .v}
+	req -d '
+{"query":"mutation {\n\trequestSecret(\n    sigR: \"'$sig_r'\",\n    sigS: \"'$sig_s'\",\n    sigV: '$sig_v',\n    nonce: '$nonce',\n    eoa_addr: \"'$eoa'\"\n  )\n}"}'
+	exit 0
 	secret=`{
 		req -d '
 {"query":"mutation {\n\trequestSecret(\n    sigR: \"'$sig_r'\",\n    sigS: \"'$sig_s'\",\n    sigV: '$sig_v',\n    nonce: '$nonce',\n    eoa_addr: \"'$eoa'\"\n  )\n}"}' \
