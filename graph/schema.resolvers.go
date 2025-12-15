@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"log/slog"
 	"math/big"
-	"strconv"
 	"strings"
 
 	ethCommon "github.com/ethereum/go-ethereum/common"

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -26,7 +25,6 @@ func main() {
 		append([]byte(strconv.Itoa(buf.Len())), buf.Bytes()...)...,
 	)
 	d := ethCrypto.Keccak256(preimage)
-	log.Printf("pre: %x, %x", preimage, d)
 	s, err := ethCrypto.Sign(d, p)
 	if err != nil {
 		panic(err)
