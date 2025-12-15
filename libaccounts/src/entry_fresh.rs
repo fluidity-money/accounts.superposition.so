@@ -7,7 +7,7 @@ use bobcat_sdk::{
     maths::U,
     precompiles::ethereum::ecrecover,
     proxy::{make_metamorphic_beacon_proxy, SEL_MIGRATE},
-    storage::storage_load,
+    storage::{keccak256, storage_load},
 };
 
 use crate::{Args, ArgsAddr, SolveArgsSigArgs, SLOT_IMPL};
@@ -24,7 +24,17 @@ pub fn entry_fresh_backwards(
 ) -> usize {
     assert!(pub_key.is_some());
     assert!(eoa_addr.0 != [0u8; 20]);
-    assert_eq!(eoa_addr.0, ecrecover(pub_key, v, r, s, u64::MAX).unwrap());
+    let msg_preimage: [u8; 1 + 28 + 64] = concat_arrays!(
+        [0x19],
+        // Public key in hex size (32):
+        *b"Ethereum Signed Message:\n32",
+        *const_hex::const_encode::<32, false>(&pub_key.0).as_byte_array::<32>()
+    );
+    let msg_digest = keccak256(&msg_preimage);
+    assert_eq!(
+        eoa_addr.0,
+        ecrecover(msg_digest, v, r, s, u64::MAX).unwrap()
+    );
     // This code reenters the transparent upgradeable proxy used here when
     // the migrate function is called. But it uses a slot for its
     // implementation when it's delegatecalled into.
@@ -71,7 +81,9 @@ mod test {
             "{}",
             const_hex::encode(const_estimate_addr_pre(
                 address!(b"0000000000000000000000000000000000000000"),
-                &make_metamorphic_beacon_proxy(address!(b"0000000000000000000000000000000000000000")),
+                &make_metamorphic_beacon_proxy(address!(
+                    b"0000000000000000000000000000000000000000"
+                )),
                 &address!(b"feb6034fc7df27df18a3a6bad5fb94c0d3dcb6d5"),
             ))
         );

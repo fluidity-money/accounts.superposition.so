@@ -6,11 +6,11 @@ package graph
 
 import (
 	"context"
-	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"log/slog"
 	"math/big"
+	"strconv"
 	"strings"
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
@@ -147,15 +147,15 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 	if sig[64] == 27 || sig[64] == 28 {
 		sig[64] -= 27
 	}
-	b = make([]byte, 4)
-	if _, err := binary.Encode(b, binary.BigEndian, nonce); err != nil {
-		return "", fmt.Errorf("encoding: %v", err)
-	}
 	pubKey, err := ethCrypto.SigToPub(
 		ethCrypto.Keccak256(
-			[]byte("\x19\x01"),
-			r.AccPubKey[:],
-			b,
+			[]byte("\x19"),
+			[]byte("Ethereum Signed Message:\n"),
+			// Length of the private key in hex + size of the encoded u64 as a big
+			// endian number:
+			[]byte(strconv.Itoa(64 + 8)),
+			[]byte(hex.EncodeToString(r.AccPubKey[:])),
+			[]byte(strconv.Itoa(int(nonce))),
 		),
 		sig[:],
 	)
