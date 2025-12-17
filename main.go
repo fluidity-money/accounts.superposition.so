@@ -97,6 +97,7 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		bearerS := strings.Split(bearer, ":")
 		eoaPreferred_ := bearerS[0]
 		if !ethCommon.IsHexAddress(eoaPreferred_) {
+			slog.Error("not eoa address", "eoa", eoaPreferred_)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -105,6 +106,7 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		eoaPreferred := strings.ToLower(ethCommon.HexToAddress(eoaPreferred_).String())
 		secret, err := hex.DecodeString(bearerS[1])
 		if err != nil {
+			slog.Info("error decoding bearer", "err", err, "bearer", bearerS)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
