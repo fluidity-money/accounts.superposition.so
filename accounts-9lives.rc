@@ -39,13 +39,12 @@ fn call {
 
 fn make_mint_obj {
 	amount=$1 market=$2 referrer=$3 ms_ts=$4 should_permit=$5
-	amount_hex=`{leftpad-int $amount}
 	ms_ts=`{date +%s%3N}
 	permit_obj=''
 	if(~ $should_permit yes) {
 		permit_obj=`{make_permit_obj}
 	}
-	echo 'mint: {\n      market: \"'$market'\",\n      outcome: \"'$outcome'\",\n      amount: \"'$amount_hex'\",\n      referrer: \"'$referrer'\",\n      ms_ts: \"'$ms_ts'\",\n      '$permit_obj'    }'
+	echo 'mint: {\n      market: \"'$market'\",\n      outcome: \"'$outcome'\",\n      amount: \"'$amount'\",\n      referrer: \"'$referrer'\",\n      ms_ts: \"'$ms_ts'\",\n      '$permit_obj'    }'
 }
 
 fn onboard {

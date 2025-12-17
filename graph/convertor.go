@@ -5,6 +5,7 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"math/big"
+	"strings"
 	"os/exec"
 	"math"
 
@@ -21,7 +22,7 @@ var MaxBytes32 [32]byte
 
 func strToBytes8(s string) ([8]byte, error) {
 	var b [8]byte
-	i, err := hex.Decode(b[:], []byte(s))
+	i, err := hex.Decode(b[:], []byte(strings.TrimPrefix(s, "0x")))
 	if err != nil {
 		return b, fmt.Errorf("decode str: %v", err)
 	}
@@ -33,7 +34,10 @@ func strToBytes8(s string) ([8]byte, error) {
 
 func strToAddr(s string) ([20]byte, error) {
 	var b [20]byte
-	i, err := hex.Decode(b[:], []byte(s))
+	if s == "" {
+		return b, nil
+	}
+	i, err := hex.Decode(b[:], []byte(strings.TrimPrefix(s, "0x")))
 	if err != nil {
 		return b, fmt.Errorf("decode str: %v", err)
 	}
@@ -45,7 +49,7 @@ func strToAddr(s string) ([20]byte, error) {
 
 func strToBytes32(s string) ([32]byte, error) {
 	var b [32]byte
-	i, err := hex.Decode(b[:], []byte(s))
+	i, err := hex.Decode(b[:], []byte(strings.TrimPrefix(s, "0x")))
 	if err != nil {
 		return b, fmt.Errorf("decode str: %v", err)
 	}
@@ -124,10 +128,15 @@ func CreateSolveArgsSigArgs(
 	if err != nil {
 		return nil, fmt.Errorf("outcome: %v", err)
 	}
-	a, err := strToBytes32(amount)
-	if err != nil {
-		return nil, fmt.Errorf("amount: %v", err)
+	a_, ok := new(big.Int).SetString(amount, 10)
+	if !ok {
+		return nil, fmt.Errorf("amount: %v", amount)
 	}
+	if len(a_.Bytes()) > 32 {
+		return nil, fmt.Errorf("too huge amount: %v", amount)
+	}
+	var a [32]byte
+	copy(a[32-len(a_.Bytes()):], a_.Bytes())
 	ref, err := strToAddr(referrer)
 	if err != nil {
 		return nil, fmt.Errorf("referrer: %v", err)

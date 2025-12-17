@@ -113,7 +113,8 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		row := a.db.QueryRow(`
 SELECT salt
 FROM accounts_secrets_1
-WHERE eoa_addr = $1 AND valid_until > CURRENT_TIMESTAMP`,
+WHERE eoa_addr = $1 AND valid_until > CURRENT_TIMESTAMP
+ORDER BY valid_until DESC`,
 			eoaPreferred,
 		)
 		var salt string
@@ -144,10 +145,12 @@ WHERE priv_key = $1 AND eoa_addr = $2`,
 			eoaPreferred,
 		)
 		var sink int
-		switch err := row.Scan(&sink); err {
-		case nil:
-		default:
-			slog.Info("error matching salt", "keyS", keyS, "eoa preferred", eoaPreferred,"err", err)
+		if err := row.Scan(&sink); err != nil {
+			slog.Info("error matching private key",
+				"keyS", keyS,
+				"eoa preferred", eoaPreferred,
+				"err", err,
+			)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

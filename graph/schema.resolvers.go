@@ -246,6 +246,19 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 		mint.Permit,
 		mint.MsTs,
 	)
+	if err != nil {
+		slog.Error("error creating solve args",
+			"err", err,
+			"market", mint.Market,
+			"outcome", mint.Outcome,
+			"amount", mint.Amount,
+			"referrer", mint.Referrer,
+			"eoa", eoa,
+			"permit", mint.Permit,
+			"ms ts", mint.MsTs,
+		)
+		return "", fmt.Errorf("error creating solve args: %v", err)
+	}
 	h, err := client.SendArguments(
 		ctx,
 		r.Client,
