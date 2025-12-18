@@ -269,31 +269,34 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 		)
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
-	h, err := client.SendArguments(
-		ctx,
-		r.Client,
-		r.ChainId,
-		privKey,
-		*sender,
-		clientAddr,
-		types.Args{
-			Enum: types.ArgsSolve,
-			Solve: types.Solve{
-				Slot: 0,
-				Args: []types.SolveArgsSigArgs{*f},
+	for i := 0; i < 3; i++ {
+		h, err := client.SendArguments(
+			ctx,
+			r.Client,
+			r.ChainId,
+			privKey,
+			*sender,
+			clientAddr,
+			types.Args{
+				Enum: types.ArgsSolve,
+				Solve: types.Solve{
+					Slot: 0,
+					Args: []types.SolveArgsSigArgs{*f},
+				},
 			},
-		},
-		r.Dryrun,
-	)
-	if err != nil {
-		slog.Error("error sending arguments",
-			"sender", sender,
-			"solve", f,
-			"err", err,
+			r.Dryrun,
 		)
-		return "", fmt.Errorf("sending: %v", err)
+		if err != nil {
+			slog.Error("error sending arguments",
+				"sender", sender,
+				"solve", f,
+				"err", err,
+				"attempt", i,
+			)
+		}
+		return h.Hex(), nil
 	}
-	return h.Hex(), nil
+	return "", fmt.Errorf("last error sending: %v", err)
 }
 
 // Publickey is the resolver for the publickey field.
