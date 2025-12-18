@@ -8,8 +8,7 @@ using a metamorphic proxy pattern spun up using the storage slot.
 
 Registration is interesting. A user calls the factory contract, which validates the
 signature and user data. The factory then uses create2 on the Ethereum address to call the
-migration method, which simply delegatecalls back to the factory. The client contract
-simply sets some transient storage fields after checking they weren't already set.
+migration method, which simply delegatecalls back to the factory.
 
 ## Deployment layout
 

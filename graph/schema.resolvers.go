@@ -113,6 +113,16 @@ VALUES ($1, $2, $3)`,
 			)
 			return nil, fmt.Errorf("error inserting secret: %v", err)
 		}
+		_, err = r.Db.Exec(`
+INSERT INTO accounts_executed_transactions_1 (eoa_addr, transaction_hash)
+VALUES ($1, $2)`,
+			eoaS,
+			h.Hex(),
+		)
+		if err != nil {
+			slog.Error("error tracking executed transactions", "err", err)
+			// We'll ignore this and not propagate up to the user this error.
+		}
 	}
 	return &model.CreateAccountExec{
 		Hash:   h.Hex(),
