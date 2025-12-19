@@ -12,7 +12,7 @@ import (
 // PickPrivateKey using a backoff system of picking the lowest ranked
 // address at a given time. Then derive the public key here.
 func PickPrivateKey(db *sql.DB) (*ecdsa.PrivateKey, *ethCommon.Address, error) {
-	r := db.QueryRow("SELECT accounts_get_private_key_1()")
+	r := db.QueryRow("SELECT accounts_get_private_key_2()")
 	var s string
 	switch err := r.Scan(&s); err {
 	case sql.ErrNoRows:
