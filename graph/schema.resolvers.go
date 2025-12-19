@@ -15,7 +15,6 @@ import (
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
 	ethCrypto "github.com/ethereum/go-ethereum/crypto"
-
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	"github.com/fluidity-money/accounts.superposition.so/lib/client"
 	"github.com/fluidity-money/accounts.superposition.so/lib/db"
@@ -266,6 +265,62 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 			"eoa", eoa,
 			"permit", mint.Permit,
 			"ms ts", mint.MsTs,
+		)
+		return "", fmt.Errorf("error creating solve args: %v", err)
+	}
+	for i := 0; i < 3; i++ {
+		h, err := client.SendArguments(
+			ctx,
+			r.Client,
+			r.ChainId,
+			privKey,
+			*sender,
+			clientAddr,
+			types.Args{
+				Enum: types.ArgsSolve,
+				Solve: types.Solve{
+					Slot: 0,
+					Args: []types.SolveArgsSigArgs{*f},
+				},
+			},
+			r.Dryrun,
+		)
+		if err != nil {
+			slog.Error("error sending arguments",
+				"sender", sender,
+				"solve", f,
+				"err", err,
+				"attempt", i,
+			)
+		}
+		return h.Hex(), nil
+	}
+	return "", fmt.Errorf("last error sending: %v", err)
+}
+
+// ClaimRewards is the resolver for the claimRewards field.
+func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, msTs string) (string, error) {
+	if authed, _ := ctx.Value("authed").(bool); !authed {
+		return "", fmt.Errorf("not authed")
+	}
+	eoa, ok := ctx.Value("eoa").(ethCommon.Address)
+	if !ok {
+		return "", fmt.Errorf("bad eoa address")
+	}
+	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, eoa)
+	privKey, sender, err := db.PickPrivateKey(r.Db)
+	if err != nil {
+		slog.Error("error picking private key",
+			"err", err,
+		)
+		return "", fmt.Errorf("picking private key: %v", err)
+	}
+	f, err := CreateClaimAllArgs(r.ClaimantHelperAddr, eoa, markets, msTs)
+	if err != nil {
+		slog.Error("error creating claim all args",
+			"err", err,
+			"markets", markets,
+			"eoa", eoa,
 		)
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}

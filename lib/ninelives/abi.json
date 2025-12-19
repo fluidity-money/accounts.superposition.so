@@ -32,5 +32,23 @@
 			}
 		],
 		"stateMutability": "nonpayable"
+	},
+	{
+			"type": "function",
+			"name": "claimForOther",
+			"inputs": [
+				{
+					"name": "_pools",
+					"type": "address[]",
+					"internalType": "address[]"
+				},
+				{
+					"name": "_recipient",
+					"type": "address",
+					"internalType": "address"
+				}
+			],
+			"outputs": [],
+			"stateMutability": "nonpayable"
 	}
 ]

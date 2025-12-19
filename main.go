@@ -69,6 +69,9 @@ const (
 
 	// EnvFusdcAddr to use to work with permit.
 	EnvFusdcAddr = "SPN_FUSDC_ADDR"
+
+	// EnvClaimantHelperAddr to use with the ClaimantHelper.
+	EnvClaimantHelperAddr = "SPN_CLAIMANT_HELPER"
 )
 
 type authMiddleware struct {
@@ -192,12 +195,16 @@ func main() {
 	copy(accPubKey[:], accPubKeyB)
 	adminSecret := os.Getenv(EnvAdminSecret)
 	dryrun := os.Getenv(EnvDryrun) != ""
-	fusdc := ethCommon.HexToAddress(os.Getenv(EnvFusdcAddr))
+	var (
+		fusdc          = ethCommon.HexToAddress(os.Getenv(EnvFusdcAddr))
+		claimantHelper = ethCommon.HexToAddress(os.Getenv(EnvClaimantHelperAddr))
+	)
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
 		Client:              c,
 		Db:                  db,
 		ChainId:             chainId,
 		AccountsFactoryAddr: accountsFactoryAddr,
+		ClaimantHelperAddr: claimantHelper,
 		AccPubKey:           accPubKey,
 		Fusdc:               fusdc,
 		Dryrun:              dryrun,

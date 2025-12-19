@@ -59,6 +59,51 @@ func strToBytes32(s string) ([32]byte, error) {
 	return b, nil
 }
 
+func CreateClaimAllArgs(
+	claimantHelper, eoa ethCommon.Address,
+	markets_ []string,
+	msTs_ string,
+) (*types.SolveArgsSigArgs, error) {
+	msTsI, ok := new(big.Int).SetString(msTs_, 10)
+	if !ok {
+		return nil, fmt.Errorf("ms ts: %v", msTs_)
+	}
+	var msTs [16]byte
+	copy(msTs[:], msTsI.Bytes())
+	markets := make([]ethCommon.Address, len(markets_))
+	for i, m := range markets_ {
+		if !ethCommon.IsHexAddress(m) {
+			return nil, fmt.Errorf("bad address: %v", m)
+		}
+		markets[i] = ethCommon.HexToAddress(m)
+	}
+	cd := ninelives.NewClaimForOther(markets, eoa)
+	solveArgs := types.SolveArgs{
+		Target: claimantHelper,
+		Cd:     cd,
+		MsTs: msTs,
+	}
+	solveArgsDigest, err := borsh.Serialize(solveArgs)
+	if err != nil {
+		return nil, fmt.Errorf("making digest: %v", err)
+	}
+	var sigArr [64]byte
+	d := sha512.Sum512(solveArgsDigest)
+	sig, err := exec.Command(
+		"/var/task/ed25519-dalek-ph.out",
+		hex.EncodeToString(d[:]),
+	).
+		Output()
+	if err != nil {
+		return nil, fmt.Errorf("invoking dalekph: %v, %v", string(sig), err)
+	}
+	copy(sigArr[:], sig)
+	return &types.SolveArgsSigArgs{
+		Sig:  sigArr,
+		Args: solveArgs,
+	}, nil
+}
+
 // CreateAccountToFreshBackwards without the SolveArgs fields set.
 func CreateAccountToFreshBackwards(pubKey [32]byte, createAccount model.CreateAccount) (*types.FreshBackwards, error) {
 	eoa, err := strToAddr(createAccount.EoaAddr)

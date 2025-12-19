@@ -42,3 +42,11 @@ func UnpackMint(cd []byte) (outcome [8]byte, value [32]byte, referrer, recipient
 	copy(referrer[:], cd[4+32*3:4+32*4][:32-20])
 	return
 }
+
+func NewClaimForOther(addresses []ethCommon.Address, eoa ethCommon.Address) []byte {
+	a, err := abi.Pack("claimForOther",addresses, eoa,)
+	if err != nil {
+		panic(err)
+	}
+	return a
+}

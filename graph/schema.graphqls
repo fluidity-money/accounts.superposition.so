@@ -86,4 +86,9 @@ type Mutation {
   user passes to the client.
   """
   ninelivesMint(mint: Mint!): String!
+
+  """
+  Claim rewards for the markets given, using the eoa in the header.
+  """
+  claimRewards(markets: [String!]!, msTs: String!): String!
 }
