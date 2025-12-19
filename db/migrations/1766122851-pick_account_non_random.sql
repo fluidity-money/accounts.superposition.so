@@ -1,11 +1,11 @@
 -- migrate:up
 
 CREATE FUNCTION accounts_get_private_key_2()
-RETURNS BYTES64
+RETURNS BYTES32
 LANGUAGE plpgsql
 AS $$
 DECLARE
-	selected_key BYTES64;
+	selected_key BYTES32;
 BEGIN
 	UPDATE accounts_sender_keys_1
 	SET last_accessed = NOW()
