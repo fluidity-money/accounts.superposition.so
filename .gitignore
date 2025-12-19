@@ -10,3 +10,4 @@ accounts.superposition.so
 bootstrap
 bootstrap.zip
 ed25519-dalek-ph.out
+deploy-aws.sh
