@@ -22,7 +22,7 @@ import (
 )
 
 // CreateAccountExec is the resolver for the createAccountExec field.
-func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (*model.CreateAccountExec, error) {
+func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
 	f, err := CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
 	if err != nil {
 		slog.Error("create account",
@@ -70,7 +70,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			Enum:           types.ArgsFreshBackwards,
 			FreshBackwards: *f,
 		},
-		r.Dryrun,
+		isDryrun(dryrun),
 	)
 	if err != nil {
 		slog.Error("error sending arguments",
@@ -96,7 +96,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	)
 	key := MakeKey(secret, salt)
 	keyX := hex.EncodeToString(key)
-	if !r.Dryrun {
+	if !isDryrun(dryrun) {
 		eoaS := strings.ToLower(eoa.String())
 		_, err = r.Db.Exec(`
 INSERT INTO accounts_secrets_1 (eoa_addr, priv_key, salt)
@@ -130,7 +130,7 @@ VALUES ($1, $2)`,
 }
 
 // RequestSecret is the resolver for the requestSecret field.
-func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) (string, error) {
+func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) (string, error) {
 	if !ethCommon.IsHexAddress(eoaAddr) {
 		return "", fmt.Errorf("decoding address")
 	}
@@ -208,7 +208,7 @@ SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
 	)
 	key := MakeKey(secret, salt)
 	keyX := hex.EncodeToString(key)
-	if !r.Dryrun {
+	if !isDryrun(dryrun) {
 		_, err = r.Db.Exec(`
 WITH nonce_insert AS (
 	SELECT accounts_insert_nonce_1($1, $2)
@@ -229,7 +229,7 @@ VALUES ($1, $3, $4)`,
 }
 
 // NinelivesMint is the resolver for the ninelivesMint field.
-func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (string, error) {
+func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error) {
 	if authed, _ := ctx.Value("authed").(bool); !authed {
 		return "", fmt.Errorf("not authed")
 	}
@@ -283,7 +283,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 					Args: []types.SolveArgsSigArgs{*f},
 				},
 			},
-			r.Dryrun,
+			isDryrun(dryrun),
 		)
 		if err != nil {
 			slog.Error("error sending arguments",
@@ -292,14 +292,15 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint) (
 				"err", err,
 				"attempt", i,
 			)
+		} else {
+			return h.Hex(), nil
 		}
-		return h.Hex(), nil
 	}
 	return "", fmt.Errorf("last error sending: %v", err)
 }
 
 // ClaimRewards is the resolver for the claimRewards field.
-func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, msTs string) (string, error) {
+func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error) {
 	if authed, _ := ctx.Value("authed").(bool); !authed {
 		return "", fmt.Errorf("not authed")
 	}
@@ -339,7 +340,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 					Args: []types.SolveArgsSigArgs{*f},
 				},
 			},
-			r.Dryrun,
+			isDryrun(dryrun),
 		)
 		if err != nil {
 			slog.Error("error sending arguments",

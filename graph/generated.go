@@ -53,10 +53,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ClaimRewards      func(childComplexity int, markets []string, msTs string) int
-		CreateAccountExec func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint) int
-		NinelivesMint     func(childComplexity int, mint model.Mint) int
-		RequestSecret     func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) int
+		ClaimRewards      func(childComplexity int, markets []string, msTs string, dryrun *bool) int
+		CreateAccountExec func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) int
+		NinelivesMint     func(childComplexity int, mint model.Mint, dryrun *bool) int
+		RequestSecret     func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) int
 	}
 
 	Query struct {
@@ -67,10 +67,10 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint) (*model.CreateAccountExec, error)
-	RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string) (string, error)
-	NinelivesMint(ctx context.Context, mint model.Mint) (string, error)
-	ClaimRewards(ctx context.Context, markets []string, msTs string) (string, error)
+	CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error)
+	RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) (string, error)
+	NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error)
+	ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error)
 }
 type QueryResolver interface {
 	Publickey(ctx context.Context) (string, error)
@@ -120,7 +120,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ClaimRewards(childComplexity, args["markets"].([]string), args["msTs"].(string)), true
+		return e.complexity.Mutation.ClaimRewards(childComplexity, args["markets"].([]string), args["msTs"].(string), args["dryrun"].(*bool)), true
 	case "Mutation.createAccountExec":
 		if e.complexity.Mutation.CreateAccountExec == nil {
 			break
@@ -131,7 +131,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateAccountExec(childComplexity, args["createAccount"].(model.CreateAccount), args["mint"].(*model.Mint)), true
+		return e.complexity.Mutation.CreateAccountExec(childComplexity, args["createAccount"].(model.CreateAccount), args["mint"].(*model.Mint), args["dryrun"].(*bool)), true
 	case "Mutation.ninelivesMint":
 		if e.complexity.Mutation.NinelivesMint == nil {
 			break
@@ -142,7 +142,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.NinelivesMint(childComplexity, args["mint"].(model.Mint)), true
+		return e.complexity.Mutation.NinelivesMint(childComplexity, args["mint"].(model.Mint), args["dryrun"].(*bool)), true
 	case "Mutation.requestSecret":
 		if e.complexity.Mutation.RequestSecret == nil {
 			break
@@ -153,7 +153,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RequestSecret(childComplexity, args["eoa_addr"].(string), args["nonce"].(int32), args["sigV"].(int32), args["sigR"].(string), args["sigS"].(string)), true
+		return e.complexity.Mutation.RequestSecret(childComplexity, args["eoa_addr"].(string), args["nonce"].(int32), args["sigV"].(int32), args["sigR"].(string), args["sigS"].(string), args["dryrun"].(*bool)), true
 
 	case "Query.eoaForAddress":
 		if e.complexity.Query.EoaForAddress == nil {
@@ -326,6 +326,11 @@ func (ec *executionContext) field_Mutation_claimRewards_args(ctx context.Context
 		return nil, err
 	}
 	args["msTs"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "dryrun", ec.unmarshalOBoolean2ᚖbool)
+	if err != nil {
+		return nil, err
+	}
+	args["dryrun"] = arg2
 	return args, nil
 }
 
@@ -342,6 +347,11 @@ func (ec *executionContext) field_Mutation_createAccountExec_args(ctx context.Co
 		return nil, err
 	}
 	args["mint"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "dryrun", ec.unmarshalOBoolean2ᚖbool)
+	if err != nil {
+		return nil, err
+	}
+	args["dryrun"] = arg2
 	return args, nil
 }
 
@@ -353,6 +363,11 @@ func (ec *executionContext) field_Mutation_ninelivesMint_args(ctx context.Contex
 		return nil, err
 	}
 	args["mint"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "dryrun", ec.unmarshalOBoolean2ᚖbool)
+	if err != nil {
+		return nil, err
+	}
+	args["dryrun"] = arg1
 	return args, nil
 }
 
@@ -384,6 +399,11 @@ func (ec *executionContext) field_Mutation_requestSecret_args(ctx context.Contex
 		return nil, err
 	}
 	args["sigS"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "dryrun", ec.unmarshalOBoolean2ᚖbool)
+	if err != nil {
+		return nil, err
+	}
+	args["dryrun"] = arg5
 	return args, nil
 }
 
@@ -538,7 +558,7 @@ func (ec *executionContext) _Mutation_createAccountExec(ctx context.Context, fie
 		ec.fieldContext_Mutation_createAccountExec,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().CreateAccountExec(ctx, fc.Args["createAccount"].(model.CreateAccount), fc.Args["mint"].(*model.Mint))
+			return ec.resolvers.Mutation().CreateAccountExec(ctx, fc.Args["createAccount"].(model.CreateAccount), fc.Args["mint"].(*model.Mint), fc.Args["dryrun"].(*bool))
 		},
 		nil,
 		ec.marshalOCreateAccountExec2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐCreateAccountExec,
@@ -585,7 +605,7 @@ func (ec *executionContext) _Mutation_requestSecret(ctx context.Context, field g
 		ec.fieldContext_Mutation_requestSecret,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().RequestSecret(ctx, fc.Args["eoa_addr"].(string), fc.Args["nonce"].(int32), fc.Args["sigV"].(int32), fc.Args["sigR"].(string), fc.Args["sigS"].(string))
+			return ec.resolvers.Mutation().RequestSecret(ctx, fc.Args["eoa_addr"].(string), fc.Args["nonce"].(int32), fc.Args["sigV"].(int32), fc.Args["sigR"].(string), fc.Args["sigS"].(string), fc.Args["dryrun"].(*bool))
 		},
 		nil,
 		ec.marshalNString2string,
@@ -626,7 +646,7 @@ func (ec *executionContext) _Mutation_ninelivesMint(ctx context.Context, field g
 		ec.fieldContext_Mutation_ninelivesMint,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().NinelivesMint(ctx, fc.Args["mint"].(model.Mint))
+			return ec.resolvers.Mutation().NinelivesMint(ctx, fc.Args["mint"].(model.Mint), fc.Args["dryrun"].(*bool))
 		},
 		nil,
 		ec.marshalNString2string,
@@ -667,7 +687,7 @@ func (ec *executionContext) _Mutation_claimRewards(ctx context.Context, field gr
 		ec.fieldContext_Mutation_claimRewards,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Mutation().ClaimRewards(ctx, fc.Args["markets"].([]string), fc.Args["msTs"].(string))
+			return ec.resolvers.Mutation().ClaimRewards(ctx, fc.Args["markets"].([]string), fc.Args["msTs"].(string), fc.Args["dryrun"].(*bool))
 		},
 		nil,
 		ec.marshalNString2string,

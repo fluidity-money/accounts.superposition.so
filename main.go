@@ -61,9 +61,6 @@ const (
 	// it expects a differently sized key, so we can't derive the same key reliably here.
 	EnvAccPublicKey = "SPN_ACCOUNTS_PUBLIC_KEY"
 
-	// EnvDryrun disables the sending of transactions, instead simulating.
-	EnvDryrun = "SPN_DRYRUN"
-
 	// EnvAdminSecret to use for users to perform administrative actions with.
 	EnvAdminSecret = "SPN_ADMIN_SECRET"
 
@@ -194,7 +191,6 @@ func main() {
 	var accPubKey [32]byte
 	copy(accPubKey[:], accPubKeyB)
 	adminSecret := os.Getenv(EnvAdminSecret)
-	dryrun := os.Getenv(EnvDryrun) != ""
 	var (
 		fusdc          = ethCommon.HexToAddress(os.Getenv(EnvFusdcAddr))
 		claimantHelper = ethCommon.HexToAddress(os.Getenv(EnvClaimantHelperAddr))
@@ -207,7 +203,6 @@ func main() {
 		ClaimantHelperAddr: claimantHelper,
 		AccPubKey:           accPubKey,
 		Fusdc:               fusdc,
-		Dryrun:              dryrun,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

@@ -65,7 +65,11 @@ type Mutation {
   Create a new account using the key management service intended for API workers. Returns
   a secret key that can be used to spend from the account.
   """
-  createAccountExec(createAccount: CreateAccount!, mint: Mint): CreateAccountExec
+  createAccountExec(
+      createAccount: CreateAccount!,
+      mint: Mint,
+      dryrun: Boolean
+  ): CreateAccountExec
 
   """
   Request the existing secret that was created for this account. It needs a signature of
@@ -77,7 +81,8 @@ type Mutation {
     nonce: Int!,
     sigV: Int!,
     sigR: String!,
-    sigS: String!
+    sigS: String!,
+    dryrun: Boolean
   ): String!
 
   """
@@ -85,10 +90,10 @@ type Mutation {
   account at the same time. The EOA is fetched from the secret key that the
   user passes to the client.
   """
-  ninelivesMint(mint: Mint!): String!
+  ninelivesMint(mint: Mint!, dryrun: Boolean): String!
 
   """
   Claim rewards for the markets given, using the eoa in the header.
   """
-  claimRewards(markets: [String!]!, msTs: String!): String!
+  claimRewards(markets: [String!]!, msTs: String!, dryrun: Boolean): String!
 }

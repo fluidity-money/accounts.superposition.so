@@ -15,5 +15,4 @@ type Resolver struct {
 	AccountsFactoryAddr, ClaimantHelperAddr ethCommon.Address
 	AccPubKey                               [32]byte
 	Fusdc                                   [20]byte
-	Dryrun                                  bool
 }
