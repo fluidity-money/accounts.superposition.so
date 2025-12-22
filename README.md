@@ -38,7 +38,7 @@ binary for deployment.
 ## Deployments
 
 `0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the accounts factory.
-`0x26503f6776333dcf05a2a03c596d0764b8dfa3aa` is the implementation.
+`0x0e9fd2cff63f270e3049f90ccfff6def75e8e2b8` is the implementation.
 
 ## Building
 

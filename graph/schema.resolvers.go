@@ -131,6 +131,7 @@ VALUES ($1, $2)`,
 
 // RequestSecret is the resolver for the requestSecret field.
 func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) (string, error) {
+	snowflake, _ := ctx.Value("snowflake").(int)
 	if !ethCommon.IsHexAddress(eoaAddr) {
 		return "", fmt.Errorf("decoding address")
 	}
@@ -179,6 +180,7 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 		slog.Error("error deriving public key",
 			"preimage", fmt.Sprintf("%x", preimage),
 			"digest", fmt.Sprintf("%x", digest),
+			"snowflake", snowflake,
 		)
 		return "", fmt.Errorf("bad derivation: %v, expected: %v", eoaAddr_, expAddr)
 	}
@@ -230,6 +232,7 @@ VALUES ($1, $3, $4)`,
 
 // NinelivesMint is the resolver for the ninelivesMint field.
 func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error) {
+	snowflake, _ := ctx.Value("snowflake").(int)
 	if authed, _ := ctx.Value("authed").(bool); !authed {
 		return "", fmt.Errorf("not authed")
 	}
@@ -242,6 +245,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 	if err != nil {
 		slog.Error("error picking private key",
 			"err", err,
+			"snowflake", snowflake,
 		)
 		return "", fmt.Errorf("picking private key: %v", err)
 	}
@@ -265,7 +269,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"eoa", eoa,
 			"permit", mint.Permit,
 			"ms ts", mint.MsTs,
+			"snowflake", snowflake,
 		)
+		activateSoftAlarm(r.UrlAlarm, snowflake, err)
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
 	for i := 0; i < 3; i++ {
@@ -291,7 +297,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 				"solve", f,
 				"err", err,
 				"attempt", i,
+				"snowflake", snowflake,
 			)
+			activateSoftAlarm(r.UrlAlarm, snowflake, err)
 		} else {
 			return h.Hex(), nil
 		}

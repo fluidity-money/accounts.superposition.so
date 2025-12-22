@@ -9,6 +9,7 @@ import (
 	"log"
 	"log/slog"
 	"math/big"
+	"math/rand"
 	"net/http"
 	"os"
 	"strings"
@@ -69,6 +70,9 @@ const (
 
 	// EnvClaimantHelperAddr to use with the ClaimantHelper.
 	EnvClaimantHelperAddr = "SPN_CLAIMANT_HELPER"
+
+	// EnvAlarmWebhook that will trigger a soft alarm if called.
+	EnvAlarmWebhook = "SPN_ALARM_WEBHOOK"
 )
 
 type authMiddleware struct {
@@ -80,6 +84,8 @@ type authMiddleware struct {
 func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
+	snowflake := rand.Int()
+	ctx := context.WithValue(r.Context(), "snowflake", snowflake)
 	switch bearer := r.Header.Get("Authorization"); bearer {
 	case "":
 		a.srv.ServeHTTP(w, r)
@@ -97,7 +103,10 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		bearerS := strings.Split(bearer, ":")
 		eoaPreferred_ := bearerS[0]
 		if !ethCommon.IsHexAddress(eoaPreferred_) {
-			slog.Error("not eoa address", "eoa", eoaPreferred_)
+			slog.Error("not eoa address",
+				"eoa", eoaPreferred_,
+				"snowflake", snowflake,
+			)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -106,7 +115,11 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		eoaPreferred := strings.ToLower(ethCommon.HexToAddress(eoaPreferred_).String())
 		secret, err := hex.DecodeString(bearerS[1])
 		if err != nil {
-			slog.Info("error decoding bearer", "err", err, "bearer", bearerS)
+			slog.Error("error decoding bearer",
+				"err", err,
+				"bearer", bearerS,
+				"snowflake", snowflake,
+			)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -122,16 +135,19 @@ ORDER BY valid_until DESC`,
 		case nil:
 		case sql.ErrNoRows:
 			w.WriteHeader(http.StatusUnauthorized)
-			slog.Error("no rows", "err", err)
+			slog.Error("no rows", "err", err, "snowflake", snowflake)
 			return
 		default:
-			slog.Error("bad salt scan", "err", err)
+			slog.Error("bad salt scan",
+				"err", err,
+				"snowflake", snowflake,
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		saltB, err := hex.DecodeString(salt)
 		if err != nil {
-			slog.Error("error unpacking salt from database", "err", err)
+			slog.Error("error unpacking salt from database", "err", err, "snowflake", snowflake)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -146,17 +162,17 @@ WHERE priv_key = $1 AND eoa_addr = $2`,
 		)
 		var sink int
 		if err := row.Scan(&sink); err != nil {
-			slog.Info("error matching private key",
+			slog.Error("error matching private key",
 				"keyS", keyS,
 				"eoa preferred", eoaPreferred,
 				"err", err,
+				"snowflake", snowflake,
 			)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 		eoa := ethCommon.HexToAddress(eoaPreferred)
-		ctx := context.WithValue(r.Context(), "authed", true)
-		ctx = context.WithValue(ctx, "eoa", eoa)
+		ctx = context.WithValue(context.WithValue(ctx, "authed", true), "eoa", eoa)
 		a.srv.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
@@ -188,6 +204,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("accounts public key: %v", err)
 	}
+	alarmWebhook := os.Getenv(EnvAlarmWebhook)
 	var accPubKey [32]byte
 	copy(accPubKey[:], accPubKeyB)
 	adminSecret := os.Getenv(EnvAdminSecret)
@@ -200,9 +217,10 @@ func main() {
 		Db:                  db,
 		ChainId:             chainId,
 		AccountsFactoryAddr: accountsFactoryAddr,
-		ClaimantHelperAddr: claimantHelper,
+		ClaimantHelperAddr:  claimantHelper,
 		AccPubKey:           accPubKey,
 		Fusdc:               fusdc,
+		UrlAlarm:            alarmWebhook,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
