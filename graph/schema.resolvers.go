@@ -211,7 +211,7 @@ SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
 	key := MakeKey(secret, salt)
 	keyX := hex.EncodeToString(key)
 	if !isDryrun(dryrun) {
-		_, err = r.Db.Exec(`
+		res, err := r.Db.Exec(`
 WITH nonce_insert AS (
 	SELECT accounts_insert_nonce_1($1, $2)
 )
@@ -225,6 +225,10 @@ VALUES ($1, $3, $4)`,
 		if err != nil {
 			slog.Error("error inserting a secret", "err", err)
 			return "", fmt.Errorf("error inserting secret")
+		}
+		if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
+			slog.Error("no rows were inserted", "snowflake", snowflake)
+			return "", fmt.Errorf("no rows were inserted")
 		}
 	}
 	return secretX, nil
