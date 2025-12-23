@@ -85,9 +85,6 @@ fn get_secret {
 	sig_r=`{echo $sig | jq -r .r}
 	sig_s=`{echo $sig | jq -r .s}
 	sig_v=`{echo $sig | jq -r .v}
-	req -d '
-{"query":"mutation {\n\trequestSecret(\n    sigR: \"'$sig_r'\",\n    sigS: \"'$sig_s'\",\n    sigV: '$sig_v',\n    nonce: '$nonce',\n    eoa_addr: \"'$eoa'\"\n  )\n}"}'
-	exit 0
 	secret=`{
 		req -d '
 {"query":"mutation {\n\trequestSecret(\n    sigR: \"'$sig_r'\",\n    sigS: \"'$sig_s'\",\n    sigV: '$sig_v',\n    nonce: '$nonce',\n    eoa_addr: \"'$eoa'\"\n  )\n}"}' \
