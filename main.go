@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"log/slog"
 	"math/big"
@@ -136,6 +137,7 @@ ORDER BY valid_until DESC`,
 		case sql.ErrNoRows:
 			w.WriteHeader(http.StatusUnauthorized)
 			slog.Error("no rows", "err", err, "snowflake", snowflake)
+			fmt.Fprintf(w, "unauthorised")
 			return
 		default:
 			slog.Error("bad salt scan",
@@ -149,6 +151,7 @@ ORDER BY valid_until DESC`,
 		if err != nil {
 			slog.Error("error unpacking salt from database", "err", err, "snowflake", snowflake)
 			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprintf(w, "unauthorised")
 			return
 		}
 		key := graph.MakeKey([]byte(secret), saltB)
@@ -169,6 +172,7 @@ WHERE priv_key = $1 AND eoa_addr = $2`,
 				"snowflake", snowflake,
 			)
 			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprintf(w, "unauthorised")
 			return
 		}
 		eoa := ethCommon.HexToAddress(eoaPreferred)
