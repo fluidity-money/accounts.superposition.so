@@ -59,7 +59,7 @@ func strToBytes32(s string) ([32]byte, error) {
 	return b, nil
 }
 
-func CreateClaimAllArgs(
+func CreatePayoffForOtherArgs(
 	claimantHelper, eoa ethCommon.Address,
 	markets_ []string,
 	msTs_ string,
@@ -77,7 +77,7 @@ func CreateClaimAllArgs(
 		}
 		markets[i] = ethCommon.HexToAddress(m)
 	}
-	cd := ninelives.NewClaimForOther(markets, eoa)
+	cd := ninelives.NewPayoffForOther(markets, eoa)
 	solveArgs := types.SolveArgs{
 		Target: claimantHelper,
 		Cd:     cd,

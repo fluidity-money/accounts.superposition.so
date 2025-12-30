@@ -32,19 +32,27 @@ func NewMint(outcome [8]byte, value [32]byte, referrer, recipient [20]byte) []by
 
 // UnpackMint calldata for testing and reproduction purposes.
 func UnpackMint(cd []byte) (outcome [8]byte, value [32]byte, referrer, recipient [20]byte, err error) {
-	if l := len(cd); l != 4 + 32 * 4 {
+	if l := len(cd); l != 4+32*4 {
 		err = fmt.Errorf("bad mint cd: %v", l)
 		return
 	}
-	copy(outcome[:], cd[4:4+32][:32-8])
+	copy(outcome[:], cd[4 : 4+32][:32-8])
 	copy(value[:], cd[4+32:4+32*2])
-	copy(referrer[:], cd[4+32*2:4+32*3][:32-20])
-	copy(referrer[:], cd[4+32*3:4+32*4][:32-20])
+	copy(referrer[:], cd[4+32*2 : 4+32*3][:32-20])
+	copy(referrer[:], cd[4+32*3 : 4+32*4][:32-20])
 	return
 }
 
 func NewClaimForOther(addresses []ethCommon.Address, eoa ethCommon.Address) []byte {
-	a, err := abi.Pack("claimForOther",addresses, eoa,)
+	a, err := abi.Pack("claimForOther", addresses, eoa)
+	if err != nil {
+		panic(err)
+	}
+	return a
+}
+
+func NewPayoffForOther(addresses []ethCommon.Address, eoa ethCommon.Address) []byte {
+	a, err := abi.Pack("payoffForOther", addresses, eoa)
 	if err != nil {
 		panic(err)
 	}

@@ -38,7 +38,7 @@ fn call {
 }
 
 fn make_mint_obj {
-	amount=$1 market=$2 referrer=$3 ms_ts=$4 should_permit=$5
+	amount=$1 market=$2 referrer=$3 should_permit=$4
 	ms_ts=`{date +%s%3N}
 	permit_obj=''
 	if(~ $should_permit yes) {
@@ -65,7 +65,7 @@ fn onboard {
 	sig_v=`{echo $sig | jq -r .v}
 	mint_obj=''
 	if(~ $should_mint yes) {
-		mint_obj=`{make_mint_obj $amount $market $referrer $ms_ts $should_permit}
+		mint_obj=`{make_mint_obj $amount $market $referrer $should_permit}
 	}
 	req -d '
 {"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    },\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
@@ -104,9 +104,26 @@ fn mint {
 	}
 	should_permit=yes
 	if(~ $5 '') should_permit=''
-	mint_obj=`{make_mint_obj $amount $market $referrer $ms_ts $should_permit}
+	mint_obj=`{make_mint_obj $amount $market $referrer $should_permit}
 	req -H 'Authorization: '$eoa:$SPN_ACCOUNTS_SECRET -d '
 {"query":"mutation {\n  ninelivesMint('$"mint_obj')\n}"}'
+}
+
+fn claim {
+	for(n in (SPN_SUPERPOSITION_KEY SPN_ACCOUNTS_SECRET)) {
+		if(~ $$n '') usage SPN_SUPERPOSITION_KEY unset
+	}
+	eoa=`{no_0x `{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}}
+	ms_ts=`{date +%s%3N}
+	market_obj='['
+	len=`{echo $* | wc -w}
+	for(i in `{seq $len}) {
+		market_obj=$"market_obj'\"'$*($i)'\"'
+		if(test $i -lt $len) market_obj=$"market_obj,
+	}
+	market_obj=$"market_obj']'
+	req -H 'Authorization: '$eoa:$SPN_ACCOUNTS_SECRET -d '
+{"query":"mutation {\n  claimRewards(markets: '$market_obj', msTs: \"'$ms_ts'\")\n}"}'
 }
 
 switch($1) {
@@ -119,6 +136,9 @@ case get-secret
 case mint
 	shift
 	mint $*
+case claim
+	shift
+	claim $*
 case *
 	usage '(onboard|mint|get-secret)'
 }

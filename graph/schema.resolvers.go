@@ -320,7 +320,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		)
 		return "", fmt.Errorf("picking private key: %v", err)
 	}
-	f, err := CreateClaimAllArgs(r.ClaimantHelperAddr, eoa, markets, msTs)
+	f, err := CreatePayoffForOtherArgs(r.ClaimantHelperAddr, eoa, markets, msTs)
 	if err != nil {
 		slog.Error("error creating claim all args",
 			"err", err,
