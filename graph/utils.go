@@ -3,6 +3,7 @@ package graph
 import (
 	"bytes"
 	"encoding/json"
+	"database/sql"
 	"log/slog"
 	"net/http"
 )
@@ -27,4 +28,23 @@ func activateSoftAlarm(url string, snowflake int, err error) {
 	}{snowflake, err.Error()})
 	r, _ := http.Post(url, "application/json", &buf)
 	r.Body.Close()
+}
+
+func trackTx(db *sql.DB, eoaS, txHash string, gasLimit uint64) {
+	_, err := db.Exec(`
+INSERT INTO accounts_executed_transactions_2 (
+	eoa_addr,
+	transaction_hash,
+	gas_limit,
+	desc_
+)
+VALUES ($1, $2, $3, 'create account')`,
+		eoaS,
+		txHash,
+		gasLimit,
+	)
+	if err != nil {
+		slog.Error("error tracking executed transactions", "err", err)
+		// We'll ignore this and not propagate up to the user this error.
+	}
 }

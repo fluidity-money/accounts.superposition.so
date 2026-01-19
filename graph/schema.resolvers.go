@@ -59,7 +59,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		)
 		return nil, fmt.Errorf("picking private key: %v", err)
 	}
-	h, err := client.SendArguments(
+	h, gasLimit, err := client.SendArguments(
 		ctx,
 		r.Client,
 		r.ChainId,
@@ -112,16 +112,7 @@ VALUES ($1, $2, $3)`,
 			)
 			return nil, fmt.Errorf("error inserting secret: %v", err)
 		}
-		_, err = r.Db.Exec(`
-INSERT INTO accounts_executed_transactions_1 (eoa_addr, transaction_hash)
-VALUES ($1, $2)`,
-			eoaS,
-			h.Hex(),
-		)
-		if err != nil {
-			slog.Error("error tracking executed transactions", "err", err)
-			// We'll ignore this and not propagate up to the user this error.
-		}
+		trackTx(r.Db, eoaS, h.Hex(), gasLimit)
 	}
 	return &model.CreateAccountExec{
 		Hash:   h.Hex(),
@@ -270,37 +261,34 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		activateSoftAlarm(r.UrlAlarm, snowflake, err)
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
-	for i := 0; i < 3; i++ {
-		h, err := client.SendArguments(
-			ctx,
-			r.Client,
-			r.ChainId,
-			privKey,
-			*sender,
-			clientAddr,
-			types.Args{
-				Enum: types.ArgsSolve,
-				Solve: types.Solve{
-					Slot: 0,
-					Args: []types.SolveArgsSigArgs{*f},
-				},
+	h, gasLimit, err := client.SendArguments(
+		ctx,
+		r.Client,
+		r.ChainId,
+		privKey,
+		*sender,
+		clientAddr,
+		types.Args{
+			Enum: types.ArgsSolve,
+			Solve: types.Solve{
+				Slot: 0,
+				Args: []types.SolveArgsSigArgs{*f},
 			},
-			isDryrun(dryrun),
+		},
+		isDryrun(dryrun),
+	)
+	if err != nil {
+		slog.Error("error sending arguments",
+			"sender", sender,
+			"solve", f,
+			"err", err,
+			"snowflake", snowflake,
 		)
-		if err != nil {
-			slog.Error("error sending arguments",
-				"sender", sender,
-				"solve", f,
-				"err", err,
-				"attempt", i,
-				"snowflake", snowflake,
-			)
-			activateSoftAlarm(r.UrlAlarm, snowflake, err)
-		} else {
-			return h.Hex(), nil
-		}
+		activateSoftAlarm(r.UrlAlarm, snowflake, err)
+		return "", fmt.Errorf("last error sending: %v", err)
 	}
-	return "", fmt.Errorf("last error sending: %v", err)
+	trackTx(r.Db, eoa.String(), h.Hex(), gasLimit)
+	return h.Hex(), nil
 }
 
 // ClaimRewards is the resolver for the claimRewards field.
@@ -330,7 +318,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
 	for i := 0; i < 3; i++ {
-		h, err := client.SendArguments(
+		h, gasLimit, err := client.SendArguments(
 			ctx,
 			r.Client,
 			r.ChainId,
@@ -354,6 +342,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 				"attempt", i,
 			)
 		}
+		trackTx(r.Db, eoa.String(), h.Hex(), gasLimit)
 		return h.Hex(), nil
 	}
 	return "", fmt.Errorf("last error sending: %v", err)

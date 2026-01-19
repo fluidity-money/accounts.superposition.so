@@ -30,20 +30,21 @@ func SendArguments(
 	args types.Args,
 	dryrun bool,
 ) (
-	*ethCommon.Hash,
-	error,
+	tx *ethCommon.Hash,
+	gasLimit uint64,
+	err error,
 ) {
 	b, err := borsh.Serialize(args)
 	if err != nil {
-		return nil, fmt.Errorf("serialising borsh: %v", err)
+		return nil, 0, fmt.Errorf("serialising borsh: %v", err)
 	}
-	gasLimit, err := c.EstimateGas(ctx, ethereum.CallMsg{
+	gasLimit, err = c.EstimateGas(ctx, ethereum.CallMsg{
 		From: from,
 		To:   &to,
 		Data: b,
 	})
 	if err != nil {
-		return nil, fmt.Errorf(
+		return nil, 0, fmt.Errorf(
 			"estimate gas: to: %x, from: %x, data %x, %v",
 			to,
 			from,
@@ -54,16 +55,16 @@ func SendArguments(
 	gasLimit += uint64(float64(gasLimit) * 0.15)
 	header, err := c.HeaderByNumber(context.Background(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("header: %v", err)
+		return nil, 0, fmt.Errorf("header: %v", err)
 	}
 	baseFee := header.BaseFee
 	gasTipCap, err := c.SuggestGasTipCap(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("gas tip cap: %v", err)
+		return nil, 0, fmt.Errorf("gas tip cap: %v", err)
 	}
 	nonce, err := c.PendingNonceAt(context.Background(), from)
 	if err != nil {
-		return nil, fmt.Errorf("nonce: %v", err)
+		return nil, 0, fmt.Errorf("nonce: %v", err)
 	}
 	gasFeeCap := new(big.Int).Add(
 		gasTipCap,
@@ -83,7 +84,7 @@ func SendArguments(
 	signer := ethTypes.NewLondonSigner(chainId)
 	signed, err := ethTypes.SignTx(unsigned, signer, privateKey)
 	if err != nil {
-		return nil, fmt.Errorf("signed: %v", err)
+		return nil, 0, fmt.Errorf("signed: %v", err)
 	}
 	if dryrun {
 		resp, err := c.CallContract(ctx,
@@ -101,13 +102,13 @@ func SendArguments(
 			"cd", hex.EncodeToString(b),
 		)
 		if err != nil {
-			return nil, fmt.Errorf("dryrun simulate: %v", err)
+			return nil, gasLimit, fmt.Errorf("dryrun simulate: %v", err)
 		}
 	} else {
 		if err = c.SendTransaction(ctx, signed); err != nil {
-			return nil, fmt.Errorf("send transaction: %v", err)
+			return nil, 0, fmt.Errorf("send transaction: %v", err)
 		}
 	}
 	h := signed.Hash()
-	return &h, nil
+	return &h, gasLimit, nil
 }
