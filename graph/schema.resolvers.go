@@ -348,8 +348,59 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 	return "", fmt.Errorf("last error sending: %v", err)
 }
 
+// Publickey is the resolver for the publickey field.
+func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
+	return hex.EncodeToString(r.AccPubKey[:]), nil
+}
+
+// EoaForAddress is the resolver for the eoaForAddress field.
+func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (string, error) {
+	if !ethCommon.IsHexAddress(address) {
+		return "", fmt.Errorf("not address")
+	}
+	e := ethCommon.HexToAddress(address)
+	return types.GetClientAddr(r.AccountsFactoryAddr, e).String(), nil
+}
+
+// HasCreated is the resolver for the hasCreated field.
+func (r *queryResolver) HasCreated(ctx context.Context, address string) (bool, error) {
+	var count int
+	err := r.Db.QueryRow(`
+SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
+		strings.ToLower(address),
+	).
+		Scan(&count)
+	if err != nil {
+		slog.Error("error querying accounts secrets row",
+			"err", err,
+		)
+		return false, fmt.Errorf("query row: %v", err)
+	}
+	return count > 0, nil
+}
+
 // Statistics is the resolver for the statistics field.
-func (r *mutationResolver) Statistics(ctx context.Context) ([]*model.Statistics, error) {
+func (r *queryResolver) Statistics(ctx context.Context) ([]*model.Statistics, error) {
+	panic(fmt.Errorf("not implemented: Statistics - statistics"))
+}
+
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *mutationResolver) Statistics(ctx context.Context) ([]*model.Statistics, error) {
 	rows, err := r.Db.Query(`
 SELECT
 	action,
@@ -389,43 +440,4 @@ FROM
 	}
 	return stats, nil
 }
-
-// Publickey is the resolver for the publickey field.
-func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
-	return hex.EncodeToString(r.AccPubKey[:]), nil
-}
-
-// EoaForAddress is the resolver for the eoaForAddress field.
-func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (string, error) {
-	if !ethCommon.IsHexAddress(address) {
-		return "", fmt.Errorf("not address")
-	}
-	e := ethCommon.HexToAddress(address)
-	return types.GetClientAddr(r.AccountsFactoryAddr, e).String(), nil
-}
-
-// HasCreated is the resolver for the hasCreated field.
-func (r *queryResolver) HasCreated(ctx context.Context, address string) (bool, error) {
-	var count int
-	err := r.Db.QueryRow(`
-SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
-		strings.ToLower(address),
-	).
-		Scan(&count)
-	if err != nil {
-		slog.Error("error querying accounts secrets row",
-			"err", err,
-		)
-		return false, fmt.Errorf("query row: %v", err)
-	}
-	return count > 0, nil
-}
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+*/

@@ -57,13 +57,13 @@ type ComplexityRoot struct {
 		CreateAccountExec func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) int
 		NinelivesMint     func(childComplexity int, mint model.Mint, dryrun *bool) int
 		RequestSecret     func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) int
-		Statistics        func(childComplexity int) int
 	}
 
 	Query struct {
 		EoaForAddress func(childComplexity int, address string) int
 		HasCreated    func(childComplexity int, address string) int
 		Publickey     func(childComplexity int) int
+		Statistics    func(childComplexity int) int
 	}
 
 	Statistics struct {
@@ -82,12 +82,12 @@ type MutationResolver interface {
 	RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) (string, error)
 	NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error)
 	ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error)
-	Statistics(ctx context.Context) ([]*model.Statistics, error)
 }
 type QueryResolver interface {
 	Publickey(ctx context.Context) (string, error)
 	EoaForAddress(ctx context.Context, address string) (string, error)
 	HasCreated(ctx context.Context, address string) (bool, error)
+	Statistics(ctx context.Context) ([]*model.Statistics, error)
 }
 
 type executableSchema struct {
@@ -166,12 +166,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.RequestSecret(childComplexity, args["eoa_addr"].(string), args["nonce"].(int32), args["sigV"].(int32), args["sigR"].(string), args["sigS"].(string), args["dryrun"].(*bool)), true
-	case "Mutation.statistics":
-		if e.complexity.Mutation.Statistics == nil {
-			break
-		}
-
-		return e.complexity.Mutation.Statistics(childComplexity), true
 
 	case "Query.eoaForAddress":
 		if e.complexity.Query.EoaForAddress == nil {
@@ -201,6 +195,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Publickey(childComplexity), true
+	case "Query.statistics":
+		if e.complexity.Query.Statistics == nil {
+			break
+		}
+
+		return e.complexity.Query.Statistics(childComplexity), true
 
 	case "Statistics.action":
 		if e.complexity.Statistics.Action == nil {
@@ -781,51 +781,6 @@ func (ec *executionContext) fieldContext_Mutation_claimRewards(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_statistics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Mutation_statistics,
-		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Mutation().Statistics(ctx)
-		},
-		nil,
-		ec.marshalOStatistics2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐStatisticsᚄ,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_Mutation_statistics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "action":
-				return ec.fieldContext_Statistics_action(ctx, field)
-			case "avgGasLimit24Hours":
-				return ec.fieldContext_Statistics_avgGasLimit24Hours(ctx, field)
-			case "avgGasLimitWeek":
-				return ec.fieldContext_Statistics_avgGasLimitWeek(ctx, field)
-			case "avgGasLimitAllTime":
-				return ec.fieldContext_Statistics_avgGasLimitAllTime(ctx, field)
-			case "tx24Hours":
-				return ec.fieldContext_Statistics_tx24Hours(ctx, field)
-			case "txWeek":
-				return ec.fieldContext_Statistics_txWeek(ctx, field)
-			case "txAllTime":
-				return ec.fieldContext_Statistics_txAllTime(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Statistics", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_publickey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -933,6 +888,51 @@ func (ec *executionContext) fieldContext_Query_hasCreated(ctx context.Context, f
 	if fc.Args, err = ec.field_Query_hasCreated_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_statistics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_statistics,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.Query().Statistics(ctx)
+		},
+		nil,
+		ec.marshalOStatistics2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐStatisticsᚄ,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_statistics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "action":
+				return ec.fieldContext_Statistics_action(ctx, field)
+			case "avgGasLimit24Hours":
+				return ec.fieldContext_Statistics_avgGasLimit24Hours(ctx, field)
+			case "avgGasLimitWeek":
+				return ec.fieldContext_Statistics_avgGasLimitWeek(ctx, field)
+			case "avgGasLimitAllTime":
+				return ec.fieldContext_Statistics_avgGasLimitAllTime(ctx, field)
+			case "tx24Hours":
+				return ec.fieldContext_Statistics_tx24Hours(ctx, field)
+			case "txWeek":
+				return ec.fieldContext_Statistics_txWeek(ctx, field)
+			case "txAllTime":
+				return ec.fieldContext_Statistics_txAllTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Statistics", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -3044,10 +3044,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "statistics":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_statistics(ctx, field)
-			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3147,6 +3143,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "statistics":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_statistics(ctx, field)
 				return res
 			}
 
