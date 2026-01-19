@@ -112,7 +112,7 @@ VALUES ($1, $2, $3)`,
 			)
 			return nil, fmt.Errorf("error inserting secret: %v", err)
 		}
-		trackTx(r.Db, eoaS, h.Hex(), gasLimit)
+		trackTx(r.Db, eoaS, h.Hex(), gasLimit, "create account")
 	}
 	return &model.CreateAccountExec{
 		Hash:   h.Hex(),
@@ -287,7 +287,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		activateSoftAlarm(r.UrlAlarm, snowflake, err)
 		return "", fmt.Errorf("last error sending: %v", err)
 	}
-	trackTx(r.Db, eoa.String(), h.Hex(), gasLimit)
+	trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "mint")
 	return h.Hex(), nil
 }
 
@@ -342,7 +342,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 				"attempt", i,
 			)
 		}
-		trackTx(r.Db, eoa.String(), h.Hex(), gasLimit)
+		trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "claim rewards")
 		return h.Hex(), nil
 	}
 	return "", fmt.Errorf("last error sending: %v", err)

@@ -30,7 +30,7 @@ func activateSoftAlarm(url string, snowflake int, err error) {
 	r.Body.Close()
 }
 
-func trackTx(db *sql.DB, eoaS, txHash string, gasLimit uint64) {
+func trackTx(db *sql.DB, eoaS, txHash string, gasLimit uint64, desc string) {
 	_, err := db.Exec(`
 INSERT INTO accounts_executed_transactions_2 (
 	eoa_addr,
@@ -38,10 +38,11 @@ INSERT INTO accounts_executed_transactions_2 (
 	gas_limit,
 	desc_
 )
-VALUES ($1, $2, $3, 'create account')`,
+VALUES ($1, $2, $3, $4)`,
 		eoaS,
 		txHash,
 		gasLimit,
+		desc,
 	)
 	if err != nil {
 		slog.Error("error tracking executed transactions", "err", err)
