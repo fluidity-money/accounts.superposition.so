@@ -50,3 +50,21 @@ type SolveArgs struct {
 	Cd     string      `json:"cd"`
 	MsTs   string      `json:"ms_ts"`
 }
+
+// Statistics for this usage type. Only since 1768801591.
+type Statistics struct {
+	// The action that took place during this interaction with the accounts system.
+	Action string `json:"action"`
+	// The average gas limit that was used in the last 24 hours.
+	AvgGasLimit24Hours float64 `json:"avgGasLimit24Hours"`
+	// The average gas limit for the last week.
+	AvgGasLimitWeek float64 `json:"avgGasLimitWeek"`
+	// The average gas limit for all time.
+	AvgGasLimitAllTime float64 `json:"avgGasLimitAllTime"`
+	// Transactions in the last 24 hours.
+	Tx24Hours int32 `json:"tx24Hours"`
+	// Transactions from the last 7 days.
+	TxWeek int32 `json:"txWeek"`
+	// Transactions count of all time.
+	TxAllTime int32 `json:"txAllTime"`
+}

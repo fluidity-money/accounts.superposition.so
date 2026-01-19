@@ -1,4 +1,4 @@
-\restrict jfBPUoBVfPf49C3bSnITcjuP9DaOE83IC5WA7WbDTdILjUWNWF3AfNh8tLJsxbB
+\restrict YIGrlPazbFUHhaljFX7Q6cwhtpSAK6VJyJSooRG7mskOKYGFNgd988AjDsI66q5
 
 -- Dumped from database version 16.11
 -- Dumped by pg_dump version 17.7 (Debian 17.7-0+deb13u1)
@@ -3271,7 +3271,8 @@ CREATE TABLE public.accounts_executed_transactions_2 (
     eoa_addr public.address NOT NULL,
     transaction_hash public.hash NOT NULL,
     gas_limit integer NOT NULL,
-    desc_ character varying NOT NULL
+    desc_ character varying NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -3397,6 +3398,38 @@ CREATE SEQUENCE public.accounts_sender_keys_1_id_seq
 --
 
 ALTER SEQUENCE public.accounts_sender_keys_1_id_seq OWNED BY public.accounts_sender_keys_1.id;
+
+
+--
+-- Name: accounts_transaction_statistics_1; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.accounts_transaction_statistics_1 AS
+ SELECT desc_ AS action,
+    avg(
+        CASE
+            WHEN (created_at >= (now() - '24:00:00'::interval)) THEN gas_limit
+            ELSE NULL::integer
+        END) AS avg_gas_limit_24_hours,
+    avg(
+        CASE
+            WHEN (created_at >= (now() - '7 days'::interval)) THEN gas_limit
+            ELSE NULL::integer
+        END) AS avg_gas_limit_week,
+    avg(gas_limit) AS avg_gas_limit_all_time,
+    (count(
+        CASE
+            WHEN (created_at >= (now() - '24:00:00'::interval)) THEN 1
+            ELSE NULL::integer
+        END))::integer AS tx_24_hours,
+    (count(
+        CASE
+            WHEN (created_at >= (now() - '7 days'::interval)) THEN 1
+            ELSE NULL::integer
+        END))::integer AS tx_week,
+    (count(*))::integer AS tx_all_time
+   FROM public.accounts_executed_transactions_2
+  GROUP BY desc_;
 
 
 --
@@ -18367,7 +18400,7 @@ ALTER PUBLICATION websocket_publication ADD TABLE ONLY public.oracles_ninelives_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict jfBPUoBVfPf49C3bSnITcjuP9DaOE83IC5WA7WbDTdILjUWNWF3AfNh8tLJsxbB
+\unrestrict YIGrlPazbFUHhaljFX7Q6cwhtpSAK6VJyJSooRG7mskOKYGFNgd988AjDsI66q5
 
 
 --
@@ -18380,4 +18413,5 @@ INSERT INTO public.accounts_migrations (version) VALUES
     ('1764821080'),
     ('1766122851'),
     ('1766490067'),
-    ('1768798135');
+    ('1768798135'),
+    ('1768801914');

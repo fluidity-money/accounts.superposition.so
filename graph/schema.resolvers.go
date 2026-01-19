@@ -348,6 +348,48 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 	return "", fmt.Errorf("last error sending: %v", err)
 }
 
+// Statistics is the resolver for the statistics field.
+func (r *mutationResolver) Statistics(ctx context.Context) ([]*model.Statistics, error) {
+	rows, err := r.Db.Query(`
+SELECT
+	action,
+	avg_gas_limit_24_hours,
+	avg_gas_limit_week,
+	avg_gas_limit_all_time,
+	tx_24_hours,
+	tx_week,
+	tx_all_time
+FROM
+	accounts_transaction_statistics_1`,
+	)
+	if err != nil {
+		slog.Error("Error retrieving statistics", "err", err)
+		return nil, fmt.Errorf("error retrieving statistics")
+	}
+	defer rows.Close()
+	stats := make([]*model.Statistics, 0)
+	for rows.Next() {
+		m := new(model.Statistics)
+		err = rows.Scan(
+			&m.Action,
+			&m.AvgGasLimit24Hours,
+			&m.AvgGasLimitWeek,
+			&m.AvgGasLimitAllTime,
+			&m.Tx24Hours,
+			&m.TxWeek,
+			&m.TxAllTime,
+		)
+		if err != nil {
+			slog.Error("Failed to scan statistics for accounts",
+				"err", err,
+			)
+			return nil, fmt.Errorf("failed to scan statistics")
+		}
+		stats = append(stats, m)
+	}
+	return stats, nil
+}
+
 // Publickey is the resolver for the publickey field.
 func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
 	return hex.EncodeToString(r.AccPubKey[:]), nil

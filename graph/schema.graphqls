@@ -60,6 +60,46 @@ type CreateAccountExec {
   secret: String!
 }
 
+"""
+Statistics for this usage type. Only since 1768801591.
+"""
+type Statistics {
+  """
+  The action that took place during this interaction with the accounts system.
+  """
+  action: String!,
+
+  """
+  The average gas limit that was used in the last 24 hours.
+  """
+  avgGasLimit24Hours: Float!,
+
+  """
+  The average gas limit for the last week.
+  """
+  avgGasLimitWeek: Float!,
+
+  """
+  The average gas limit for all time.
+  """
+  avgGasLimitAllTime: Float!,
+
+  """
+  Transactions in the last 24 hours.
+  """
+  tx24Hours: Int!,
+
+  """
+  Transactions from the last 7 days.
+  """
+  txWeek: Int!,
+
+  """
+  Transactions count of all time.
+  """
+  txAllTime: Int!
+}
+
 type Mutation {
   """
   Create a new account using the key management service intended for API workers. Returns
@@ -96,4 +136,9 @@ type Mutation {
   Claim payoff for the markets given, using the eoa in the header.
   """
   claimRewards(markets: [String!]!, msTs: String!, dryrun: Boolean): String!
+
+  """
+  Get information about the different functions being serviced by this graph.
+  """
+  statistics: [Statistics!]
 }
