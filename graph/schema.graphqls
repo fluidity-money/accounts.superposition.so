@@ -12,6 +12,11 @@ type Query {
   Is this address recorded as having onramped?
   """
   hasCreated(address: String!): Boolean!
+
+  """
+  Get information about the different functions being serviced by this graph.
+  """
+  statistics: [Statistics!]
 }
 
 input Permit {
@@ -136,9 +141,4 @@ type Mutation {
   Claim payoff for the markets given, using the eoa in the header.
   """
   claimRewards(markets: [String!]!, msTs: String!, dryrun: Boolean): String!
-
-  """
-  Get information about the different functions being serviced by this graph.
-  """
-  statistics: [Statistics!]
 }
