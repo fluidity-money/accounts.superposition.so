@@ -6,6 +6,8 @@ import (
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+
+	"github.com/fluidity-money/accounts.superposition.so/lib/ratelimit"
 )
 
 type Resolver struct {
@@ -16,4 +18,5 @@ type Resolver struct {
 	AccPubKey                               [32]byte
 	Fusdc                                   [20]byte
 	UrlAlarm                                string
+	RateLimiting                            ratelimit.Server
 }

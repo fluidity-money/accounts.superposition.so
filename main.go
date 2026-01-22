@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph"
+	"github.com/fluidity-money/accounts.superposition.so/lib/ratelimit"
 
 	_ "github.com/lib/pq"
 
@@ -216,6 +217,7 @@ func main() {
 		fusdc          = ethCommon.HexToAddress(os.Getenv(EnvFusdcAddr))
 		claimantHelper = ethCommon.HexToAddress(os.Getenv(EnvClaimantHelperAddr))
 	)
+	rateLimiting := ratelimit.Run(db, true)
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
 		Client:              c,
 		Db:                  db,
@@ -225,6 +227,7 @@ func main() {
 		AccPubKey:           accPubKey,
 		Fusdc:               fusdc,
 		UrlAlarm:            alarmWebhook,
+		RateLimiting:        rateLimiting,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

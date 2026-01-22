@@ -381,26 +381,6 @@ SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
 
 // Statistics is the resolver for the statistics field.
 func (r *queryResolver) Statistics(ctx context.Context) ([]*model.Statistics, error) {
-	panic(fmt.Errorf("not implemented: Statistics - statistics"))
-}
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *mutationResolver) Statistics(ctx context.Context) ([]*model.Statistics, error) {
 	rows, err := r.Db.Query(`
 SELECT
 	action,
@@ -440,4 +420,12 @@ FROM
 	}
 	return stats, nil
 }
-*/
+
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
