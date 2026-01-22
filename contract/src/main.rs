@@ -14,7 +14,7 @@ use borsh::de::BorshDeserialize;
 #[cfg(target_arch = "wasm32")]
 static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
 
-use libaccounts::{entry, entry_migrate::entry_migrate, Args, SLOT_IMPL};
+use libaccounts::{Args, SLOT_IMPL, entry, entry_migrate::entry_migrate};
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {

@@ -16,11 +16,6 @@ pub fn add_test(x: U) -> U {
 }
 
 #[wasm_bindgen]
-pub fn estimate_addr(factory: Box<[u8]>, spender: Box<[u8]>) -> Box<[u8]> {
-    todo!()
-}
-
-#[wasm_bindgen]
 pub fn sign_fresh(
     priv_key: U,
     spender_addr: Box<[u8]>,

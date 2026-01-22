@@ -1,4 +1,3 @@
-
 use crate::storage;
 
 use bobcat_sdk::entry::write_result_word;

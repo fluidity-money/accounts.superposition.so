@@ -6,11 +6,11 @@ use borsh::{BorshDeserialize, BorshSerialize};
 
 pub mod storage;
 
+pub mod codehashes;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;
 pub mod entry_version;
-pub mod codehashes;
 
 extern crate alloc;
 
@@ -138,7 +138,7 @@ pub struct SolveArgs {
     pub from: Vec<FromArgs>,
     pub target: ArgsAddr,
     pub cd: Vec<u8>,
-    pub ms_ts: [u8; 16]
+    pub ms_ts: [u8; 16],
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -210,6 +210,6 @@ pub fn entry(x: Args) -> usize {
             solve_args,
         } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args),
         Args::Solve { slot, args } => entry_solve(slot, args),
-        Args::Version => entry_version()
+        Args::Version => entry_version(),
     }
 }

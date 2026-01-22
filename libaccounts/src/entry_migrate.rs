@@ -1,11 +1,9 @@
 use bobcat_sdk::{
-    entry::msg_sender,
     maths::U,
-    prelude::address,
     storage::{storage_load, storage_store},
 };
 
-use crate::{storage, SLOT_IMPL};
+use crate::{SLOT_IMPL, storage};
 
 pub fn entry_migrate(ed_key: &U, evm_owner: &U, impl_addr: &U) -> usize {
     assert!(ed_key.is_some());

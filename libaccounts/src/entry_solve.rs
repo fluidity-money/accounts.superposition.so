@@ -3,7 +3,7 @@ use alloc::vec::Vec;
 use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec, safe_call_unit_err_vec},
     entry::{
-        code_hash, contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec,
+        contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec,
     },
     interfaces::{
         eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
@@ -15,8 +15,7 @@ use bobcat_sdk::{
 
 use sha2::{Digest, Sha512};
 
-use crate::{codehashes, storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
-
+use crate::{FromArgs, Permit, SolveArgs, SolveArgsSigArgs, storage};
 
 pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     let eth_owner = storage::ethereum_owner::get();
