@@ -36,7 +36,7 @@ out/frontend_bg.wasm: $(shell find Cargo.* libaccounts frontend -type f)
 		wasm-bindgen target/wasm32-wasip1/release/frontend.wasm --out-dir ../out
 
 accounts.superposition.so: $(shell find -name '*.go') ed25519-dalek-ph.out
-	@go build
+	@cd cmd/graph && go build && cp graph ../../accounts.superposition.so
 
 bootstrap: accounts.superposition.so
 	@cp accounts.superposition.so bootstrap
