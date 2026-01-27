@@ -76,8 +76,6 @@ func Run(db *sql.DB, dryrun bool) Server {
 				continue L
 			}
 			curCount = seen[r.id]
-			// If we already have an idea of who this person is, we can evict them
-			// here if we want:
 			if curCount+1 > MaxCount {
 				slog.Debug("rate limited a user based on memory",
 					"cur slice", curSlice,
@@ -91,12 +89,4 @@ func Run(db *sql.DB, dryrun bool) Server {
 		}
 	}()
 	return Server{requests}
-}
-
-func getCount(db *sql.DB, id string) (c int, err error) {
-	r := db.QueryRow(`SELECT ninelives_get_ratelimit_1($1)`, id)
-	if err := r.Scan(&c); err != nil {
-		return 0, fmt.Errorf("error scanning and bumping: %v", err)
-	}
-	return
 }
