@@ -2,8 +2,6 @@ package ratelimit
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
 	"log/slog"
 	"time"
 
@@ -23,7 +21,6 @@ type (
 	req struct {
 		id      string
 		resp    chan bool
-		respErr chan error
 	}
 
 	Server struct {
@@ -32,18 +29,9 @@ type (
 )
 
 func (s Server) IsRateLimited(id [20]byte) bool {
-	var (
-		r   = make(chan bool)
-		err = make(chan error)
-	)
-	s.req <- req{string(id[:]), r, err}
-	select {
-	case x := <-r:
-		return x
-	case e := <-err:
-		log.Fatalf("failed to get rate limit: %v", e)
-	}
-	return false
+	r := make(chan bool)
+	s.req <- req{string(id[:]), r}
+	return <-r
 }
 
 func Run(db *sql.DB, dryrun bool) Server {
@@ -59,7 +47,6 @@ func Run(db *sql.DB, dryrun bool) Server {
 		}()
 		return Server{requests}
 	}
-	// We're going
 	var (
 		lastSlice time.Time
 		seen      = make(map[string]int)
@@ -72,6 +59,7 @@ func Run(db *sql.DB, dryrun bool) Server {
 			if !lastSlice.Equal(curSlice) {
 				lastSlice = curSlice
 				seen = make(map[string]int, len(seen))
+				seen[r.id] = 1
 				r.resp <- false
 				continue L
 			}
