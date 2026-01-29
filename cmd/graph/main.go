@@ -167,8 +167,6 @@ WHERE priv_key = $1 AND eoa_addr = $2`,
 		var sink int
 		if err := row.Scan(&sink); err != nil {
 			slog.Error("error matching private key",
-				"keyS", keyS,
-				"eoa preferred", eoaPreferred,
 				"err", err,
 				"snowflake", snowflake,
 			)
