@@ -317,35 +317,32 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		)
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
-	for i := 0; i < 3; i++ {
-		h, gasLimit, err := client.SendArguments(
-			ctx,
-			r.Client,
-			r.ChainId,
-			privKey,
-			*sender,
-			clientAddr,
-			types.Args{
-				Enum: types.ArgsSolve,
-				Solve: types.Solve{
-					Slot: 0,
-					Args: []types.SolveArgsSigArgs{*f},
-				},
+	h, gasLimit, err := client.SendArguments(
+		ctx,
+		r.Client,
+		r.ChainId,
+		privKey,
+		*sender,
+		clientAddr,
+		types.Args{
+			Enum: types.ArgsSolve,
+			Solve: types.Solve{
+				Slot: 0,
+				Args: []types.SolveArgsSigArgs{*f},
 			},
-			isDryrun(dryrun),
+		},
+		isDryrun(dryrun),
+	)
+	if err != nil {
+		slog.Error("error sending arguments",
+			"sender", sender,
+			"solve", f,
+			"err", err,
 		)
-		if err != nil {
-			slog.Error("error sending arguments",
-				"sender", sender,
-				"solve", f,
-				"err", err,
-				"attempt", i,
-			)
-		}
-		trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "claim rewards")
-		return h.Hex(), nil
+		return "", fmt.Errorf("last error sending: %v", err)
 	}
-	return "", fmt.Errorf("last error sending: %v", err)
+	trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "claim rewards")
+	return h.Hex(), nil
 }
 
 // Publickey is the resolver for the publickey field.
