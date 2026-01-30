@@ -86,31 +86,21 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	// We can tolerate a situation where the request drops off here due to a
 	// issue with the database, since the frontend willpresumably greedily
 	// reauthenticate when the user tries.
-	salt, secret, err := makeSecrets()
-	if err != nil {
-		return nil, fmt.Errorf("make secrets: %v", err)
-	}
-	var (
-		secretX = hex.EncodeToString(secret)
-		saltX   = hex.EncodeToString(salt)
-	)
-	key := MakeKey(secret, salt)
-	keyX := hex.EncodeToString(key)
+	secret := makeSecret()
+	secretX := hex.EncodeToString(secret)
 	if !isDryrun(dryrun) {
 		eoaS := strings.ToLower(eoa.String())
-		_, err = r.Db.Exec(`
-INSERT INTO accounts_secrets_1 (eoa_addr, priv_key, salt)
-VALUES ($1, $2, $3)`,
-			eoaS,
-			keyX,
-			saltX,
-		)
-		if err != nil {
-			slog.Error("error executing the insertion of the secret",
-				"err", err,
-				"eoa addr", eoa,
+		if !isDryrun(dryrun) {
+			_, err = r.Db.Exec(`
+INSERT INTO accounts_secrets_2 (eoa_addr, secret)
+VALUES ($1, $2)`,
+				eoaS,
+				secretX,
 			)
-			return nil, fmt.Errorf("error inserting secret: %v", err)
+			if err != nil {
+				slog.Error("error inserting a secret", "err", err)
+				return nil, fmt.Errorf("error inserting secret")
+			}
 		}
 		trackTx(r.Db, eoaS, h.Hex(), gasLimit, "create account")
 	}
@@ -176,38 +166,14 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 		return "", fmt.Errorf("bad derivation: %v, expected: %v", eoaAddr_, expAddr)
 	}
 	eoaS := strings.ToLower(eoaAddr_.String())
-	var count int
-	err = r.Db.QueryRow(`
-SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
-		eoaS,
-	).
-		Scan(&count)
-	if err != nil {
-		slog.Error("error querying accounts secrets row",
-			"err", err,
-		)
-		return "", fmt.Errorf("query row: %v", err)
-	}
-	if count == 0 {
-		return "", fmt.Errorf("account nonexistent")
-	}
-	salt, secret, err := makeSecrets()
-	if err != nil {
-		return "", fmt.Errorf("make secrets: %v", err)
-	}
-	var (
-		secretX = hex.EncodeToString(secret)
-		saltX   = hex.EncodeToString(salt)
-	)
-	key := MakeKey(secret, salt)
-	keyX := hex.EncodeToString(key)
+	secret := makeSecret()
+	secretX := hex.EncodeToString(secret)
 	if !isDryrun(dryrun) {
 		_, err := r.Db.Exec(`
-SELECT accounts_insert_nonce_secret_1($1, $2, $3, $4)`,
+SELECT accounts_insert_nonce_secret_3($1, $2, $3)`,
 			eoaS,
-			keyX,
+			secretX,
 			nonce,
-			saltX,
 		)
 		if err != nil {
 			slog.Error("error inserting a secret", "err", err)
@@ -221,7 +187,7 @@ SELECT accounts_insert_nonce_secret_1($1, $2, $3, $4)`,
 func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error) {
 	snowflake, _ := ctx.Value("snowflake").(int)
 	if authed, _ := ctx.Value("authed").(bool); !authed {
-		return "", fmt.Errorf("not authed")
+		return "", fmt.Errorf("not authed in the handler")
 	}
 	eoa, ok := ctx.Value("eoa").(ethCommon.Address)
 	if !ok {
@@ -294,7 +260,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 // ClaimRewards is the resolver for the claimRewards field.
 func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error) {
 	if authed, _ := ctx.Value("authed").(bool); !authed {
-		return "", fmt.Errorf("not authed")
+		return "", fmt.Errorf("not authed in the handler for claim rewards")
 	}
 	eoa, ok := ctx.Value("eoa").(ethCommon.Address)
 	if !ok {
@@ -363,7 +329,7 @@ func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (stri
 func (r *queryResolver) HasCreated(ctx context.Context, address string) (bool, error) {
 	var count int
 	err := r.Db.QueryRow(`
-SELECT COUNT(1) FROM accounts_secrets_1 WHERE eoa_addr = $1`,
+SELECT COUNT(1) FROM accounts_secrets_2 WHERE eoa_addr = $1`,
 		strings.ToLower(address),
 	).
 		Scan(&count)

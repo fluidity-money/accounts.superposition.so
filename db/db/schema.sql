@@ -1,4 +1,4 @@
-\restrict YIGrlPazbFUHhaljFX7Q6cwhtpSAK6VJyJSooRG7mskOKYGFNgd988AjDsI66q5
+\restrict jaz2xk4yuhd95iVMg1oW0SXCwYUP38f3cFt9aKsSrEeoL6m7GqVQ05S3wrFurTg
 
 -- Dumped from database version 16.11
 -- Dumped by pg_dump version 17.7 (Debian 17.7-0+deb13u1)
@@ -246,6 +246,31 @@ $$;
 
 
 --
+-- Name: accounts_insert_nonce_2(public.address, integer); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.accounts_insert_nonce_2(p_eoa_addr public.address, p_consumed_nonce integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	v_secret_id INTEGER;
+	v_nonce_id INTEGER;
+BEGIN
+	SELECT id INTO v_secret_id
+	FROM accounts_secrets_1
+	WHERE eoa_addr = p_eoa_addr AND valid_until > CURRENT_TIMESTAMP;
+	IF v_secret_id IS NULL THEN
+		RAISE EXCEPTION 'address not found';
+	END IF;
+	INSERT INTO accounts_secrets_nonces_1 (secret_id, consumed_nonce)
+	VALUES (v_secret_id, p_consumed_nonce)
+	RETURNING id INTO v_nonce_id;
+	RETURN v_nonce_id;
+END;
+$$;
+
+
+--
 -- Name: accounts_insert_nonce_secret_1(public.address, public.bytes32, integer, public.bytes16); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -254,6 +279,21 @@ CREATE FUNCTION public.accounts_insert_nonce_secret_1(eoa_addr_ public.address, 
     AS $$
 BEGIN
 	PERFORM accounts_insert_nonce_1(eoa_addr_, nonce_);
+	INSERT INTO accounts_secrets_1(eoa_addr, priv_key, salt)
+	VALUES (eoa_addr_, priv_key_, salt_);
+END;
+$$;
+
+
+--
+-- Name: accounts_insert_nonce_secret_2(public.address, public.bytes32, integer, public.bytes16); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.accounts_insert_nonce_secret_2(eoa_addr_ public.address, priv_key_ public.bytes32, nonce_ integer, salt_ public.bytes16) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+	PERFORM accounts_insert_nonce_2(eoa_addr_, nonce_);
 	INSERT INTO accounts_secrets_1(eoa_addr, priv_key, salt)
 	VALUES (eoa_addr_, priv_key_, salt_);
 END;
@@ -3232,6 +3272,37 @@ CREATE VIEW _timescaledb_internal._partial_view_4 AS
 
 
 --
+-- Name: accounts_does_exist_1; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.accounts_does_exist_1 (
+    id integer NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    eoa_addr public.address NOT NULL
+);
+
+
+--
+-- Name: accounts_does_exist_1_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.accounts_does_exist_1_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: accounts_does_exist_1_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.accounts_does_exist_1_id_seq OWNED BY public.accounts_does_exist_1.id;
+
+
+--
 -- Name: accounts_executed_transactions_1; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3367,6 +3438,37 @@ CREATE SEQUENCE public.accounts_secrets_nonces_1_id_seq
 --
 
 ALTER SEQUENCE public.accounts_secrets_nonces_1_id_seq OWNED BY public.accounts_secrets_nonces_1.id;
+
+
+--
+-- Name: accounts_secrets_nonces_old_1; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.accounts_secrets_nonces_old_1 (
+    id integer NOT NULL,
+    secret_id integer NOT NULL,
+    consumed_nonce integer NOT NULL
+);
+
+
+--
+-- Name: accounts_secrets_nonces_old_1_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.accounts_secrets_nonces_old_1_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: accounts_secrets_nonces_old_1_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.accounts_secrets_nonces_old_1_id_seq OWNED BY public.accounts_secrets_nonces_old_1.id;
 
 
 --
@@ -7522,6 +7624,8 @@ CREATE TABLE public.ninelives_payoff_unused_1 (
     spender public.address NOT NULL,
     was_spent boolean DEFAULT false NOT NULL
 );
+
+ALTER TABLE ONLY public.ninelives_payoff_unused_1 REPLICA IDENTITY FULL;
 
 
 --
@@ -13587,6 +13691,39 @@ ALTER SEQUENCE public.sudoswap_new_erc721pair_id_seq OWNED BY public.sudoswap_ne
 
 
 --
+-- Name: swagyolo69; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.swagyolo69 (
+    id integer NOT NULL,
+    eoa_addr public.address NOT NULL,
+    priv_key public.bytes32 NOT NULL,
+    salt public.bytes16 NOT NULL,
+    valid_until timestamp without time zone DEFAULT (CURRENT_TIMESTAMP + '1 mon'::interval) NOT NULL
+);
+
+
+--
+-- Name: swagyolo69_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.swagyolo69_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: swagyolo69_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.swagyolo69_id_seq OWNED BY public.swagyolo69.id;
+
+
+--
 -- Name: tmp_transactions_seen_count; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -13909,6 +14046,13 @@ ALTER TABLE ONLY _timescaledb_internal._hyper_2_9_chunk ALTER COLUMN created_by 
 
 
 --
+-- Name: accounts_does_exist_1 id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.accounts_does_exist_1 ALTER COLUMN id SET DEFAULT nextval('public.accounts_does_exist_1_id_seq'::regclass);
+
+
+--
 -- Name: accounts_executed_transactions_1 id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -13934,6 +14078,13 @@ ALTER TABLE ONLY public.accounts_secrets_1 ALTER COLUMN id SET DEFAULT nextval('
 --
 
 ALTER TABLE ONLY public.accounts_secrets_nonces_1 ALTER COLUMN id SET DEFAULT nextval('public.accounts_secrets_nonces_1_id_seq'::regclass);
+
+
+--
+-- Name: accounts_secrets_nonces_old_1 id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.accounts_secrets_nonces_old_1 ALTER COLUMN id SET DEFAULT nextval('public.accounts_secrets_nonces_old_1_id_seq'::regclass);
 
 
 --
@@ -14980,6 +15131,13 @@ ALTER TABLE ONLY public.sudoswap_new_erc721pair ALTER COLUMN id SET DEFAULT next
 
 
 --
+-- Name: swagyolo69 id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.swagyolo69 ALTER COLUMN id SET DEFAULT nextval('public.swagyolo69_id_seq'::regclass);
+
+
+--
 -- Name: vendor_events_borrow id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -15095,6 +15253,22 @@ ALTER TABLE ONLY _timescaledb_internal._hyper_2_9_chunk
 
 
 --
+-- Name: accounts_does_exist_1 accounts_does_exist_1_eoa_addr_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.accounts_does_exist_1
+    ADD CONSTRAINT accounts_does_exist_1_eoa_addr_key UNIQUE (eoa_addr);
+
+
+--
+-- Name: accounts_does_exist_1 accounts_does_exist_1_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.accounts_does_exist_1
+    ADD CONSTRAINT accounts_does_exist_1_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: accounts_executed_transactions_1 accounts_executed_transactions_1_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -15140,6 +15314,14 @@ ALTER TABLE ONLY public.accounts_secrets_1
 
 ALTER TABLE ONLY public.accounts_secrets_nonces_1
     ADD CONSTRAINT accounts_secrets_nonces_1_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: accounts_secrets_nonces_old_1 accounts_secrets_nonces_old_1_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.accounts_secrets_nonces_old_1
+    ADD CONSTRAINT accounts_secrets_nonces_old_1_pkey PRIMARY KEY (id);
 
 
 --
@@ -16775,6 +16957,14 @@ ALTER TABLE ONLY public.sudoswap_new_erc721pair
 
 
 --
+-- Name: swagyolo69 swagyolo69_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.swagyolo69
+    ADD CONSTRAINT swagyolo69_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: vendor_events_borrow vendor_events_borrow_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -18236,14 +18426,6 @@ CREATE TRIGGER ts_insert_blocker BEFORE INSERT ON public.events_seawater_swap2 F
 
 
 --
--- Name: accounts_secrets_nonces_1 accounts_secrets_nonces_1_secret_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.accounts_secrets_nonces_1
-    ADD CONSTRAINT accounts_secrets_nonces_1_secret_id_fkey FOREIGN KEY (secret_id) REFERENCES public.accounts_secrets_1(id);
-
-
---
 -- Name: discord_usernames_2 discord_usernames_2_association_giver_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -18390,6 +18572,13 @@ ALTER PUBLICATION websocket_publication ADD TABLE ONLY public.ninelives_market_o
 
 
 --
+-- Name: websocket_publication ninelives_payoff_unused_1; Type: PUBLICATION TABLE; Schema: public; Owner: -
+--
+
+ALTER PUBLICATION websocket_publication ADD TABLE ONLY public.ninelives_payoff_unused_1;
+
+
+--
 -- Name: websocket_publication oracles_ninelives_prices_2; Type: PUBLICATION TABLE; Schema: public; Owner: -
 --
 
@@ -18400,7 +18589,7 @@ ALTER PUBLICATION websocket_publication ADD TABLE ONLY public.oracles_ninelives_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict YIGrlPazbFUHhaljFX7Q6cwhtpSAK6VJyJSooRG7mskOKYGFNgd988AjDsI66q5
+\unrestrict jaz2xk4yuhd95iVMg1oW0SXCwYUP38f3cFt9aKsSrEeoL6m7GqVQ05S3wrFurTg
 
 
 --
@@ -18414,4 +18603,7 @@ INSERT INTO public.accounts_migrations (version) VALUES
     ('1766122851'),
     ('1766490067'),
     ('1768798135'),
-    ('1768801914');
+    ('1768801914'),
+    ('1769697293'),
+    ('1769697461'),
+    ('1769706100');

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S rc -e
 
 usdc_addr=0x6c030c5CC283F791B26816f325b9C632d964F8A1
-accounts_graph_addr=https://accounts.superposition.so
+accounts_graph_addr=http://localhost:8080
 accounts_addr=0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2
 
 prog=`{basename $0}

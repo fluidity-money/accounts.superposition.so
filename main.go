@@ -115,7 +115,7 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Normalise with ethCommon's representation of addresses (which include
 		// the 0x):
 		eoaPreferred := strings.ToLower(ethCommon.HexToAddress(eoaPreferred_).String())
-		secret, err := hex.DecodeString(bearerS[1])
+		_, err := hex.DecodeString(bearerS[1])
 		if err != nil {
 			slog.Error("error decoding bearer",
 				"err", err,
@@ -125,52 +125,24 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		secretX := strings.ToLower(bearerS[1])
 		row := a.db.QueryRow(`
-SELECT salt
-FROM accounts_secrets_1
-WHERE eoa_addr = $1 AND valid_until > CURRENT_TIMESTAMP
-ORDER BY valid_until DESC`,
+SELECT COUNT(1)
+FROM accounts_secrets_2
+WHERE eoa_addr = $1 AND secret = $2`,
 			eoaPreferred,
+			secretX,
 		)
-		var salt string
-		switch err := row.Scan(&salt); err {
-		case nil:
-		case sql.ErrNoRows:
+		var count int
+		if err := row.Scan(&count); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			slog.Error("no rows", "err", err, "snowflake", snowflake)
-			writeUnauthorised(w)
-			return
-		default:
-			slog.Error("bad salt scan",
-				"err", err,
-				"snowflake", snowflake,
-			)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		saltB, err := hex.DecodeString(salt)
-		if err != nil {
-			slog.Error("error unpacking salt from database", "err", err, "snowflake", snowflake)
-			w.WriteHeader(http.StatusUnauthorized)
+			slog.Error("error scanning secrets", "err", err, "snowflake", snowflake)
 			writeUnauthorised(w)
 			return
 		}
-		key := graph.MakeKey([]byte(secret), saltB)
-		keyS := hex.EncodeToString(key)
-		row = a.db.QueryRow(`
-SELECT 1
-FROM accounts_secrets_1
-WHERE priv_key = $1 AND eoa_addr = $2`,
-			keyS,
-			eoaPreferred,
-		)
-		var sink int
-		if err := row.Scan(&sink); err != nil {
-			slog.Error("error matching private key",
-				"err", err,
-				"snowflake", snowflake,
-			)
+		if count == 0 {
 			w.WriteHeader(http.StatusUnauthorized)
+			slog.Error("no rows found", "snowflake", snowflake)
 			writeUnauthorised(w)
 			return
 		}
