@@ -11,6 +11,7 @@ pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;
 pub mod entry_version;
+pub mod call_authority;
 
 extern crate alloc;
 
@@ -190,6 +191,7 @@ pub enum Args {
         r: U,
         s: U,
         solve_args: Vec<SolveArgsSigArgs>,
+        authority: Option<ArgsAddr>
     },
     /// Execute some calldata.
     Solve {
@@ -208,7 +210,8 @@ pub fn entry(x: Args) -> usize {
             r,
             s,
             solve_args,
-        } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args),
+            authority,
+        } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args, authority),
         Args::Solve { slot, args } => entry_solve(slot, args),
         Args::Version => entry_version(),
     }

@@ -1,4 +1,4 @@
-package graph
+package convertor
 
 import (
 	"encoding/hex"

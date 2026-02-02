@@ -60,5 +60,7 @@ storage! {
     // Seen timestamps:
     timestamps(ms),
     // The version number of this contract release.
-    version()
+    version(),
+    // Authority that should be checked before execution.
+    authority()
 }

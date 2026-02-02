@@ -54,6 +54,7 @@ enum CliArgs {
         r: U,
         s: U,
         solve_args: Option<Vec<SolveArgs>>,
+        authority: Option<ArgsAddr>
     },
     SignSolve {
         #[arg(value_parser = U::from_str)]
@@ -89,6 +90,7 @@ fn entry(x: CliArgs) {
             r,
             s,
             solve_args,
+            authority,
         } => {
             let k = SigningKey::from_bytes(&priv_key.0);
             let solve_args = solve_args
@@ -113,6 +115,7 @@ fn entry(x: CliArgs) {
                         r,
                         s,
                         solve_args,
+                        authority,
                     })
                     .unwrap()
                 )

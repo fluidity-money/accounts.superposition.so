@@ -2,20 +2,18 @@ use alloc::vec::Vec;
 
 use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec, safe_call_unit_err_vec},
-    entry::{
-        contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec,
-    },
+    entry::{contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec, code_hash},
     interfaces::{
         eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
         eip2612::make_fn_permit,
     },
     maths::U,
-    precompiles::superposition::edverify,
+    precompiles::superposition::edphverify,
 };
 
 use sha2::{Digest, Sha512};
 
-use crate::{FromArgs, Permit, SolveArgs, SolveArgsSigArgs, storage};
+use crate::{call_authority, storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
 
 pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     let eth_owner = storage::ethereum_owner::get();
@@ -23,7 +21,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
         d.update(borsh::to_vec(&args).unwrap());
-        assert!(edverify(d.finalize().into(), ed_owner, sig.0),);
+        assert!(edphverify(d.finalize().into(), ed_owner, sig.0),);
         let SolveArgs {
             permit,
             from,
@@ -69,6 +67,14 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
                 &U::ZERO,
                 u64::MAX
             ));
+        }
+        let authority_addr = storage::authority::get();
+        if authority_addr.is_some() {
+            let c = code_hash(target.0);
+            if !call_authority::is_allowed(authority_addr.into(), c) {
+                // Branching to avoid possibly always making this string:
+                panic!("not allowed: {}", const_hex::encode(&c.0));
+            }
         }
         match safe_call_unit_err_vec(target.0, &cd, &U::ZERO, u64::MAX) {
             (false, Some(v)) => {

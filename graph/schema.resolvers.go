@@ -17,13 +17,14 @@ import (
 	ethCrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	"github.com/fluidity-money/accounts.superposition.so/lib/client"
+	"github.com/fluidity-money/accounts.superposition.so/lib/convertor"
 	"github.com/fluidity-money/accounts.superposition.so/lib/db"
 	"github.com/fluidity-money/accounts.superposition.so/lib/types"
 )
 
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
-	f, err := CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
+	f, err := convertor.CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
 	if err != nil {
 		slog.Error("create account",
 			"create account", createAccount,
@@ -37,7 +38,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	}
 	eoa := ethCommon.HexToAddress(createAccount.EoaAddr)
 	if mint != nil {
-		err = TagFreshBackwardsWithMint(
+		err = convertor.TagFreshBackwardsWithMint(
 			f,
 			r.Fusdc,
 			mint.Market,
@@ -202,7 +203,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		)
 		return "", fmt.Errorf("picking private key: %v", err)
 	}
-	f, err := CreateSolveArgsSigArgs(
+	f, err := convertor.CreateSolveArgsSigArgs(
 		r.Fusdc,
 		mint.Market,
 		mint.Outcome,
@@ -274,7 +275,12 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		)
 		return "", fmt.Errorf("picking private key: %v", err)
 	}
-	f, err := CreatePayoffForOtherArgs(r.ClaimantHelperAddr, eoa, markets, msTs)
+	f, err := convertor.CreatePayoffForOtherArgs(
+		r.ClaimantHelperAddr,
+		eoa,
+		markets,
+		msTs,
+	)
 	if err != nil {
 		slog.Error("error creating claim all args",
 			"err", err,

@@ -6,9 +6,16 @@ of the submitter, with a list of goals, permit onramping arguments, and more. Th
 looks up the address of the implementation before executing it. Proxies are configured
 using a metamorphic proxy pattern spun up using the storage slot.
 
-Registration is interesting. A user calls the factory contract, which validates the
+During registration, a user calls the factory contract, which validates the
 signature and user data. The factory then uses create2 on the Ethereum address to call the
 migration method, which simply delegatecalls back to the factory.
+
+It's possible to register contract "authorities" for accounts registered. These servers
+must support the function `allowed(address)(bool)`. These authorities are consulted
+before executing a transaction to check if the hash of the contract they're calling is
+whitelisted.
+
+Migrations are possible by the EOA owner of the contract.
 
 ## Deployment layout
 

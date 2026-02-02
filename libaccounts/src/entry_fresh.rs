@@ -1,18 +1,41 @@
-use alloc::vec::Vec;
+use alloc::{format, vec::Vec};
 
 use bobcat_sdk::{
     call::{call_unit, call_unit_err_vec},
     create::create2_pre_unit,
     entry::{contract_address, revert_if_bad_call_unit_vec, write_result_word},
     maths::U,
-    precompiles::ethereum::ecrecover,
-    proxy::{SEL_MIGRATE, make_metamorphic_beacon_proxy},
+    proxy::{make_metamorphic_beacon_proxy, SEL_MIGRATE},
     storage::{keccak256, storage_load},
 };
 
-use crate::{Args, ArgsAddr, SLOT_IMPL, SolveArgsSigArgs};
+#[cfg(all(target_family = "wasm", target_os = "unknown"))]
+use bobcat_sdk::precompiles::ethereum::ecrecover_post;
+
+use crate::{Args, ArgsAddr, SolveArgsSigArgs, SLOT_IMPL};
 
 use array_concat::concat_arrays;
+
+const PREIMAGE_TXT_SIZE: usize = 28 + 63 + 22 + 40;
+
+fn make_preimage(pub_key: &U, authority: &[u8; 20]) -> U {
+    let mut out_spn_account = [0u8; 64];
+    let mut out_authority = [0u8; 40];
+    let preimage_txt: [u8; PREIMAGE_TXT_SIZE] = format!(
+        "New Superposition account: {}, authority contract: {}",
+        const_hex::encode_to_str::<_>(&pub_key.0, &mut out_spn_account).unwrap(),
+        const_hex::encode_to_str::<_>(&authority, &mut out_authority).unwrap()
+    )
+    .as_bytes()
+    .try_into()
+    .unwrap();
+    let msg_preimage: [u8; 1 + 28 + PREIMAGE_TXT_SIZE] = concat_arrays!(
+        // Public key in hex size (64):
+        *b"\x19Ethereum Signed Message:\n125",
+        preimage_txt
+    );
+    keccak256(&msg_preimage)
+}
 
 pub fn entry_fresh_backwards(
     pub_key: U,
@@ -21,19 +44,18 @@ pub fn entry_fresh_backwards(
     r: U,
     s: U,
     solve_args: Vec<SolveArgsSigArgs>,
+    authority: Option<ArgsAddr>,
 ) -> usize {
     assert!(pub_key.is_some());
     assert!(eoa_addr.0 != [0u8; 20]);
-    let msg_preimage: [u8; 1 + 28 + 63] = concat_arrays!(
-        // Public key in hex size (64):
-        *b"\x19Ethereum Signed Message:\n64",
-        *const_hex::const_encode::<32, false>(&pub_key.0).as_byte_array::<64>()
-    );
-    let msg_digest = keccak256(&msg_preimage);
+    let msg_digest = make_preimage(&pub_key, &eoa_addr.0);
+    // TODO:
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
     assert_eq!(
         eoa_addr.0,
-        ecrecover(msg_digest, v, r, s, u64::MAX).unwrap()
+        ecrecover_post(msg_digest, v, r, s).unwrap()
     );
+    let authority = authority.unwrap_or_default().0;
     // This code reenters the transparent upgradeable proxy used here when
     // the migrate function is called. But it uses a slot for its
     // implementation when it's delegatecalled into.
@@ -45,8 +67,13 @@ pub fn entry_fresh_backwards(
         &eoa_addr.0,
     )
     .unwrap();
-    let migrate_cd: [u8; 4 + 32 * 3] =
-        concat_arrays!(SEL_MIGRATE, pub_key.0, U::from(eoa_addr.0).0, impl_addr.0);
+    let migrate_cd: [u8; 4 + 32 * 4] = concat_arrays!(
+        SEL_MIGRATE,
+        pub_key.0,
+        U::from(eoa_addr.0).0,
+        impl_addr.0,
+        authority
+    );
     assert!(
         call_unit(proxy, &migrate_cd, &U::ZERO, u64::MAX),
         "bad migration"
@@ -72,6 +99,11 @@ mod test {
     use super::*;
 
     use bobcat_sdk::prelude::{address, const_estimate_addr_pre};
+
+    #[test]
+    fn test_make_preimage() {
+        make_preimage(&U::from(123u32), &[1u8; 20]);
+    }
 
     #[test]
     #[ignore]

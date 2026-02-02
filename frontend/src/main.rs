@@ -4,10 +4,6 @@ use wasm_bindgen::prelude::*;
 
 extern crate alloc;
 
-use alloc::vec::Vec;
-
-use libaccounts::SolveArgs;
-
 use bobcat_sdk::maths::U;
 
 #[wasm_bindgen]
@@ -17,12 +13,12 @@ pub fn add_test(x: U) -> U {
 
 #[wasm_bindgen]
 pub fn sign_fresh(
-    priv_key: U,
-    spender_addr: Box<[u8]>,
-    solve_args: JsValue,
+    _priv_key: U,
+    _spender_addr: Box<[u8]>,
+    _solve_args: JsValue,
 ) -> Result<String, JsValue> {
-    let solve_args: Vec<SolveArgs> = serde_wasm_bindgen::from_value(solve_args).unwrap();
-    Ok("Hello".to_owned())
+    // let solve_args: Vec<SolveArgs> = serde_wasm_bindgen::from_value(solve_args).unwrap();
+    todo!()
 }
 
 #[allow(unused)]
