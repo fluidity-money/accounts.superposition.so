@@ -47,11 +47,12 @@ dependencies = [
 
 [[package]]
 name = "bobcat-call"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26231547d67a320e3ef179140eee757f67ca50b919614b818d7f04b2ff2e6cf4"
+checksum = "11ae8dd7d185219502ac47d8423d7ebb0102bd444e62db24b3d27432d3867cd2"
 dependencies = [
  "bobcat-entry",
+ "bobcat-host",
  "bobcat-maths",
  "bobcat-panic",
  "paste",
@@ -59,9 +60,9 @@ dependencies = [
 
 [[package]]
 name = "bobcat-cd"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27b61cd89590e5aa5ae346e3e6b44b13d0161cf2e8ecf356616b112f9840dee8"
+checksum = "0586edb8568f0cfe9dcc8edee2c6aa30596aa831090a16219c94c4357811adc5"
 dependencies = [
  "array-concat",
  "bobcat-maths",
@@ -71,11 +72,12 @@ dependencies = [
 
 [[package]]
 name = "bobcat-create"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac79cceee23a60eaf359f14a4bfe5ce9b795be88c01484ffffeae8f02e10831e"
+checksum = "3c400d7baca29f3fcb48394167109eeb1b3b53cd2e5925741d7f7ff0e1f826e9"
 dependencies = [
  "array-concat",
+ "bobcat-host",
  "bobcat-maths",
  "bobcat-proxy",
  "bobcat-storage",
@@ -83,30 +85,57 @@ dependencies = [
 
 [[package]]
 name = "bobcat-entry"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48f6b09b5ba793e831400d9a851dd6484dd28aab900c160bd932a30d77ea71bb"
+checksum = "7b0af71000f555fbbdffea52aded5c21a13f1ca1d5d80ee333400be21fd000a0"
 dependencies = [
  "bobcat-cd",
+ "bobcat-host",
  "bobcat-maths",
+ "bobcat-storage",
  "const-hex",
 ]
 
 [[package]]
 name = "bobcat-events"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea3b9bfe11f101f5bf36c4c4e3a94df4bed9567945fa79697c86f343b70943b5"
+checksum = "3c54b5530c3dc87302970e5c329bcfad5afeefb4252fc62e5bd34da4be222306"
 dependencies = [
  "array-concat",
+ "bobcat-host",
  "bobcat-maths",
 ]
 
 [[package]]
-name = "bobcat-interfaces"
-version = "0.7.7"
+name = "bobcat-features"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32c4220c492db99e86961ba8176d98aeaee9e90e0e373b743c17c182867aee9b"
+checksum = "2f88f7b9a1150ea85b3f7e4e96df0e698eb3d001f3d7e42ad2dd6f9c60b0855d"
+dependencies = [
+ "bobcat-call",
+ "bobcat-entry",
+ "bobcat-interfaces",
+ "bobcat-storage",
+ "paste",
+]
+
+[[package]]
+name = "bobcat-host"
+version = "0.7.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "604f09eec9e4ab483bd75c8b98714ecb8140a57b19afd2bb53547bccdb5b8405"
+dependencies = [
+ "const-hex",
+ "keccak-const",
+ "num_enum",
+]
+
+[[package]]
+name = "bobcat-interfaces"
+version = "0.7.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5d6f97308a60f5e37db3696e98a45d35a7b9aa9e56a5251269adf9751d74867e"
 dependencies = [
  "array-concat",
  "bobcat-cd",
@@ -117,12 +146,13 @@ dependencies = [
 
 [[package]]
 name = "bobcat-maths"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "007710b5dd70155aa74d8ed19234a6f50a10802cfecf04be11de6afb9a94bea5"
+checksum = "d6f312af3957554646fd1e2af741a25c8c1c29da100376c41fd99c6f29046609"
 dependencies = [
  "alloy-primitives",
  "array-concat",
+ "bobcat-host",
  "bobcat-panic",
  "borsh",
  "cfg-if",
@@ -135,32 +165,49 @@ dependencies = [
 ]
 
 [[package]]
-name = "bobcat-panic"
-version = "0.7.7"
+name = "bobcat-maths-zone"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87f8af421cb9ec9fc315ded03f7a398bd440d728f02d5fe29829ac1e67b831aa"
+checksum = "349a2dbe877bd73c487a04459581bc38bef4278de57950c38b01121c3a56381f"
 dependencies = [
+ "bobcat-maths",
+ "bobcat-panic",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "bobcat-panic"
+version = "0.7.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "021fe8df45f30198ef770d3cec7c810e69bae890f03aee10711e9a431348c09b"
+dependencies = [
+ "bobcat-host",
  "const-hex",
  "paste",
 ]
 
 [[package]]
 name = "bobcat-precompiles"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc3c3abcdf95fde84a9bffdc6359161534eb27dfc8360e0416f5364c2887a5c1"
+checksum = "928ce3807e1bd15f4602e0e7a58ef59223faf148d09bb15210bfb94903f6e742"
 dependencies = [
  "array-concat",
  "bobcat-call",
  "bobcat-cd",
  "bobcat-maths",
+ "bobcat-storage",
+ "ed25519-dalek",
+ "sha2",
 ]
 
 [[package]]
 name = "bobcat-proxy"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "463bd482421f10d83844fa2f5b3eb067abe6db048b15336ed5aa02d9897c77a6"
+checksum = "85e3904c69a110f70977aaf025e2b60ff915fd8624d6c046334363b2fef44c68"
 dependencies = [
  "array-concat",
  "bobcat-interfaces",
@@ -170,17 +217,20 @@ dependencies = [
 
 [[package]]
 name = "bobcat-sdk"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59335fa941229f7acc70c5264a00f4cbd7b578bf500d99ba9b86cce6b99d59c4"
+checksum = "11aa91421262b66b55140483a32cf74a8e377a283487aabf2d5f79a2db9d33a0"
 dependencies = [
  "bobcat-call",
  "bobcat-cd",
  "bobcat-create",
  "bobcat-entry",
  "bobcat-events",
+ "bobcat-features",
+ "bobcat-host",
  "bobcat-interfaces",
  "bobcat-maths",
+ "bobcat-maths-zone",
  "bobcat-panic",
  "bobcat-precompiles",
  "bobcat-proxy",
@@ -189,11 +239,12 @@ dependencies = [
 
 [[package]]
 name = "bobcat-storage"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc0e5c4dbc41cd38cd1c82a0a5c5e9b2da9c4d28153d8660e12eb26a7d0be5c9"
+checksum = "172a914c701dba4bb6e76ae9cd9a73496c66ffd4ebf2bbd0a27ea6e3a7ab3ac3"
 dependencies = [
  "array-concat",
+ "bobcat-host",
  "bobcat-maths",
  "keccak-const",
  "paste",
@@ -284,6 +335,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "curve25519-dalek"
+version = "4.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97fb8b7c4503de7d6ae7b42ab72a5a59857b4c937ec27a3d4539dba95b5ab2be"
+dependencies = [
+ "cfg-if",
+ "cpufeatures",
+ "curve25519-dalek-derive",
+ "digest",
+ "fiat-crypto",
+ "rustc_version",
+ "subtle",
+]
+
+[[package]]
+name = "curve25519-dalek-derive"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f46882e17999c6cc590af592290432be3bce0428cb0d5f8b6715e4dc7b383eb3"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "derive_more"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -315,10 +392,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "ed25519"
+version = "2.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "115531babc129696a58c64a4fef0a8bf9e9698629fb97e9e40767d235cfbcd53"
+dependencies = [
+ "signature",
+]
+
+[[package]]
+name = "ed25519-dalek"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70e796c081cee67dc755e1a36a0a172b897fab85fc3f6bc48307991f64e4eca9"
+dependencies = [
+ "curve25519-dalek",
+ "ed25519",
+ "sha2",
+ "signature",
+ "subtle",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
+
+[[package]]
+name = "fiat-crypto"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
 
 [[package]]
 name = "frontend"
@@ -424,6 +529,27 @@ checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
  "libm",
+]
+
+[[package]]
+name = "num_enum"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1207a7e20ad57b847bbddc6776b968420d38292bbfe2089accff5e19e82454c"
+dependencies = [
+ "num_enum_derive",
+ "rustversion",
+]
+
+[[package]]
+name = "num_enum_derive"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff32365de1b6743cb203b710788263c44a03de03802daf96092f2da4fe6ba4d7"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -559,6 +685,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48fd7bd8a6377e15ad9d42a8ec25371b94ddc67abe7c8b9127bec79bebaaae18"
 
 [[package]]
+name = "rustc_version"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfcb3a22ef46e85b45de6ee7e79d063319ebb6594faafcf1c225ea92ab6e9b92"
+dependencies = [
+ "semver",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -569,6 +704,12 @@ name = "ryu"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
+
+[[package]]
+name = "semver"
+version = "1.0.27"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d767eb0aabc880b29956c35734170f26ed551a859dbd361d140cdbeca61ab1e2"
 
 [[package]]
 name = "serde"
@@ -634,6 +775,21 @@ dependencies = [
  "cpufeatures",
  "digest",
 ]
+
+[[package]]
+name = "signature"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
+dependencies = [
+ "digest",
+]
+
+[[package]]
+name = "subtle"
+version = "2.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "syn"

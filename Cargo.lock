@@ -197,6 +197,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bobcat-features"
+version = "0.7.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f88f7b9a1150ea85b3f7e4e96df0e698eb3d001f3d7e42ad2dd6f9c60b0855d"
+dependencies = [
+ "bobcat-call",
+ "bobcat-entry",
+ "bobcat-interfaces",
+ "bobcat-storage",
+ "paste",
+]
+
+[[package]]
 name = "bobcat-host"
 version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -242,6 +255,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bobcat-maths-zone"
+version = "0.7.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "349a2dbe877bd73c487a04459581bc38bef4278de57950c38b01121c3a56381f"
+dependencies = [
+ "bobcat-maths",
+ "bobcat-panic",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "bobcat-panic"
 version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -264,6 +290,7 @@ dependencies = [
  "bobcat-cd",
  "bobcat-maths",
  "bobcat-storage",
+ "ed25519-dalek",
  "sha2",
 ]
 
@@ -281,17 +308,20 @@ dependencies = [
 
 [[package]]
 name = "bobcat-sdk"
-version = "0.7.7"
+version = "0.7.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59335fa941229f7acc70c5264a00f4cbd7b578bf500d99ba9b86cce6b99d59c4"
+checksum = "11aa91421262b66b55140483a32cf74a8e377a283487aabf2d5f79a2db9d33a0"
 dependencies = [
  "bobcat-call",
  "bobcat-cd",
  "bobcat-create",
  "bobcat-entry",
  "bobcat-events",
+ "bobcat-features",
+ "bobcat-host",
  "bobcat-interfaces",
  "bobcat-maths",
+ "bobcat-maths-zone",
  "bobcat-panic",
  "bobcat-precompiles",
  "bobcat-proxy",

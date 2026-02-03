@@ -7,10 +7,8 @@ use bobcat_sdk::{
     maths::U,
     proxy::{make_metamorphic_beacon_proxy, SEL_MIGRATE},
     storage::{keccak256, storage_load},
+    precompiles::ethereum::ecrecover_post
 };
-
-#[cfg(all(target_family = "wasm", target_os = "unknown"))]
-use bobcat_sdk::precompiles::ethereum::ecrecover_post;
 
 use crate::{Args, ArgsAddr, SolveArgsSigArgs, SLOT_IMPL};
 
@@ -49,8 +47,6 @@ pub fn entry_fresh_backwards(
     assert!(pub_key.is_some());
     assert!(eoa_addr.0 != [0u8; 20]);
     let msg_digest = make_preimage(&pub_key, &eoa_addr.0);
-    // TODO:
-    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
     assert_eq!(
         eoa_addr.0,
         ecrecover_post(msg_digest, v, r, s).unwrap()
