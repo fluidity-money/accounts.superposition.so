@@ -5,9 +5,9 @@ use bobcat_sdk::{
     create::create2_pre_unit,
     entry::{contract_address, revert_if_bad_call_unit_vec, write_result_word},
     maths::U,
+    precompiles::ethereum::ecrecover_post,
     proxy::{make_metamorphic_beacon_proxy, SEL_MIGRATE},
     storage::{keccak256, storage_load},
-    precompiles::ethereum::ecrecover_post
 };
 
 use crate::{Args, ArgsAddr, SolveArgsSigArgs, SLOT_IMPL};
@@ -28,8 +28,8 @@ fn make_preimage(pub_key: &U, authority: &[u8; 20]) -> U {
     .try_into()
     .unwrap();
     let msg_preimage: [u8; 1 + 28 + PREIMAGE_TXT_SIZE] = concat_arrays!(
-        // Public key in hex size (64):
-        *b"\x19Ethereum Signed Message:\n125",
+        // Public key in hex size (153):
+        *b"\x19Ethereum Signed Message:\n153",
         preimage_txt
     );
     keccak256(&msg_preimage)
@@ -46,12 +46,9 @@ pub fn entry_fresh_backwards(
 ) -> usize {
     assert!(pub_key.is_some());
     assert!(eoa_addr.0 != [0u8; 20]);
-    let msg_digest = make_preimage(&pub_key, &eoa_addr.0);
-    assert_eq!(
-        eoa_addr.0,
-        ecrecover_post(msg_digest, v, r, s).unwrap()
-    );
-    let authority = authority.unwrap_or_default().0;
+    let authority = authority.unwrap_or_default();
+    let msg_digest = make_preimage(&pub_key, &authority.0);
+    assert_eq!(eoa_addr.0, ecrecover_post(msg_digest, v, r, s).unwrap());
     // This code reenters the transparent upgradeable proxy used here when
     // the migrate function is called. But it uses a slot for its
     // implementation when it's delegatecalled into.
@@ -68,7 +65,7 @@ pub fn entry_fresh_backwards(
         pub_key.0,
         U::from(eoa_addr.0).0,
         impl_addr.0,
-        authority
+        authority.0
     );
     assert!(
         call_unit(proxy, &migrate_cd, &U::ZERO, u64::MAX),

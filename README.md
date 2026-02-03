@@ -53,6 +53,12 @@ binary for deployment.
 
 ## Testing
 
+Make sure to pull all git submodules:
+
+	git submodule update --init --recursive
+
+Then simply:
+
 	./tests.sh
 
 ## Shoutouts

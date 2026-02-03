@@ -5,6 +5,8 @@ import {Vm, Test} from "forge-std/Test.sol";
 
 import {strings} from "./strings.sol";
 
+import {IAuthority} from "../sol/IAuthority.sol";
+
 import {IArbFoundry} from "./IArbFoundry.sol";
 
 import {TransparentUpgradeableProxy} from "./TestTransparentUpgradeableProxy.sol";
@@ -78,20 +80,31 @@ contract TestAccounts is Test {
         bytes memory pubKey = vm.ffi(x);
         string memory truncatedPubKey =
             strings.toString(strings.beyond(strings.toSlice(vm.toString(pubKey)), strings.toSlice("0x")));
-        x = new string[](7);
+        x = new string[](8);
         x[0] = "./accounts-cli.out";
         x[1] = "sign-fresh-backwards";
         x[2] = "1";
         x[3] = vm.toString(wallet.addr);
+        string memory truncatedAuthority =
+            vm.toLowercase(strings.toString(
+                strings.beyond(
+                    strings.toSlice(vm.toString(address(authority))),
+                    strings.toSlice("0x")
+                )
+            ));
         bytes memory onboardPre = abi.encodePacked(
-            "\x19Ethereum Signed Message:\n64",
-           truncatedPubKey
+            "\x19Ethereum Signed Message:\n153",
+            "New Superposition account: ",
+           truncatedPubKey,
+           ", authority contract: ",
+           truncatedAuthority
         );
         bytes32 onboardDigest = keccak256(onboardPre);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(wallet, onboardDigest);
         x[4] = vm.toString(v);
         x[5] = vm.toString(uint256(r));
         x[6] = vm.toString(uint256(s));
+        x[7] = truncatedAuthority;
         bytes memory cd = vm.ffi(x);
         (bool rc, bytes memory rd) = accounts.call(cd);
         revertMsg(rc, rd);

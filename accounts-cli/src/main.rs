@@ -53,6 +53,7 @@ enum CliArgs {
         v: u8,
         r: U,
         s: U,
+        #[arg(short)]
         solve_args: Option<Vec<SolveArgs>>,
         authority: Option<ArgsAddr>
     },
