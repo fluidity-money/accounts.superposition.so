@@ -1,7 +1,7 @@
 #!/usr/bin/env -S rc -e
 
 usdc_addr=0x6c030c5CC283F791B26816f325b9C632d964F8A1
-accounts_graph_addr=http://localhost:8080
+accounts_graph_addr=https://accounts.superposition.so
 accounts_addr=0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2
 
 prog=`{basename $0}
@@ -47,20 +47,25 @@ fn make_mint_obj {
 	echo 'mint: {\n      market: \"'$market'\",\n      outcome: \"'$outcome'\",\n      amount: \"'$amount'\",\n      referrer: \"'$referrer'\",\n      ms_ts: \"'$ms_ts'\",\n      '$permit_obj'    }'
 }
 
+fn usage_onboard {
+	usage 'onboard authority [market outcome amount referrer [should permit]]'
+}
+
 fn onboard {
 	should_mint=yes
-	for(n in (1 2 3 4)) if(~ $$n '') should_mint=''
-	market=`{no_0x $1} outcome=`{no_0x $2} amount=$3 referrer=`{no_0x $4}
-	authority=`{no_0x $5}
+	for(n in (2 3 4 5)) if(~ $$n '') should_mint=''
+	authority=`{echo `{no_0x $1} | tr '[:upper:]' '[:lower:]'}
+	if(~ $authority '') usage_onboard
+	market=`{no_0x $2} outcome=`{no_0x $3} amount=$4 referrer=`{no_0x $5}
 	should_permit=yes
 	if(~ $6 '') should_permit=''
 	if(! ~ $market '') {
-		for(n in (2 3 4)) if(~ $$n '') {
-			usage 'onboard [market outcome amount referrer [should permit]]'
-		}
+		for(n in (2 3 4)) if(~ $$n '') usage_onboard
 	}
 	eoa=`{no_0x `{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}}
-	sig=`{get_public_key | sign-stdin $SPN_SUPERPOSITION_KEY}
+	sig=`{echo -n 'New Superposition account: '`{get_public_key}', authority contract: '$authority | sign-stdin $SPN_SUPERPOSITION_KEY}
+	echo $sig
+	echo
 	sig_r=`{echo $sig | jq -r .r}
 	sig_s=`{echo $sig | jq -r .s}
 	sig_v=`{echo $sig | jq -r .v}
@@ -69,7 +74,7 @@ fn onboard {
 		mint_obj=`{make_mint_obj $amount $market $referrer $should_permit}
 	}
 	req -d '
-{"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    },\n    authoroity: \"'$authority'\",\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
+{"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    authority: \"'$authority'\",\n},\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
 }
 
 fn random_bytes3 {
