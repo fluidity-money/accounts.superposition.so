@@ -206,7 +206,6 @@ pub enum Args {
 }
 
 pub fn entry(x: Args) -> usize {
-    use bobcat_sdk::entry::write_result_word;
     match x {
         Args::FreshBackwards {
             key,
