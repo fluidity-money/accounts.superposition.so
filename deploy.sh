@@ -10,9 +10,7 @@ if [ -z "$SPN_SUPERPOSITION_KEY" ]; then
 	exit 2
 fi
 
-cargo stylus deploy \
-	--wasm-file "accounts.superposition.so.wasm" \
-	--private-key "$SPN_SUPERPOSITION_KEY" \
-	--endpoint "$SPN_SUPERPOSITION_URL" \
-	--no-verify \
-	        | sed -nr 's/.*deployed code at address: +.*(0x.{40}).*$/\1/p'
+bobcat-deploy \
+	"$SPN_SUPERPOSITION_URL" \
+	"$SPN_SUPERPOSITION_KEY" \
+	accounts.superposition.so.wasm
