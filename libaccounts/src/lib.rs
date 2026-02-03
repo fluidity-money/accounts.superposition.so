@@ -11,6 +11,8 @@ pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;
 pub mod entry_version;
+pub mod entry_authority;
+
 pub mod call_authority;
 
 extern crate alloc;
@@ -30,6 +32,7 @@ use arbitrary::Arbitrary;
 use entry_fresh::entry_fresh_backwards;
 use entry_solve::entry_solve;
 use entry_version::entry_version;
+use entry_authority::entry_authority;
 
 type Address = [u8; 20];
 
@@ -199,9 +202,11 @@ pub enum Args {
         args: Vec<SolveArgsSigArgs>,
     },
     Version,
+    Authority,
 }
 
 pub fn entry(x: Args) -> usize {
+    use bobcat_sdk::entry::write_result_word;
     match x {
         Args::FreshBackwards {
             key,
@@ -214,5 +219,6 @@ pub fn entry(x: Args) -> usize {
         } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args, authority),
         Args::Solve { slot, args } => entry_solve(slot, args),
         Args::Version => entry_version(),
+        Args::Authority => entry_authority(),
     }
 }

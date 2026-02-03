@@ -45,7 +45,7 @@ binary for deployment.
 ## Deployments
 
 `0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the accounts factory.
-`0xeb2b1801d444a3f841b94853050acaa344ca025d` is the implementation.
+`0xed3e57f19789e27b4fadc74696ad3e5adc10bc8c` is the implementation.
 
 `0x4B4e7127A5Ae64D7c96997B2c23BdB09C4d47d3F` is the implementation of the 9lives Authority
 address. `0x0e3CD9653D9d9610281551d8E3C98035215EA18e` is the proxy.
