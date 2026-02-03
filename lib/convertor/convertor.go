@@ -1,13 +1,13 @@
 package convertor
 
 import (
-	"encoding/hex"
 	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
-	"math/big"
-	"strings"
-	"os/exec"
 	"math"
+	"math/big"
+	"os/exec"
+	"strings"
 
 	"github.com/fluidity-money/accounts.superposition.so/graph/model"
 	"github.com/fluidity-money/accounts.superposition.so/lib/ninelives"
@@ -81,7 +81,7 @@ func CreatePayoffForOtherArgs(
 	solveArgs := types.SolveArgs{
 		Target: claimantHelper,
 		Cd:     cd,
-		MsTs: msTs,
+		MsTs:   msTs,
 	}
 	solveArgsDigest, err := borsh.Serialize(solveArgs)
 	if err != nil {
@@ -110,6 +110,15 @@ func CreateAccountToFreshBackwards(pubKey [32]byte, createAccount model.CreateAc
 	if err != nil {
 		return nil, fmt.Errorf("eoa: %v", err)
 	}
+	var authority *types.ArgsAuthority
+	if a := createAccount.Authority; a != nil {
+		x, err := strToAddr(*a)
+		if err != nil {
+			return nil, fmt.Errorf("authority: %v", err)
+		}
+		v := types.ArgsAuthority(x)
+		authority = &v
+	}
 	if createAccount.SigV < 0 || createAccount.SigV > math.MaxUint8 {
 		return nil, fmt.Errorf("v exceeds")
 	}
@@ -123,11 +132,12 @@ func CreateAccountToFreshBackwards(pubKey [32]byte, createAccount model.CreateAc
 		return nil, fmt.Errorf("s: %v", err)
 	}
 	return &types.FreshBackwards{
-		Key:     pubKey,
-		EoaAddr: eoa,
-		V:       v,
-		R:       r,
-		S:       s,
+		Key:       pubKey,
+		EoaAddr:   eoa,
+		V:         v,
+		R:         r,
+		S:         s,
+		Authority: authority,
 	}, nil
 }
 
@@ -191,7 +201,7 @@ func CreateSolveArgsSigArgs(
 		return nil, fmt.Errorf("ms ts: %v", msTs_)
 	}
 	var (
-		rec [20]byte
+		rec  [20]byte
 		msTs [16]byte
 	)
 	copy(rec[:], recipient.Bytes())
@@ -199,13 +209,13 @@ func CreateSolveArgsSigArgs(
 	cd := ninelives.NewMint(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
 		From: []types.FromArgs{{
-			Token:      token,
-			ToTake:     a,
+			Token:  token,
+			ToTake: a,
 			//MaxUnspent: [32]byte{},
 		}},
 		Target: m,
 		Cd:     cd,
-		MsTs: msTs,
+		MsTs:   msTs,
 	}
 	if permit != nil {
 		if permit.Deadline < 0 {

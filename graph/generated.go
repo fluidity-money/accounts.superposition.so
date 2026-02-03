@@ -2701,7 +2701,7 @@ func (ec *executionContext) unmarshalInputCreateAccount(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"eoa_addr", "sigV", "sigR", "sigS"}
+	fieldsInOrder := [...]string{"eoa_addr", "sigV", "sigR", "sigS", "authority"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2736,6 +2736,13 @@ func (ec *executionContext) unmarshalInputCreateAccount(ctx context.Context, obj
 				return it, err
 			}
 			it.SigS = data
+		case "authority":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authority"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Authority = data
 		}
 	}
 

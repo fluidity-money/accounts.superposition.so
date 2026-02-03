@@ -3,10 +3,11 @@
 package model
 
 type CreateAccount struct {
-	EoaAddr string `json:"eoa_addr"`
-	SigV    int32  `json:"sigV"`
-	SigR    string `json:"sigR"`
-	SigS    string `json:"sigS"`
+	EoaAddr   string  `json:"eoa_addr"`
+	SigV      int32   `json:"sigV"`
+	SigR      string  `json:"sigR"`
+	SigS      string  `json:"sigS"`
+	Authority *string `json:"authority,omitempty"`
 }
 
 type CreateAccountExec struct {

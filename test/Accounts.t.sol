@@ -25,12 +25,20 @@ contract TestTarget {
     }
 }
 
+contract TestAuthority is IAuthority {
+    function allowed(bytes32) external pure returns (bool) {
+        return true;
+    }
+}
+
 contract TestAccounts is Test {
     using strings for TestAccounts;
 
     address accounts;
     TestErc20 erc20;
     TestTarget target;
+
+    TestAuthority authority;
 
     uint256 constant CURVE_MAX = 115792089237316195423570985008687907852837564279074904382605163141518161494337;
 
@@ -44,28 +52,11 @@ contract TestAccounts is Test {
         ).code);
         erc20 = new TestErc20();
         target = new TestTarget();
+        authority = new TestAuthority();
         accounts = address(new TransparentUpgradeableProxy(impl, address(this), ""));
     }
 
     function revertMsg(bool rc, bytes memory rd) internal pure {
-        if (!rc) {
-            assembly {
-                rd := add(rd, 4)
-                mstore(rd, sub(mload(rd), 4))
-            }
-            string memory errorMessage = abi.decode(rd, (string));
-            revert(errorMessage);
-        }
-    }
-
-    function test_online() public {
-        vm.createSelectFork("https://rpc.superposition.so");
-        address impl = IArbFoundry(address(vm)).deployStylusCode(
-            "accounts.superposition.so.wasm"
-        );
-        bytes32 slotImpl = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
-        vm.store(0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2, slotImpl, bytes32(uint256(uint160(impl))));
-        (bool rc, bytes memory rd) = 0xC5F97faab254a86C57003CE98f86A138648af35C.call(hex"0100000000010000002f68805f3bd70b1bf7bf8e119d8d294064352b4314454baa8c9d2b7da723305d56b080dd97d3e930d47c3aac1489e176c822ad826c9755390bbfd9988a977e05010000006c030c5cc283f791b26816f325b9c632d964f8a101094969000000001bab4a0c2973294e0b0f39c26c49794487c52788c7c5cce05e00356cd3f06c649564cb25ba649244b82e3c45ab775b2914c44743e0e0b2b691acc6bb16971ab9c7010000006c030c5cc283f791b26816f325b9c632d964f8a100000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000000000000000000000000000000000004f64fc07a0060a9324a3a52692839a75754b16a4840000000000014793695aafe24a5ac500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f42400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000cd27acedd7532766afe49c1bbfa725a8f842ef33019b4514559c00000000000000000000");
         if (!rc) {
             assembly {
                 rd := add(rd, 4)

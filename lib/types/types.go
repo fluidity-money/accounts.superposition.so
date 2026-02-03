@@ -41,12 +41,15 @@ type (
 		Args SolveArgs
 	}
 
+	ArgsAuthority [20]byte
+
 	FreshBackwards struct {
 		Key       [32]byte
 		EoaAddr   [20]byte
 		V         uint8
 		R, S      [32]byte
 		SolveArgs []SolveArgsSigArgs
+		Authority *ArgsAuthority
 	}
 
 	Solve struct {

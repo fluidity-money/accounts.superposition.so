@@ -51,8 +51,9 @@ fn onboard {
 	should_mint=yes
 	for(n in (1 2 3 4)) if(~ $$n '') should_mint=''
 	market=`{no_0x $1} outcome=`{no_0x $2} amount=$3 referrer=`{no_0x $4}
+	authority=`{no_0x $5}
 	should_permit=yes
-	if(~ $5 '') should_permit=''
+	if(~ $6 '') should_permit=''
 	if(! ~ $market '') {
 		for(n in (2 3 4)) if(~ $$n '') {
 			usage 'onboard [market outcome amount referrer [should permit]]'
@@ -68,7 +69,7 @@ fn onboard {
 		mint_obj=`{make_mint_obj $amount $market $referrer $should_permit}
 	}
 	req -d '
-{"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    },\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
+{"query":"mutation {\n  createAccountExec(\n    createAccount: {\n      eoa_addr: \"'$eoa'\",\n      sigR: \"'$sig_r'\",\n      sigS: \"'$sig_s'\",\n      sigV: '$sig_v',\n    },\n    authoroity: \"'$authority'\",\n    '$mint_obj'\n  ) {\n    hash\n    secret\n  }\n}"}'
 }
 
 fn random_bytes3 {

@@ -45,6 +45,7 @@ input CreateAccount {
   sigV: Int!,
   sigR: String!,
   sigS: String!
+  authority: String,
 }
 
 input Mint {
