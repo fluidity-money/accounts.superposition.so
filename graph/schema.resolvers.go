@@ -75,7 +75,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		isDryrun(dryrun),
 	)
 	if err != nil {
-		slog.Error("error sending arguments",
+		slog.Error("error creating an account",
 			"sender", sender,
 			"fresh backwards", f,
 			"err", err,
@@ -252,7 +252,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		isDryrun(dryrun),
 	)
 	if err != nil {
-		slog.Error("error sending arguments",
+		slog.Error("error minting",
 			"sender", sender,
 			"solve", f,
 			"err", err,
@@ -315,7 +315,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		isDryrun(dryrun),
 	)
 	if err != nil {
-		slog.Error("error sending arguments",
+		slog.Error("error sending claim",
 			"sender", sender,
 			"solve", f,
 			"err", err,

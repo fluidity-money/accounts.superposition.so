@@ -1,0 +1,42 @@
+#!/usr/bin/env -S rc -e
+
+fn trun_left_0x {
+	echo 0x000000000000000000000000`{echo $1 | sed -s 's/^0x//g'}
+}
+
+ed_key=0xa2676924d4dec99c5bda57abcaa31e6aae6eb15ac2036660dfe3dc9e6fa09c27
+authority_addr=`{trun_left_0x 0x0e3CD9653D9d9610281551d8E3C98035215EA18e}
+impl_addr=`{trun_left_0x 0xf0a95323fb049d8a22bcb6de023331dfe6dadb79}
+
+owner_addr=$1
+
+for(n in (\
+	owner_addr \
+	impl_addr \
+	SPN_SUPERPOSITION_KEY \
+	SPN_SUPERPOSITION_URL\
+))
+	if(~ $$n '') exit 2
+
+target_addr=`{
+	curl -s \
+		-H 'Content-Type: application/json' \
+		-d '{"query":"query {eoaForAddress(address: \"'$owner_addr'\")}"}' \
+		https://accounts.superposition.so \
+			| jq -r .data.eoaForAddress
+}
+
+cast send \
+	--private-key $SPN_SUPERPOSITION_KEY \
+	--rpc-url $SPN_SUPERPOSITION_URL \
+	$target_addr \
+	`{
+		echo `{
+			cast calldata 'migrate(bytes32,bytes32,bytes32,bytes32)' \
+				$ed_key \
+				`{trun_left_0x $owner_addr} \
+				$impl_addr \
+				$authority_addr
+			} \
+				| sed -s 's/0xb0d0aec0/0x8fd3ab80/'
+	}
