@@ -85,7 +85,13 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		)
 		// We ignore messages if someone is trying to buy at the end of a market:
 		if !strings.Contains(err.Error(), "res: 99090e") {
-			activateSoftAlarm(r.UrlAlarm, snowflake, err)
+			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
+				"create account exec, user address: %v, sender: %v, contract: %v, err: %v",
+				eoa,
+				sender,
+				r.AccountsFactoryAddr,
+				err,
+			))
 		}
 		return nil, fmt.Errorf("send arguments: fresh backwards %+v: %v", f, err)
 	}
@@ -231,7 +237,12 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"snowflake", snowflake,
 		)
 		if !strings.Contains(err.Error(), "res: 99090e") {
-			activateSoftAlarm(r.UrlAlarm, snowflake, err)
+			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
+				"mint, user address: %v, sender: %v, err: %v",
+				eoa,
+				sender,
+				err,
+			))
 		}
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
@@ -259,7 +270,12 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"snowflake", snowflake,
 		)
 		if !strings.Contains(err.Error(), "res: 99090e") {
-			activateSoftAlarm(r.UrlAlarm, snowflake, err)
+			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
+				"mint, user address: %v, sender: %v, err: %v",
+				eoa,
+				sender,
+				err,
+			))
 		}
 		return "", fmt.Errorf("last error sending: %v", err)
 	}
