@@ -343,8 +343,14 @@ func (r *queryResolver) EoaForAddress(ctx context.Context, address string) (stri
 // HasCreated is the resolver for the hasCreated field.
 func (r *queryResolver) HasCreated(ctx context.Context, address string) (bool, error) {
 	var count int
+	// Scan both tables since we had the migration take place:
 	err := r.Db.QueryRow(`
-SELECT COUNT(1) FROM accounts_secrets_2 WHERE eoa_addr = $1`,
+SELECT COUNT(1)
+FROM (
+	SELECT eoa_addr FROM accounts_secrets_1 WHERE eoa_addr = $1
+	UNION ALL
+	SELECT eoa_addr FROM accounts_secrets_2 WHERE eoa_addr = $1
+) AS combined`,
 		strings.ToLower(address),
 	).
 		Scan(&count)
