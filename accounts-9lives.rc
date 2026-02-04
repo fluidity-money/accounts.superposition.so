@@ -117,7 +117,7 @@ fn mint {
 
 fn claim {
 	for(n in (SPN_SUPERPOSITION_KEY SPN_ACCOUNTS_SECRET)) {
-		if(~ $$n '') usage SPN_SUPERPOSITION_KEY unset
+		if(~ $$n '') usage 'SPN_SUPERPOSITION_KEY|SPN_ACCOUNTS_SECRET' unset
 	}
 	eoa=`{no_0x `{cast wallet address --private-key $SPN_SUPERPOSITION_KEY}}
 	ms_ts=`{date +%s%3N}

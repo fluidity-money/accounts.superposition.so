@@ -2,7 +2,9 @@ use alloc::vec::Vec;
 
 use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec, safe_call_unit_err_vec},
-    entry::{contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec, code_hash},
+    entry::{
+        code_hash, contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec,
+    },
     interfaces::{
         eip20::{make_fn_approve, make_fn_balance_of, make_fn_transfer_from},
         eip2612::make_fn_permit,

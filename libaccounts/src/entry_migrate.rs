@@ -51,7 +51,8 @@ pub fn entry_migrate(ed_key: &U, evm_owner: &U, impl_addr: &U, authority_addr: &
     // Despite the way this function works as a migration function, we allow
     // users to upgrade themselves to any implementation they want:
 
-    storage::version::set(&U::from(2u32));
     storage_store(&SLOT_IMPL, impl_addr);
+
+    storage::version::set(&U::from(2u32));
     0
 }

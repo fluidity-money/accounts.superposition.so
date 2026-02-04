@@ -24,6 +24,7 @@ import (
 
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
+	snowflake, _ := ctx.Value("snowflake").(int)
 	f, err := convertor.CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
 	if err != nil {
 		slog.Error("create account",
@@ -82,6 +83,10 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			"create r", createAccount.SigR,
 			"create s", createAccount.SigS,
 		)
+		// We ignore messages if someone is trying to buy at the end of a market:
+		if !strings.Contains(err.Error(), "res: 99090e") {
+			activateSoftAlarm(r.UrlAlarm, snowflake, err)
+		}
 		return nil, fmt.Errorf("send arguments: fresh backwards %+v: %v", f, err)
 	}
 	// We can tolerate a situation where the request drops off here due to a
@@ -225,7 +230,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"ms ts", mint.MsTs,
 			"snowflake", snowflake,
 		)
-		activateSoftAlarm(r.UrlAlarm, snowflake, err)
+		if !strings.Contains(err.Error(), "res: 99090e") {
+			activateSoftAlarm(r.UrlAlarm, snowflake, err)
+		}
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
 	h, gasLimit, err := client.SendArguments(
@@ -251,7 +258,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"err", err,
 			"snowflake", snowflake,
 		)
-		activateSoftAlarm(r.UrlAlarm, snowflake, err)
+		if !strings.Contains(err.Error(), "res: 99090e") {
+			activateSoftAlarm(r.UrlAlarm, snowflake, err)
+		}
 		return "", fmt.Errorf("last error sending: %v", err)
 	}
 	trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "mint")
