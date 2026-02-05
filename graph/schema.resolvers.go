@@ -238,7 +238,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		)
 		if !strings.Contains(err.Error(), "res: 99090e") {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
-				"mint, user address: %v, sender: %v, err: %v",
+				"mint, market: %v, outcome: %v, user address: %v, sender: %v, err: %v",
+				mint.Market,
+				mint.Outcome,
 				eoa,
 				sender,
 				err,
@@ -271,7 +273,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		)
 		if !strings.Contains(err.Error(), "res: 99090e") {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
-				"mint, user address: %v, sender: %v, err: %v",
+				"mint send, market: %v, outcome: %v, user address: %v, sender: %v, err: %v",
+				mint.Market,
+				mint.Outcome,
 				eoa,
 				sender,
 				err,
