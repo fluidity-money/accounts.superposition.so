@@ -6,7 +6,6 @@ use borsh::{BorshDeserialize, BorshSerialize};
 
 pub mod storage;
 
-pub mod codehashes;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;

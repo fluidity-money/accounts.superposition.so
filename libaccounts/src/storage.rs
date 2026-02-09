@@ -44,7 +44,7 @@ macro_rules! storage {
             storage_store(&slot_map(&SLOT, $param1), x)
         }
         pub fn exchange($param1: &U) {
-            assert!(!storage_exchange_bool($param1, false), "exchange failed");
+            assert!(!storage_exchange_bool(&slot_map(&SLOT, $param1), false), "exchange failed");
         }
     };
 }
