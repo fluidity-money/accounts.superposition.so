@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+const ProgDalek = "/var/task/ed25519-dalek-ph.out"
+
 func isDryrun(x *bool) bool {
 	if x != nil && *x {
 		return true

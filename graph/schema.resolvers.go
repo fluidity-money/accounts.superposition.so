@@ -40,6 +40,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	eoa := ethCommon.HexToAddress(createAccount.EoaAddr)
 	if mint != nil {
 		err = convertor.TagFreshBackwardsWithMint(
+			ProgDalek,
 			f,
 			r.Fusdc,
 			mint.Market,
@@ -215,6 +216,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		return "", fmt.Errorf("picking private key: %v", err)
 	}
 	f, err := convertor.CreateSolveArgsSigArgs(
+		ProgDalek,
 		r.Fusdc,
 		mint.Market,
 		mint.Outcome,
@@ -305,6 +307,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		return "", fmt.Errorf("picking private key: %v", err)
 	}
 	f, err := convertor.CreatePayoffForOtherArgs(
+		ProgDalek,
 		r.ClaimantHelperAddr,
 		eoa,
 		markets,

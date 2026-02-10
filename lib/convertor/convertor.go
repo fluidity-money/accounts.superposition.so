@@ -60,6 +60,7 @@ func strToBytes32(s string) ([32]byte, error) {
 }
 
 func CreatePayoffForOtherArgs(
+	prog string,
 	claimantHelper, eoa ethCommon.Address,
 	markets_ []string,
 	msTs_ string,
@@ -90,7 +91,7 @@ func CreatePayoffForOtherArgs(
 	var sigArr [64]byte
 	d := sha512.Sum512(solveArgsDigest)
 	sig, err := exec.Command(
-		"/var/task/ed25519-dalek-ph.out",
+		prog,
 		hex.EncodeToString(d[:]),
 	).
 		Output()
@@ -169,6 +170,7 @@ func NewPermit(
 }
 
 func CreateSolveArgsSigArgs(
+	prog string,
 	token [20]byte,
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
@@ -241,7 +243,7 @@ func CreateSolveArgsSigArgs(
 	var sigArr [64]byte
 	d := sha512.Sum512(solveArgsDigest)
 	sig, err := exec.Command(
-		"/var/task/ed25519-dalek-ph.out",
+		prog,
 		hex.EncodeToString(d[:]),
 	).
 		Output()
@@ -256,6 +258,7 @@ func CreateSolveArgsSigArgs(
 }
 
 func TagFreshBackwardsWithMint(
+	prog string,
 	f *types.FreshBackwards,
 	token [20]byte,
 	market, outcome, amount, referrer string,
@@ -264,6 +267,7 @@ func TagFreshBackwardsWithMint(
 	msTs string,
 ) error {
 	m, err := CreateSolveArgsSigArgs(
+		prog,
 		token,
 		market, outcome, amount, referrer, recipient,
 		permit,
