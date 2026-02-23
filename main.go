@@ -84,8 +84,19 @@ type authMiddleware struct {
 }
 
 func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Max-Age", "86400")
+		w.Header().Set("Access-Control-Expose-Headers", "*")
+	}
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(204)
+		return
+	}
 	snowflake := rand.Int()
 	ctx := context.WithValue(r.Context(), "snowflake", snowflake)
 	switch bearer := r.Header.Get("Authorization"); bearer {
