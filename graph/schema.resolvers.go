@@ -343,6 +343,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 			"sender", sender,
 			"solve", f,
 			"err", err,
+			"eoa", eoa,
 		)
 		return "", fmt.Errorf("last error sending: %v", err)
 	}
