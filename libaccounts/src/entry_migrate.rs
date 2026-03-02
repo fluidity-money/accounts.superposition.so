@@ -1,4 +1,4 @@
-use bobcat_sdk::{entry::msg_sender, maths::U, prelude::address, storage::storage_store};
+use bobcat_sdk::{entry::msg_sender, maths::U, storage::storage_store};
 
 use crate::{storage, SLOT_IMPL};
 

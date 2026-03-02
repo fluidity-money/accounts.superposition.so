@@ -65,7 +65,7 @@ pub fn entry_fresh_backwards(
         pub_key.0,
         U::from(eoa_addr.0).0,
         impl_addr.0,
-        authority.0
+        U::from(authority.0).0
     );
     assert!(
         call_unit(proxy, &migrate_cd, &U::ZERO, u64::MAX),
