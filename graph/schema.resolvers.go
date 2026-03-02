@@ -10,6 +10,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"log/slog"
 	"math/big"
 	"strings"
@@ -58,10 +59,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	}
 	privKey, sender, err := db.PickPrivateKey(r.Db)
 	if err != nil {
-		slog.Error("error picking private key",
-			"err", err,
-		)
-		return nil, fmt.Errorf("picking private key: %v", err)
+		log.Fatalf("error picking private key: %v", err)
 	}
 	h, gasLimit, err := client.SendArguments(
 		ctx,
@@ -210,11 +208,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, eoa)
 	privKey, sender, err := db.PickPrivateKey(r.Db)
 	if err != nil {
-		slog.Error("error picking private key",
-			"err", err,
-			"snowflake", snowflake,
-		)
-		return "", fmt.Errorf("picking private key: %v", err)
+		log.Fatalf("picking private key: %v", err)
 	}
 	f, err := convertor.CreateSolveArgsSigArgs(
 		ProgDalek,
@@ -303,10 +297,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, eoa)
 	privKey, sender, err := db.PickPrivateKey(r.Db)
 	if err != nil {
-		slog.Error("error picking private key",
-			"err", err,
-		)
-		return "", fmt.Errorf("picking private key: %v", err)
+		log.Fatalf("picking private key: %v", err)
 	}
 	f, err := convertor.CreatePayoffForOtherArgs(
 		ProgDalek,

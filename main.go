@@ -148,7 +148,7 @@ WHERE eoa_addr = $1 AND secret = $2`,
 		var count int
 		if err := row.Scan(&count); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			slog.Error("error scanning secrets", "err", err, "snowflake", snowflake)
+			log.Fatalf("error scanning secrets, snowflake: %v: %v","snowflake", err)
 			writeUnauthorised(w)
 			return
 		}
