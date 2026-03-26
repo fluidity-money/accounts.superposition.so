@@ -169,6 +169,7 @@ func NewPermit(
 	}, nil
 }
 
+// CreateSolveArgsSigArgs for minting by also creating 9lives calldata.
 func CreateSolveArgsSigArgs(
 	prog string,
 	token [20]byte,
