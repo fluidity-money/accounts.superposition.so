@@ -85,7 +85,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		)
 		// We ignore messages if someone is trying to buy at the end of a market:
 		es := err.Error()
-		ignorable := strings.Contains(es, "res: 99090e") || strings.Contains(es, "990999")
+		ignorable := strings.Contains(es, "res: 99090e") || strings.Contains(es, "res: 990999")
 		if !ignorable {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
 				"create account exec, user address: %v, sender: %v, contract: %v, err: %v",
@@ -236,7 +236,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"snowflake", snowflake,
 		)
 		es := err.Error()
-		ignorable := strings.Contains(es, "res: 99090e") || strings.Contains(es, "990999")
+		ignorable := strings.Contains(es, "res: 99090e") || strings.Contains(es, "res: 990999")
 		if !ignorable {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
 				"mint, market: %v, outcome: %v, user address: %v, sender: %v, err: %v",
@@ -273,7 +273,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"snowflake", snowflake,
 		)
 		es := err.Error()
-		ignorable := strings.Contains(es, "res: 99090e") || strings.Contains(es, "990999")
+		ignorable := strings.Contains(es, "res: 99090e") || strings.Contains(es, "res: 990999")
 		if !ignorable {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
 				"mint send, market: %v, outcome: %v, user address: %v, sender: %v, err: %v",
