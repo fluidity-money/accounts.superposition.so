@@ -2,5 +2,5 @@
 	path = forge-lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
 [submodule "test/superposition-precompiles"]
-	path = test/superposition-precompiles
+	path = superposition-precompiles
 	url = https://github.com/fluidity-money/superposition-precompiles

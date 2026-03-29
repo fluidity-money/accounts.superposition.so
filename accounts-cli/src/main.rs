@@ -13,7 +13,7 @@ use core::{
 
 use borsh::BorshDeserialize;
 
-use std::io::{Read, stdin};
+use std::io::{stdin, Read};
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ArgsBytes(Vec<u8>);
@@ -55,7 +55,7 @@ enum CliArgs {
         s: U,
         #[arg(short)]
         solve_args: Option<Vec<SolveArgs>>,
-        authority: Option<ArgsAddr>
+        authority: Option<ArgsAddr>,
     },
     SignSolve {
         #[arg(value_parser = U::from_str)]
@@ -76,6 +76,14 @@ enum CliArgs {
         cd: ArgsBytes,
     },
     DecodeBorsh,
+    LiteArbitraryCd {
+        #[arg(value_parser = U::from_str)]
+        priv_key: U,
+        nonce: u128,
+        chain_id: u128,
+        target: ArgsAddr,
+        cd: ArgsBytes,
+    },
 }
 
 fn entry(x: CliArgs) {
@@ -180,6 +188,33 @@ fn entry(x: CliArgs) {
                 "{:?}",
                 Args::try_from_slice(&const_hex::decode(&buf).unwrap()).unwrap()
             )
+        }
+        CliArgs::LiteArbitraryCd {
+            priv_key,
+            nonce,
+            chain_id,
+            target,
+            cd,
+        } => {
+            let k = SigningKey::from_bytes(&priv_key.0);
+            let mut b = Vec::with_capacity(32 * 3 + cd.0.len());
+            b.extend_from_slice(&[0u8; 32 - 16]);
+            b.extend_from_slice(&nonce.to_be_bytes());
+            b.extend_from_slice(&[0u8; 32 - 16]);
+            b.extend_from_slice(&chain_id.to_be_bytes());
+            b.extend_from_slice(&[0u8; 32 - 20]);
+            b.extend_from_slice(&target.0);
+            b.extend_from_slice(&cd.0);
+            let mut x = Sha512::new();
+            x.update(&b);
+            let sig = k.sign_prehashed(x, None).unwrap().to_bytes();
+            println!(
+                "{}{}{}{}",
+                const_hex::encode(sig),
+                const_hex::encode(&[0u8; 32 - 20]),
+                const_hex::encode(target.0),
+                const_hex::encode(cd.0)
+            );
         }
     }
 }

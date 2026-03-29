@@ -4,5 +4,5 @@ out = "out"
 libs = ["forge-lib"]
 fs_permissions = [
 	{ access = "read", path = "accounts.superposition.so.wasm"},
-	{ access = "read", path = "test/superposition-precompiles/precompiles-ed25519.wasm"}
+	{ access = "read", path = "superposition-precompiles/precompiles-ed25519.wasm"}
 ]

@@ -50,7 +50,7 @@ contract TestAccounts is Test {
         );
         // Set up the precompiles:
         vm.etch(0xC3E443bE2Cfa4F41a5F5E4978D012847d355b419, IArbFoundry(address(vm)).deployStylusCode(
-            "test/superposition-precompiles/precompiles-ed25519.wasm"
+            "superposition-precompiles/precompiles-ed25519.wasm"
         ).code);
         erc20 = new TestErc20();
         target = new TestTarget();
