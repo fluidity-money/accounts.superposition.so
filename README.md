@@ -33,6 +33,12 @@ flowchart LR
     -->|Delegatecalls its deployer address for the creation| Factory
 ```
 
+## Lite account
+
+A LiteAccount feature is provided that forwards calldata given. The signer should be
+cautious as to only sign blobs that are derived from its ed25519 address with the chain id
+given.
+
 ## Dependencies
 
 1. (https://github.com/OffchainLabs/cargo-stylus)[`cargo-stylus-sdk`] -- Cargo Stylus

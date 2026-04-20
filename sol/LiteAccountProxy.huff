@@ -1,0 +1,17 @@
+
+#define constant STORAGE_OWNER = FREE_STORAGE_POINTER()
+#define constant STORAGE_OPERATOR = FREE_STORAGE_POINTER()
+#define constant STORAGE_ENABLED = FREE_STORAGE_POINTER()
+#define constant STORAGE_NONCE = FREE_STORAGE_POINTER()
+
+#define macro MAIN() = takes(0) returns(0) {
+	calldatasize 0x0 0x0 calldatacopy
+	0x0 0x0 calldatasize 0x0 0x1000000000000000000000000000000000000001 gas delegatecall
+	0x0 returndatasize 0x0 0x0 returndatacopy
+	returndatasize swap2 RETURN jumpi revert
+	RETURN: return
+}
+
+#define macro CONSTRUCTOR() = takes(0) returns(0) {
+	codesize 0x20 sub calldataload [SLOT_IMPL] sstore
+}

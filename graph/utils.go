@@ -2,10 +2,11 @@ package graph
 
 import (
 	"bytes"
-	"encoding/json"
 	"database/sql"
+	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strings"
 )
 
 const ProgDalek = "/usr/local/bin/ed25519-dalek-ph"
@@ -50,4 +51,10 @@ VALUES ($1, $2, $3, $4)`,
 		slog.Error("error tracking executed transactions", "err", err)
 		// We'll ignore this and not propagate up to the user this error.
 	}
+}
+
+func isNotIgnoreableErr(err error) bool {
+	es := err.Error()
+	x := strings.Contains(es, "res: 99090e") || strings.Contains(es, "res: 990999") || strings.Contains(es, "ERC20: transfer amount exceeds balance")
+	return !x
 }

@@ -1,3 +1,7 @@
+// LiteAccount: Simple calldata forwarder that takes an argument of the
+// form (bytes32 sigA, bytes32 sigB, uint256 nonce, address target,
+// bytes... cd). Uses Superposition precompiles to validate the ed25519
+// after converting it to sha512.
 
 #define constant STORAGE_OWNER = FREE_STORAGE_POINTER()
 #define constant STORAGE_OPERATOR = FREE_STORAGE_POINTER()
@@ -18,8 +22,10 @@
 }
 
 #define macro MAIN() = takes(0) returns(0) {
+	0x1a3a6c5158ea2a823d867775df58c042e4f4552674e80f5fe993f2dcbda2d36b [STORAGE_OPERATOR] sstore
+	0x01 [STORAGE_ENABLED] sstore
 	[STORAGE_OWNER] sload caller eq PRIVILEGED jumpi
-	[STORAGE_ENABLED] sload iszero FALLBACK jumpi
+	[STORAGE_ENABLED] sload FALLBACK jumpi
 	0x7ea8ac56 // NotEnabled()
 	REVERT:
 		0x0 mstore 0x04 0x1c revert
@@ -28,11 +34,11 @@
 		0x0 0x0 return
 	FALLBACK:
 		0x20 0x40 0x60
-		0x1a3a6c5158ea2a823d867775df58c042e4f4552674e80f5fe993f2dcbda2d36b [STORAGE_OPERATOR] sstore
-		[STORAGE_NONCE] sload 0x0 mstore		// Memory: nonce
-		chainid dup4 mstore						// Memory: nonce, chain id
-		dup1 calldatasize sub dup1 				// [cd size], Memory: nonce, chain id
-		dup1 dup6 add dup5 dup1 calldatacopy	// [cd size], Memory: nonce, chain id, target, cd...
+		0x20 0x40 0x0 calldatacopy				// Memory: nonce
+		address dup4 mstore						// Memory: nonce, contract
+		0x40 0x0 return
+		dup1 calldatasize sub dup1 				// [cd size], Memory: nonce, contract
+		dup1 dup6 add dup5 dup1 calldatacopy	// [cd size], Memory: nonce, contract, target, cd...
 		0x0 dup4 dup3 add SHA512()				// [cd size], Memory: hash A, hash B
 		[STORAGE_OPERATOR] sload dup4 mstore	// [cd size], Memory: hash A, hash B, operator
 		dup2 0x0 dup4 calldatacopy				// [cd size], Memory: hash A, hash B, operator, sig A, sig B
