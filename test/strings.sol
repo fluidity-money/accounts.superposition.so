@@ -220,8 +220,10 @@ library strings {
                 }
                 unchecked {
                     uint diff = (a & mask) - (b & mask);
-                    if (diff != 0)
+                    if (diff != 0) {
+                        // forge-lint: disable-next-line(unsafe-typecast)
                         return int(diff);
+                    }
                 }
             }
             selfptr += 32;

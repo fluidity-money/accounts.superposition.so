@@ -4,53 +4,49 @@
 // validate the ed25519 after converting it to sha512, and the
 // expectation is the signature was signed with padding.
 
-#define constant STORAGE_OWNER = FREE_STORAGE_POINTER()
-#define constant STORAGE_OPERATOR = FREE_STORAGE_POINTER()
 #define constant STORAGE_ENABLED = FREE_STORAGE_POINTER()
 #define constant STORAGE_NONCE = FREE_STORAGE_POINTER()
 
-// [SHA512] the [offset] with the [length] using the Superposition
-// precompile. Stores in memory the result of the sha512 call.
-#define macro SHA512() = takes(2) returns(0) {
-	0x0 0x2f6bc5ac6b08bf93bc6fc9be156449b676bf8bb2 gas
-	staticcall returndatasize 0x0 0x0 returndatacopy pop
-}
+#define constant ADDR_SHA512 = 0x2f6bc5ac6b08bf93bc6fc9be156449b676bf8bb2
+#define constant ADDR_EDVERIFY = 0xc3e443be2cfa4f41a5f5e4978d012847d355b419
 
 // [EDVERIFY] the memory, returning a yes or no word on the stack.
 #define macro EDVERIFY() = takes(0) returns(1) {
-	0x0 0x0 0xa0 0x0 0xc3e443be2cfa4f41a5f5e4978d012847d355b419 gas
-	staticcall returndatasize 0x0 0x0 returndatacopy
+	0x0 0x0 0xa0 0x0 [ADDR_EDVERIFY] gas staticcall
 }
 
 #define macro MAIN() = takes(0) returns(0) {
-	0x4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29 [STORAGE_OPERATOR] sstore
-	0x01 [STORAGE_ENABLED] sstore
-	[STORAGE_OWNER] sload caller eq PRIVILEGED jumpi
+	0x1000000000000000000000000000000000000001 caller eq PRIVILEGED jumpi
 	[STORAGE_ENABLED] sload FALLBACK jumpi
-	0x7ea8ac56 // NotEnabled()
+	INTERNAL_ERR:
+		// InternalError()
+		0xfe835e35
 	REVERT:
 		0x0 mstore 0x04 0x1c revert
 	PRIVILEGED:
 		0x0 calldataload [STORAGE_ENABLED] sstore
 		0x0 0x0 return
 	FALLBACK:
-		0x20 0x40 0x60
-		address 0x04 mstore						// Memory: ..., address
-		0x10 0x40 0x0 calldatacopy				// Memory: nonce, address
-		0x24 calldatasize sub dup1 				// [cd size], Memory: nonce, contract
-		dup1 dup6 add dup5 dup1 calldatacopy	// [cd size], Memory: nonce, contract, target, cd...
-		0x60 0x0 return
-		0x0 dup4 dup3 add SHA512()				// [cd size], Memory: hash A, hash B
-		[STORAGE_OPERATOR] sload dup4 mstore	// [cd size], Memory: hash A, hash B, operator
-		dup2 0x0 dup4 calldatacopy				// [cd size], Memory: hash A, hash B, operator, sig A, sig B
-		EDVERIFY()	 							// [verification, cd size], Memory: hash A, hash B, operator, sig A, sig B
+		0x40 0x60 0x64 dup1 calldatasize sub
+		dup4 calldatasize sub dup5 0x20 calldatacopy									// Memory: ..., nonce, target, cd
+		0x01 [STORAGE_NONCE] 0x0 mstore 0x11 0x1f sha3 dup1 sload INTERNAL_ERR jumpi	// [true, slot for nonce], Memory: padding <32 - 1>, storage slot, nonce
+		sstore
+		address 0x0 mstore																// Memory: padding <32 - 20>, address, nonce, target, cd
+		0x0 0x0 0x2c calldatasize sub 0x0c [ADDR_SHA512] gas staticcall					// [success], Memory: padding <32 - 20>, address, nonce, target, cd
+		returndatasize 0x0 0x0 returndatacopy											// Memory: hash A, hash B
+		0x2000000000000000000000000000000000000000000000000000000000000002 dup6 mstore	// Memory: hash A, hash B, operator
+		dup5 0x0 dup6 calldatacopy														// Memory: hash A, hash B, operator, sig A, sig B
+		EDVERIFY()																		// [success], Memory: hash A, hash B, operator, sig A, sig B
 		// Unverified()
 		0xcba605a3 dup2 iszero REVERT jumpi
-		// [cd size], Memory: hash A, hash B, operator, sig A, sig B
-		dup3 dup6 0x0 calldatacopy							// Memory: cd...
-		0x0 0x0 dup3 0x0 0x0 0x0 dup11 calldataload gas call	// [success], Memory: cd...
-		returndatasize 0x0 0x0 returndatacopy				// [success], Memory: rd...
-		returndatasize 0x0 dup5 SUCCESS jumpi revert
+		dup4 dup6 0x0 calldatacopy														// Memory: cd...
+		0x0 0x0 dup6 0x0 0x0 0x50 calldataload dup12 shr gas call						// [success], Memory: cd...
+		returndatasize 0x0 0x0 returndatacopy											// [success], Memory: rd...
+		returndatasize 0x0 dup3 SUCCESS jumpi revert
 		SUCCESS:
 			return
+}
+
+#define macro CONSTRUCTOR() = takes(0) returns(0) {
+	0x01 [STORAGE_ENABLED] sstore
 }

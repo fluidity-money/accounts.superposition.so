@@ -1,6 +1,8 @@
 
 # Superposition Accounts
 
+## Superposition Accounts
+
 Superposition Accounts is a ed25519 smart account server that executes calldata on behalf
 of the submitter, with a list of goals, permit onramping arguments, and more. The factory
 looks up the address of the implementation before executing it. Proxies are configured
@@ -33,11 +35,11 @@ flowchart LR
     -->|Delegatecalls its deployer address for the creation| Factory
 ```
 
-## Lite account
+## Lite Accounts
 
-A LiteAccount feature is provided that forwards calldata given. The signer should be
-cautious as to only sign blobs that are derived from its ed25519 address with the chain id
-given.
+A LiteAccount contract is provided that forwards calldata given. The signer should be
+cautious as to only sign blobs that are derived from the owner, the operator key, and the
+chain id using the factory contract as the base with CREATE2.
 
 ## Dependencies
 
@@ -50,11 +52,13 @@ binary for deployment.
 
 ## Deployments
 
-`0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the accounts factory.
+`0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the main accounts factory.
 `0x5c153dcb6cfbd0ffe0f565185a19a1961df0903b` is the implementation.
 
 `0x4B4e7127A5Ae64D7c96997B2c23BdB09C4d47d3F` is the implementation of the 9lives Authority
 address. `0x0e3CD9653D9d9610281551d8E3C98035215EA18e` is the proxy.
+
+`
 
 ## Building
 

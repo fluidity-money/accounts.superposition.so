@@ -197,13 +197,11 @@ fn entry(x: CliArgs) {
             cd,
         } => {
             let k = SigningKey::from_bytes(&priv_key.0);
-            let mut b = Vec::with_capacity(16 + 20 + cd.0.len());
-            b.extend_from_slice(&nonce.to_be_bytes());
-            b.extend_from_slice(&contract.0);
-            b.extend_from_slice(&target.0);
-            b.extend_from_slice(&cd.0);
             let mut x = Sha512::new();
-            x.update(&b);
+            x.update(&contract.0);
+            x.update(&nonce.to_be_bytes());
+            x.update(&target.0);
+            x.update(&cd.0);
             let sig = k.sign_prehashed(x, None).unwrap().to_bytes();
             println!(
                 "{}{}{}{}",
@@ -213,11 +211,9 @@ fn entry(x: CliArgs) {
                 const_hex::encode(cd.clone().0)
             );
             eprintln!(
-                "{}{}{}{}{}{}",
+                "{}{}{}{}",
                 const_hex::encode(sig),
-                const_hex::encode(&[0u8; 32 - 16]),
                 const_hex::encode(nonce.to_be_bytes()),
-                const_hex::encode(&[0u8; 32 - 20]),
                 const_hex::encode(target.0),
                 const_hex::encode(cd.0)
             );
