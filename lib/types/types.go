@@ -9,51 +9,52 @@ const (
 
 type (
 	Args struct {
-		Enum borsh.Enum `borsh_enum:"true"`
-		FreshBackwards
-		Solve
+		Enum           borsh.Enum     `borsh_enum:"true" json:"enum"`
+		FreshBackwards FreshBackwards `json:"fresh_backwards"`
+		Solve          Solve          `json:"solve"`
 	}
 
 	Permit struct {
-		Token    [20]byte
-		Deadline uint64
-		V        uint8
-		R        [32]byte
-		S        [32]byte
+		Token    [20]byte `json:"token"`
+		Deadline uint64   `json:"deadline"`
+		V        uint8    `json:"v"`
+		R        [32]byte `json:"r"`
+		S        [32]byte `json:"s"`
 	}
 
 	FromArgs struct {
-		Token      [20]byte
-		ToTake     [32]byte
-		MaxUnspent [32]byte
+		Token      [20]byte `json:"token"`
+		ToTake     [32]byte `json:"to_take"`
+		MaxUnspent [32]byte `json:"max_unspent"`
 	}
 
 	SolveArgs struct {
-		Permit []Permit
-		From   []FromArgs
-		Target [20]byte
-		Cd     []byte
-		MsTs   [16]byte
+		Permit []Permit   `json:"permit"`
+		From   []FromArgs `json:"from_args"`
+		Target [20]byte   `json:"target"`
+		Cd     []byte     `json:"cd"`
+		MsTs   [16]byte   `json:"ms_ts"`
 	}
 
 	SolveArgsSigArgs struct {
-		Sig  [64]byte
-		Args SolveArgs
+		Sig  [64]byte  `json:"sig"`
+		Args SolveArgs `json:"args"`
 	}
 
 	ArgsAuthority [20]byte
 
 	FreshBackwards struct {
-		Key       [32]byte
-		EoaAddr   [20]byte
-		V         uint8
-		R, S      [32]byte
-		SolveArgs []SolveArgsSigArgs
-		Authority *ArgsAuthority
+		Key       [32]byte           `json:"key"`
+		EoaAddr   [20]byte           `json:"eoa_addr"`
+		V         uint8              `json:"v"`
+		R         [32]byte           `json:"r"`
+		S         [32]byte           `json:"s"`
+		SolveArgs []SolveArgsSigArgs `json:"solve_args"`
+		Authority *ArgsAuthority     `json:"authority"`
 	}
 
 	Solve struct {
-		Slot uint32
-		Args []SolveArgsSigArgs
+		Slot uint32             `json:"slot"`
+		Args []SolveArgsSigArgs `json:"args"`
 	}
 )
