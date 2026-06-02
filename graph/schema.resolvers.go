@@ -57,7 +57,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			return nil, fmt.Errorf("mint tagging: %v", err)
 		}
 	}
-	privKey, sender, err := db.PickPrivateKey(r.Db)
+	privKey, sender, err := db.PickPrivateKey(ctx, r.Db)
 	if err != nil {
 		log.Fatalf("error picking private key: %v", err)
 	}
@@ -206,7 +206,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		return "", fmt.Errorf("bad eoa address")
 	}
 	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, eoa)
-	privKey, sender, err := db.PickPrivateKey(r.Db)
+	privKey, sender, err := db.PickPrivateKey(ctx, r.Db)
 	if err != nil {
 		log.Fatalf("picking private key: %v", err)
 	}
@@ -295,7 +295,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		return "", fmt.Errorf("bad eoa address")
 	}
 	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, eoa)
-	privKey, sender, err := db.PickPrivateKey(r.Db)
+	privKey, sender, err := db.PickPrivateKey(ctx, r.Db)
 	if err != nil {
 		log.Fatalf("picking private key: %v", err)
 	}
