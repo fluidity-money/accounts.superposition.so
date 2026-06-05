@@ -58,7 +58,7 @@ binary for deployment.
 `0x4B4e7127A5Ae64D7c96997B2c23BdB09C4d47d3F` is the implementation of the 9lives Authority
 address. `0x0e3CD9653D9d9610281551d8E3C98035215EA18e` is the proxy.
 
-`
+`` is the upgradeable factory contract that's used by the RPC service.
 
 ## Building
 
