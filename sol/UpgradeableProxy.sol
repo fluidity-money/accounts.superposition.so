@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
 contract UpgradeableProxy {
@@ -39,14 +40,33 @@ contract UpgradeableProxy {
 
     fallback() external payable {
         bytes32 slotImpl = SLOT_IMPL;
+        bytes32 adminImpl = SLOT_ADMIN;
+        address admin;
         assembly {
-            let impl := sload(slotImpl)
-            calldatacopy(0, 0, calldatasize())
-            let result := delegatecall(gas(), impl, 0, calldatasize(), 0, 0)
-            returndatacopy(0, 0, returndatasize())
-            switch result
-            case 0 { revert(0, returndatasize()) }
-            default { return(0, returndatasize()) }
+            admin := sload(adminImpl)
+        }
+        if (msg.sender == admin) {
+            if (msg.sig != Upgrade.upgradeToAndCall.selector) {
+                revert("not calling upgrade");
+            }
+            (address newImpl, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
+            emit Upgraded(newImpl);
+            (bool rc,) = newImpl.delegatecall(data);
+            require(rc, "delegatecall failed");
+        } else {
+            assembly {
+                let impl := sload(slotImpl)
+                calldatacopy(0, 0, calldatasize())
+                let result := delegatecall(gas(), impl, 0, calldatasize(), 0, 0)
+                returndatacopy(0, 0, returndatasize())
+                switch result
+                case 0 { revert(0, returndatasize()) }
+                default { return(0, returndatasize()) }
+            }
         }
     }
+}
+
+interface Upgrade {
+    function upgradeToAndCall(address newImpl, bytes memory data) external;
 }
