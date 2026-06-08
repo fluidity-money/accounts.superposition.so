@@ -1,3 +1,5 @@
+// BUG: uses the wrong operation order for the slot_map function, making
+// the storage inequivalent to Solidity.
 macro_rules! storage {
     ($($name:ident($($param:ident),*)),* $(,)?) => {
         storage! {

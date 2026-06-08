@@ -34,7 +34,12 @@ contract UpgradeableProxy {
         emit AdminChanged(address(0), _admin);
         wasCreated = true;
         ed25519Count = 1;
-        ed25519Slot[0] = _publicKey;
+        // The accounts system has a bug where the operation for slot_map is
+        // flipped. This code sets the correct field:
+        bytes32 correctEdSlot = keccak256(abi.encode(uint256(2), uint256(0)));
+        assembly {
+            sstore(correctEdSlot, _publicKey)
+        }
         ethereumOwner = _admin;
     }
 

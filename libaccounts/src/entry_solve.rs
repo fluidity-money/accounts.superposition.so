@@ -2,6 +2,7 @@ use alloc::vec::Vec;
 
 use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec, safe_call_unit_err_vec},
+    console,
     entry::{
         code_hash, contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec,
     },
@@ -23,7 +24,8 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
         d.update(borsh::to_vec(&args).unwrap());
-        assert!(edphverify(d.finalize().into(), ed_owner, sig.0),);
+        console::console!(owner, ed_owner, d.clone().finalize(), eth_owner.clone());
+        assert!(edphverify(d.finalize().into(), ed_owner, sig.0));
         let SolveArgs {
             permit,
             from,
