@@ -1,8 +1,9 @@
-FROM rust:1.87-bookworm AS rust-builder
+FROM rust:1.87-alpine AS rust-builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		zip \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+		musl-dev \
+		gcc \
+		zip
 
 WORKDIR /build
 
@@ -19,22 +20,15 @@ RUN mkdir -p contract/src libaccounts/src accounts-cli/src && \
 
 RUN cargo fetch || true
 
-COPY contract contract
-COPY libaccounts libaccounts
 COPY accounts-cli accounts-cli
 
 RUN cargo build --release --bin accounts-cli && \
 	mv target/release/accounts-cli accounts-cli.out
 
-FROM debian:bookworm-slim AS runtime
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		ca-certificates \
-	&& rm -rf /var/lib/apt/lists/*
-RUN useradd --create-home --shell /bin/bash app
+FROM alpine:3.20 AS runtime
+
 WORKDIR /app
 
 COPY --from=rust-builder /build/accounts-cli.out ./accounts-cli
-
-USER app
 
 ENTRYPOINT ["./accounts-cli"]
