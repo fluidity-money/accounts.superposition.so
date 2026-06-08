@@ -20,6 +20,8 @@ RUN mkdir -p contract/src libaccounts/src accounts-cli/src && \
 
 RUN cargo fetch || true
 
+COPY contract contract
+COPY libaccounts libaccounts
 COPY accounts-cli accounts-cli
 
 RUN cargo build --release --bin accounts-cli && \
