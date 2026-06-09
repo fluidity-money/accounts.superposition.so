@@ -47,7 +47,7 @@ func main() {
 		ethCrypto.Keccak256([]byte(TokenName)),
 		ethCrypto.Keccak256([]byte(TokenVersion)),
 		ethCommon.BigToHash(ChainId).Bytes(),
-		tokenAddr.Bytes(),
+		ethCommon.LeftPadBytes(tokenAddr.Bytes(), 32),
 	)
 	permitHash := ethCrypto.Keccak256(
 		[]byte("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
