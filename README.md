@@ -58,7 +58,7 @@ binary for deployment.
 `0x4B4e7127A5Ae64D7c96997B2c23BdB09C4d47d3F` is the implementation of the 9lives Authority
 address. `0x0e3CD9653D9d9610281551d8E3C98035215EA18e` is the proxy.
 
-`0x8dfd465d2c06f4c67Bf41C388CF400fA0Bf27950` is the upgradeable factory contract that's
+`0xb23FC1084D686230422e238f97D80c320D7387ee` is the upgradeable factory contract that's
 used by the RPC service. `0x7cedA534aE176F1556a4A05fed3847ed2EFF912d` is the admin, and
 the public key for the rpc service is
 `0xf513398eeedc30f944006f896f157c21f2f6edd050a56cb9d97eb654826a9548`. The implementation

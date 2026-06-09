@@ -1,6 +1,6 @@
 #!/bin/sh -u
 
-impl=0x5c153dcb6cfbd0ffe0f565185a19a1961df0903b
+impl=0xcae96fc6a94f6cb986685b56367bfb3ff357f74c
 
 forge create \
 	--rpc-url https://rpc.superposition.so \
