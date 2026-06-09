@@ -15,6 +15,8 @@ type (
 		Enum           borsh.Enum     `borsh_enum:"true" json:"enum"`
 		FreshBackwards FreshBackwards `json:"fresh_backwards"`
 		Solve          Solve          `json:"solve"`
+		Version        Version        `json:"version"`
+		Authority      Authority      `json:"authority"`
 		SolveV2        SolveV2        `json:"solve_v2"`
 	}
 
@@ -45,7 +47,7 @@ type (
 		Args SolveArgs `json:"args"`
 	}
 
-	ArgsAuthority [20]byte
+	ArgsAuthorityAddr [20]byte
 
 	FreshBackwards struct {
 		Key       [32]byte           `json:"key"`
@@ -54,13 +56,17 @@ type (
 		R         [32]byte           `json:"r"`
 		S         [32]byte           `json:"s"`
 		SolveArgs []SolveArgsSigArgs `json:"solve_args"`
-		Authority *ArgsAuthority     `json:"authority"`
+		Authority *ArgsAuthorityAddr     `json:"authority"`
 	}
 
 	Solve struct {
 		Slot uint32             `json:"slot"`
 		Args []SolveArgsSigArgs `json:"args"`
 	}
+
+	Version struct{}
+
+	Authority struct {}
 
 	SolveV2 struct {
 		Slot          uint32             `json:"slot"`
