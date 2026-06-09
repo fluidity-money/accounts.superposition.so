@@ -5,6 +5,9 @@ import "github.com/near/borsh-go"
 const (
 	ArgsFreshBackwards borsh.Enum = iota
 	ArgsSolve
+	ArgsVersion
+	ArgsAuthority
+	ArgsSolveV2
 )
 
 type (
