@@ -2,7 +2,6 @@ use alloc::vec::Vec;
 
 use bobcat_sdk::{
     call::{call_unit_err_vec, call_word_err_vec, safe_call_bool_err_vec, safe_call_unit_err_vec},
-    console,
     entry::{
         code_hash, contract_address, revert_if_bad_call_slice_vec, revert_if_bad_call_unit_vec,
     },
@@ -18,13 +17,19 @@ use sha2::{Digest, Sha512};
 
 use crate::{call_authority, storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
 
-pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
-    let eth_owner = storage::ethereum_owner::get();
+pub fn entry_solve(
+    owner: u32,
+    args: Vec<SolveArgsSigArgs>,
+    permit_owner: Option<[u8; 20]>,
+    transfer_owner: Option<[u8; 20]>,
+) -> usize {
+    let eth_owner: [u8; 20] = storage::ethereum_owner::get().into();
+    let permit_owner = permit_owner.unwrap_or(eth_owner);
+    let transfer_owner = transfer_owner.unwrap_or(eth_owner);
     let ed_owner = storage::ed25519_slot::get(&owner.into());
     for SolveArgsSigArgs { sig, args } in args {
         let mut d = Sha512::new();
         d.update(borsh::to_vec(&args).unwrap());
-        console::console!(owner, ed_owner, d.clone().finalize(), eth_owner.clone());
         assert!(edphverify(d.finalize().into(), ed_owner, sig.0));
         let SolveArgs {
             permit,
@@ -46,7 +51,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token.0,
                 &make_fn_permit(
-                    eth_owner.into(),
+                    permit_owner,
                     contract_address(),
                     &U::MAX,
                     &deadline.into(),
@@ -61,7 +66,7 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
         for FromArgs { token, to_take, .. } in &from {
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
                 token.0,
-                &make_fn_transfer_from(eth_owner.into(), contract_address(), to_take),
+                &make_fn_transfer_from(transfer_owner, contract_address(), to_take),
                 &U::ZERO,
                 u64::MAX,
             ));
@@ -113,4 +118,17 @@ pub fn entry_solve(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
         }
     }
     0
+}
+
+pub fn entry_solve_v1(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
+    entry_solve(owner, args, None, None)
+}
+
+pub fn entry_solve_v2(
+    owner: u32,
+    args: Vec<SolveArgsSigArgs>,
+    permit_owner: Option<[u8; 20]>,
+    transfer_owner: Option<[u8; 20]>,
+) -> usize {
+    entry_solve(owner, args, permit_owner, transfer_owner)
 }

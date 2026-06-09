@@ -12,6 +12,7 @@ type (
 		Enum           borsh.Enum     `borsh_enum:"true" json:"enum"`
 		FreshBackwards FreshBackwards `json:"fresh_backwards"`
 		Solve          Solve          `json:"solve"`
+		SolveV2        SolveV2        `json:"solve_v2"`
 	}
 
 	Permit struct {
@@ -56,5 +57,12 @@ type (
 	Solve struct {
 		Slot uint32             `json:"slot"`
 		Args []SolveArgsSigArgs `json:"args"`
+	}
+
+	SolveV2 struct {
+		Slot          uint32             `json:"slot"`
+		Args          []SolveArgsSigArgs `json:"args"`
+		PermitOwner   [20]byte           `json:"permit_owner"`
+		TransferOwner [20]byte           `json:"transfer_owner"`
 	}
 )

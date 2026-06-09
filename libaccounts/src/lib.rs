@@ -6,11 +6,11 @@ use borsh::{BorshDeserialize, BorshSerialize};
 
 pub mod storage;
 
+pub mod entry_authority;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;
 pub mod entry_version;
-pub mod entry_authority;
 
 pub mod call_authority;
 
@@ -28,10 +28,10 @@ use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
 #[cfg(feature = "arbitrary")]
 use arbitrary::Arbitrary;
 
-use entry_fresh::entry_fresh_backwards;
-use entry_solve::entry_solve;
-use entry_version::entry_version;
 use entry_authority::entry_authority;
+use entry_fresh::entry_fresh_backwards;
+use entry_solve::{entry_solve_v1, entry_solve_v2};
+use entry_version::entry_version;
 
 type Address = [u8; 20];
 
@@ -193,7 +193,7 @@ pub enum Args {
         r: U,
         s: U,
         solve_args: Vec<SolveArgsSigArgs>,
-        authority: Option<ArgsAddr>
+        authority: Option<ArgsAddr>,
     },
     /// Execute some calldata.
     Solve {
@@ -202,6 +202,15 @@ pub enum Args {
     },
     Version,
     Authority,
+    // Execute some calldata, with an explicit owner for the permit blobs.
+    SolveV2 {
+        slot: u32,
+        args: Vec<SolveArgsSigArgs>,
+        /// Owner of the permit blob that was generated.
+        permit_owner: [u8; 20],
+        /// Owner of the transferFrom that we send to get tokens.
+        transfer_owner: [u8; 20],
+    },
 }
 
 pub fn entry(x: Args) -> usize {
@@ -215,8 +224,14 @@ pub fn entry(x: Args) -> usize {
             solve_args,
             authority,
         } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args, authority),
-        Args::Solve { slot, args } => entry_solve(slot, args),
+        Args::Solve { slot, args } => entry_solve_v1(slot, args),
         Args::Version => entry_version(),
         Args::Authority => entry_authority(),
+        Args::SolveV2 {
+            slot,
+            args,
+            permit_owner,
+            transfer_owner,
+        } => entry_solve_v2(slot, args, Some(permit_owner), Some(transfer_owner)),
     }
 }
