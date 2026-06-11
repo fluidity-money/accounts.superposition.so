@@ -56,7 +56,7 @@ type (
 		R         [32]byte           `json:"r"`
 		S         [32]byte           `json:"s"`
 		SolveArgs []SolveArgsSigArgs `json:"solve_args"`
-		Authority *ArgsAuthorityAddr     `json:"authority"`
+		Authority *ArgsAuthorityAddr `json:"authority"`
 	}
 
 	Solve struct {
@@ -66,12 +66,25 @@ type (
 
 	Version struct{}
 
-	Authority struct {}
+	Authority struct{}
 
 	SolveV2 struct {
 		Slot          uint32             `json:"slot"`
 		Args          []SolveArgsSigArgs `json:"args"`
 		PermitOwner   [20]byte           `json:"permit_owner"`
 		TransferOwner [20]byte           `json:"transfer_owner"`
+	}
+
+	TransferArgs struct {
+		From      [20]byte `json:"from"`
+		Token     [20]byte `json:"token"`
+		Recipient [20]byte `json:"recipient"`
+		Permit    *Permit  `json:"permit"`
+	}
+
+	Transfer struct {
+		Slot uint32         `json:"slot"`
+		Args []TransferArgs `json:"transfer_args"`
+		Sig  [64]byte       `json:"sig"`
 	}
 )
