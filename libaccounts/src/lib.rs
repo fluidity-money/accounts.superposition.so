@@ -10,7 +10,7 @@ pub mod entry_authority;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;
-pub mod entry_transfer;
+pub mod entry_transfer_only;
 pub mod entry_version;
 
 pub mod call_authority;
@@ -32,7 +32,7 @@ use arbitrary::Arbitrary;
 use entry_authority::entry_authority;
 use entry_fresh::entry_fresh_backwards;
 use entry_solve::{entry_solve_v1, entry_solve_v2};
-use entry_transfer::entry_transfer;
+use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
 
 type Address = [u8; 20];
@@ -184,12 +184,20 @@ pub struct SolveArgsSigArgs {
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-pub struct TransferArgs {
+pub struct Transfer {
     pub from: [u8; 20],
     pub token: [u8; 20],
     pub recipient: [u8; 20],
     pub amt: U,
     pub permit: Option<Permit>,
+}
+#[derive(
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+)]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
+pub struct TransferOnlyArgs {
+    pub ms_ts: [u8; 16],
+    pub args: Vec<Transfer>,
 }
 
 #[derive(
@@ -226,10 +234,9 @@ pub enum Args {
         transfer_owner: [u8; 20],
     },
     // Simply transfer some funds, using the account system as the router.
-    Transfer {
+    TransferOnly {
         slot: u32,
-        args: Vec<TransferArgs>,
-        ms_ts: [u8; 16],
+        args: TransferOnlyArgs,
         sig: Sig,
     },
 }
@@ -254,11 +261,6 @@ pub fn entry(x: Args) -> usize {
             permit_owner,
             transfer_owner,
         } => entry_solve_v2(slot, args, Some(permit_owner), Some(transfer_owner)),
-        Args::Transfer {
-            slot,
-            args,
-            ms_ts,
-            sig,
-        } => entry_transfer(slot, args, ms_ts, sig),
+        Args::TransferOnly { slot, args, sig } => entry_transfer_only(slot, args, sig),
     }
 }

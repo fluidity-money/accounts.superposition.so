@@ -1,4 +1,4 @@
-use crate::{storage, Permit, Sig, TransferArgs, U};
+use crate::{storage, Permit, Sig, Transfer, TransferOnlyArgs, U};
 
 use sha2::{Digest, Sha512};
 
@@ -9,18 +9,17 @@ use bobcat_sdk::{
     precompiles::superposition::edphverify,
 };
 
-use alloc::vec::Vec;
-
-pub fn entry_transfer(slot: u32, args: Vec<TransferArgs>, ms_ts: [u8; 16], sig: Sig) -> usize {
+pub fn entry_transfer_only(slot: u32, args: TransferOnlyArgs, sig: Sig) -> usize {
     let ed_owner = storage::ed25519_slot::get(&slot.into());
-    if args.is_empty() {
-        panic!("no arguments")
-    }
     let mut d = Sha512::new();
     d.update(borsh::to_vec(&args).unwrap());
     assert!(edphverify(d.finalize().into(), ed_owner, sig.0));
+    let TransferOnlyArgs { args, ms_ts } = args;
+    if args.is_empty() {
+        panic!("no arguments")
+    }
     storage::timestamps::exchange(&ms_ts.into());
-    for TransferArgs {
+    for Transfer {
         from,
         token,
         recipient,

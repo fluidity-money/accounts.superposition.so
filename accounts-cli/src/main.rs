@@ -84,6 +84,12 @@ enum CliArgs {
         target: ArgsAddr,
         cd: ArgsBytes,
     },
+    SignTransfer {
+        #[arg(value_parser = U::from_str)]
+        priv_key: U,
+        slot: u32,
+        transfer_args: Vec<TransferArgs>,
+    }
 }
 
 fn entry(x: CliArgs) {

@@ -8,6 +8,7 @@ const (
 	ArgsVersion
 	ArgsAuthority
 	ArgsSolveV2
+	ArgsTransfer
 )
 
 type (
@@ -75,16 +76,22 @@ type (
 		TransferOwner [20]byte           `json:"transfer_owner"`
 	}
 
-	TransferArgs struct {
+	Transfer struct {
 		From      [20]byte `json:"from"`
 		Token     [20]byte `json:"token"`
 		Recipient [20]byte `json:"recipient"`
+		Amount    [32]byte `json:"amount"`
 		Permit    *Permit  `json:"permit"`
 	}
 
-	Transfer struct {
+	TransferOnlyArgs struct {
+		Args []Transfer `json:"args"`
+		MsTs [16]byte   `json:"ms_ts"`
+	}
+
+	TransferOnly struct {
 		Slot uint32         `json:"slot"`
-		Args []TransferArgs `json:"transfer_args"`
+		Args []TransferOnlyArgs `json:"transfer_args"`
 		Sig  [64]byte       `json:"sig"`
 	}
 )
