@@ -62,8 +62,8 @@ address. `0x0e3CD9653D9d9610281551d8E3C98035215EA18e` is the proxy.
 used by the RPC service. `0x7cedA534aE176F1556a4A05fed3847ed2EFF912d` is the admin, and
 the public key for the rpc service is
 `0xf513398eeedc30f944006f896f157c21f2f6edd050a56cb9d97eb654826a9548`. The implementation
-for this contract is `0xcae96fc6a94f6cb986685b56367bfb3ff357f74c`, which is the accounts
-service with the SolveV2 function that the main contracts don't support.
+for this contract is `0x09364c1b53747af47108d8b358355c28dbd1ca43`, which is the accounts
+service with the SolveV2 and Transfer functions that the main contracts don't support.
 
 ## Building
 
