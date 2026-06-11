@@ -1,4 +1,4 @@
-use crate::{storage, Permit, Sig, Transfer, TransferOnlyArgs, U};
+use crate::{storage, TransferPermit, Sig, Transfer, TransferOnlyArgs, U};
 
 use sha2::{Digest, Sha512};
 
@@ -27,8 +27,7 @@ pub fn entry_transfer_only(slot: u32, args: TransferOnlyArgs, sig: Sig) -> usize
         amt,
     } in args
     {
-        if let Some(Permit {
-            token,
+        if let Some(TransferPermit {
             deadline,
             v,
             r,
@@ -38,7 +37,7 @@ pub fn entry_transfer_only(slot: u32, args: TransferOnlyArgs, sig: Sig) -> usize
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token.0,
                 &make_fn_permit(
-                    from,
+                    from.0,
                     contract_address(),
                     &U::MAX,
                     &deadline.into(),
@@ -51,8 +50,8 @@ pub fn entry_transfer_only(slot: u32, args: TransferOnlyArgs, sig: Sig) -> usize
             ));
         };
         revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
-            token,
-            &make_fn_transfer_from(from, recipient, &amt),
+            token.0,
+            &make_fn_transfer_from(from.0, recipient.0, &amt),
             &U::ZERO,
             u64::MAX,
         ));

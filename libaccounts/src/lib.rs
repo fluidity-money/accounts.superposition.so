@@ -180,16 +180,28 @@ pub struct SolveArgsSigArgs {
     pub args: SolveArgs,
 }
 
+/// Version of Permit but without the token field for transferring.
+#[derive(
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+)]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
+pub struct TransferPermit {
+    pub deadline: u64,
+    v: u8,
+    r: U,
+    s: U,
+}
+
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Transfer {
-    pub from: [u8; 20],
-    pub token: [u8; 20],
-    pub recipient: [u8; 20],
+    pub from: ArgsAddr,
+    pub token: ArgsAddr,
+    pub recipient: ArgsAddr,
     pub amt: U,
-    pub permit: Option<Permit>,
+    pub permit: Option<TransferPermit>,
 }
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,

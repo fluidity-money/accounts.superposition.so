@@ -76,12 +76,19 @@ type (
 		TransferOwner [20]byte           `json:"transfer_owner"`
 	}
 
+	TransferPermit struct {
+		Deadline uint64   `json:"deadline"`
+		V        uint8    `json:"v"`
+		R        [32]byte `json:"r"`
+		S        [32]byte `json:"s"`
+	}
+
 	Transfer struct {
 		From      [20]byte `json:"from"`
 		Token     [20]byte `json:"token"`
 		Recipient [20]byte `json:"recipient"`
 		Amount    [32]byte `json:"amount"`
-		Permit    *Permit  `json:"permit"`
+		Permit    *TransferPermit  `json:"permit"`
 	}
 
 	TransferOnlyArgs struct {
