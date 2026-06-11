@@ -209,7 +209,9 @@ func CreateSolveArgsSigArgs(
 	)
 	copy(rec[:], recipient.Bytes())
 	copy(msTs[:], msTsI.Bytes())
-	cd := ninelives.NewMint(o, a, ref, rec)
+	// We use the schedule claim feature instead of the default mint
+	// so that the rpc users can get out easily:
+	cd := ninelives.NewMintScheduleClaim(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
 		From: []types.FromArgs{{
 			Token:  token,

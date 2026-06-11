@@ -30,6 +30,20 @@ func NewMint(outcome [8]byte, value [32]byte, referrer, recipient [20]byte) []by
 	return a
 }
 
+func NewMintScheduleClaim(outcome [8]byte, value [32]byte, referrer, recipient [20]byte) []byte {
+	a, err := abi.Pack(
+		"mintScheduleClaimC8A5591F",
+		outcome,
+		new(big.Int).SetBytes(value[:]),
+		ethCommon.Address(referrer),
+		ethCommon.Address(recipient),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return a
+}
+
 // UnpackMint calldata for testing and reproduction purposes.
 func UnpackMint(cd []byte) (outcome [8]byte, value [32]byte, referrer, recipient [20]byte, err error) {
 	if l := len(cd); l != 4+32*4 {
