@@ -8,7 +8,7 @@ const (
 	ArgsVersion
 	ArgsAuthority
 	ArgsSolveV2
-	ArgsTransfer
+	ArgsTransferOnly
 )
 
 type (
@@ -19,6 +19,7 @@ type (
 		Version        Version        `json:"version"`
 		Authority      Authority      `json:"authority"`
 		SolveV2        SolveV2        `json:"solve_v2"`
+		TransferOnly   TransferOnly   `json:"transfer_only"`
 	}
 
 	Permit struct {
@@ -84,11 +85,11 @@ type (
 	}
 
 	Transfer struct {
-		From      [20]byte `json:"from"`
-		Token     [20]byte `json:"token"`
-		Recipient [20]byte `json:"recipient"`
-		Amount    [32]byte `json:"amount"`
-		Permit    *TransferPermit  `json:"permit"`
+		From      [20]byte        `json:"from"`
+		Token     [20]byte        `json:"token"`
+		Recipient [20]byte        `json:"recipient"`
+		Amount    [32]byte        `json:"amount"`
+		Permit    *TransferPermit `json:"permit"`
 	}
 
 	TransferOnlyArgs struct {
@@ -97,8 +98,8 @@ type (
 	}
 
 	TransferOnly struct {
-		Slot uint32         `json:"slot"`
-		Args []TransferOnlyArgs `json:"transfer_args"`
-		Sig  [64]byte       `json:"sig"`
+		Slot uint32             `json:"slot"`
+		Args TransferOnlyArgs `json:"transfer_args"`
+		Sig  [64]byte           `json:"sig"`
 	}
 )
