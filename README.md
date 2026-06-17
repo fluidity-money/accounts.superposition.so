@@ -52,6 +52,14 @@ binary for deployment.
 
 ## Deployments
 
+### Arbitrum
+
+`0x92e89251b619a5ba2efc0f76efc3051595b489b7` is the implementation.
+`0xa80AdFC480BdB9dB308999760Fec8fA567cdB87D` is the upgradeable proxy address.
+`0x58A5f520FF7A6F59863e8a73b066A975799d5d48` is the admin address (not an admin contract).
+
+### Superposition
+
 `0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the main accounts factory.
 `0x5c153dcb6cfbd0ffe0f565185a19a1961df0903b` is the implementation.
 
