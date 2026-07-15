@@ -6,11 +6,11 @@ use bobcat_sdk::{
     entry::{contract_address, revert_if_bad_call_unit_vec, write_result_word},
     maths::U,
     precompiles::ethereum::ecrecover_post,
-    proxy::{make_metamorphic_beacon_proxy, SEL_MIGRATE},
+    proxy::{SEL_MIGRATE, make_metamorphic_evmfn_beacon_proxy},
     storage::{keccak256, storage_load},
 };
 
-use crate::{Args, ArgsAddr, SolveArgsSigArgs, SLOT_IMPL};
+use crate::{Args, ArgsAddr, SLOT_IMPL, SolveArgsSigArgs};
 
 use array_concat::concat_arrays;
 
@@ -55,7 +55,7 @@ pub fn entry_fresh_backwards(
     let impl_addr = storage_load(&SLOT_IMPL);
     assert!(impl_addr.is_some(), "not proxy");
     let proxy = create2_pre_unit(
-        &make_metamorphic_beacon_proxy(contract_address()),
+        &make_metamorphic_evmfn_beacon_proxy(contract_address()),
         U::ZERO,
         &eoa_addr.0,
     )

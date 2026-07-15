@@ -13,7 +13,7 @@ use core::{
 
 use borsh::BorshDeserialize;
 
-use std::io::{stdin, Read};
+use std::io::{Read, stdin};
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ArgsBytes(Vec<u8>);

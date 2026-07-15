@@ -54,9 +54,9 @@ binary for deployment.
 
 ### Arbitrum
 
-`0x92e89251b619a5ba2efc0f76efc3051595b489b7` is the implementation.
+`0xd94b086dd501ef8db5b1b18306bb14d0dcecfd1d` is the implementation.
 `0xe73fbA694c0CB10D04298436CF07bCe8A23e15Ec` is the upgradeable proxy address.
-`0x58A5f520FF7A6F59863e8a73b066A975799d5d48` is the admin address (not an admin contract).
+`0x6221a9c005f6e47eb398fd867784cacfdcfff4e7` is the admin address (not an admin contract).
 The factory address here is used by the other accounts, and it also used for the enclave
 service itself. So any account can invoke the creation logic in the enclave accounts
 address, but only the enclave registered address can invoke the code on the enclave.

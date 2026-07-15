@@ -1,6 +1,6 @@
 use bobcat_sdk::{entry::msg_sender, maths::U, storage::storage_store};
 
-use crate::{storage, SLOT_IMPL};
+use crate::{SLOT_IMPL, storage};
 
 pub fn entry_migrate(ed_key: &U, evm_owner: &U, impl_addr: &U, authority_addr: &U) -> usize {
     // Despite whatever we're doing, we will always change the

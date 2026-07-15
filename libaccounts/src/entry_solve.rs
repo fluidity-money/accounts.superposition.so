@@ -10,12 +10,10 @@ use bobcat_sdk::{
         eip2612::make_fn_permit,
     },
     maths::U,
-    precompiles::superposition::edphverify,
+    precompiles::superposition::edphverify_pre,
 };
 
-use sha2::{Digest, Sha512};
-
-use crate::{call_authority, storage, FromArgs, Permit, SolveArgs, SolveArgsSigArgs};
+use crate::{FromArgs, Permit, SolveArgs, SolveArgsSigArgs, call_authority, storage};
 
 pub fn entry_solve(
     owner: u32,
@@ -28,9 +26,11 @@ pub fn entry_solve(
     let transfer_owner = transfer_owner.unwrap_or(eth_owner);
     let ed_owner = storage::ed25519_slot::get(&owner.into());
     for SolveArgsSigArgs { sig, args } in args {
-        let mut d = Sha512::new();
-        d.update(borsh::to_vec(&args).unwrap());
-        assert!(edphverify(d.finalize().into(), ed_owner, sig.0));
+        assert!(edphverify_pre(
+            &borsh::to_vec(&args).unwrap(),
+            ed_owner,
+            sig.0
+        ));
         let SolveArgs {
             permit,
             from,
