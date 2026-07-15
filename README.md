@@ -57,6 +57,9 @@ binary for deployment.
 `0x92e89251b619a5ba2efc0f76efc3051595b489b7` is the implementation.
 `0xa80AdFC480BdB9dB308999760Fec8fA567cdB87D` is the upgradeable proxy address.
 `0x58A5f520FF7A6F59863e8a73b066A975799d5d48` is the admin address (not an admin contract).
+The factory address here is used by the other accounts, and it also used for the enclave
+service itself. So any account can invoke the creation logic in the enclave accounts
+address, but only the enclave registered address can invoke the code on the enclave.
 
 ### Superposition
 
