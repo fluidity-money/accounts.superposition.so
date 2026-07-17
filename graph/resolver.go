@@ -19,4 +19,5 @@ type Resolver struct {
 	Fusdc                                   [20]byte
 	UrlAlarm                                string
 	RateLimiting                            ratelimit.Server
+	ClaimDisabled                           bool
 }

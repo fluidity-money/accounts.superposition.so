@@ -286,6 +286,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 
 // ClaimRewards is the resolver for the claimRewards field.
 func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error) {
+	if r.ClaimDisabled {
+		return "", fmt.Errorf("claim is disabled")
+	}
 	snowflake, _ := ctx.Value("snowflake").(int)
 	if authed, _ := ctx.Value("authed").(bool); !authed {
 		return "", fmt.Errorf("not authed in the handler for claim rewards")

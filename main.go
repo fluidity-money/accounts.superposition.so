@@ -76,6 +76,10 @@ const (
 
 	// EnvAlarmWebhook that will trigger a soft alarm if called.
 	EnvAlarmWebhook = "SPN_ALARM_WEBHOOK"
+
+	// EnvFeatureClaimDisabled is set to anything but "" to prevent
+	// people from claiming using the accounts service.
+	EnvFeatureClaimDisabled = "SPN_FEATURE_CLAIM_DISABLED"
 )
 
 type authMiddleware struct {
@@ -191,6 +195,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("accounts public key: %v", err)
 	}
+	claimDisabled := os.Getenv(EnvFeatureClaimDisabled) != ""
 	alarmWebhook := os.Getenv(EnvAlarmWebhook)
 	var accPubKey [32]byte
 	copy(accPubKey[:], accPubKeyB)
@@ -210,6 +215,7 @@ func main() {
 		Fusdc:               fusdc,
 		UrlAlarm:            alarmWebhook,
 		RateLimiting:        rateLimiting,
+		ClaimDisabled: claimDisabled,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
