@@ -111,13 +111,13 @@ func CreateAccountToFreshBackwards(pubKey [32]byte, createAccount model.CreateAc
 	if err != nil {
 		return nil, fmt.Errorf("eoa: %v", err)
 	}
-	var authority *types.ArgsAuthority
+	var authority *types.ArgsAuthorityAddr
 	if a := createAccount.Authority; a != nil {
 		x, err := strToAddr(*a)
 		if err != nil {
 			return nil, fmt.Errorf("authority: %v", err)
 		}
-		v := types.ArgsAuthority(x)
+		v := types.ArgsAuthorityAddr(x)
 		authority = &v
 	}
 	if createAccount.SigV < 0 || createAccount.SigV > math.MaxUint8 {

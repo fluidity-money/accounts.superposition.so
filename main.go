@@ -80,6 +80,9 @@ const (
 	// EnvFeatureClaimDisabled is set to anything but "" to prevent
 	// people from claiming using the accounts service.
 	EnvFeatureClaimDisabled = "SPN_FEATURE_CLAIM_DISABLED"
+
+	// EnvMinimumAmount to use as the deposit feature. If unset, not used, must be base 10.
+	EnvMinimumAmount = "SPN_MINIMUM_AMOUNT"
 )
 
 type authMiddleware struct {
@@ -183,6 +186,13 @@ func main() {
 	if !ok {
 		log.Fatalf("chain id not set")
 	}
+	minAmt := new(big.Int)
+	if s := os.Getenv(EnvMinimumAmount); s != "" {
+		_, ok := minAmt.SetString(s, 10)
+		if !ok {
+			log.Fatalf("bad minimum amount: %v", s)
+		}
+	}
 	accountsFactoryAddrS := os.Getenv(EnvAccountsFactoryAddr)
 	if !ethCommon.IsHexAddress(accountsFactoryAddrS) {
 		log.Fatal("accounts factory addr not set")
@@ -209,6 +219,7 @@ func main() {
 		Client:              c,
 		Db:                  db,
 		ChainId:             chainId,
+		MinimumAmount: minAmt,
 		AccountsFactoryAddr: accountsFactoryAddr,
 		ClaimantHelperAddr:  claimantHelper,
 		AccPubKey:           accPubKey,

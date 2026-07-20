@@ -13,7 +13,7 @@ import (
 type Resolver struct {
 	Client                                  *ethclient.Client
 	Db                                      *sql.DB
-	ChainId                                 *big.Int
+	ChainId, MinimumAmount                  *big.Int
 	AccountsFactoryAddr, ClaimantHelperAddr ethCommon.Address
 	AccPubKey                               [32]byte
 	Fusdc                                   [20]byte
