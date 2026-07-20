@@ -26,6 +26,11 @@ import (
 
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
+	amt, _ := new(big.Int).SetString(mint.Amount, 10)
+	//minimum amount > amt
+	if r.MinimumAmount.Cmp(amt) > 0 {
+		return nil, fmt.Errorf("below the minimum amount (%v)", amt)
+	}
 	snowflake, _ := ctx.Value("snowflake").(int)
 	f, err := convertor.CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
 	if err != nil {
@@ -197,6 +202,11 @@ SELECT accounts_insert_nonce_secret_3($1, $2, $3)`,
 
 // NinelivesMint is the resolver for the ninelivesMint field.
 func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error) {
+	amt, _ := new(big.Int).SetString(mint.Amount, 10)
+	//minimum amount > amt
+	if r.MinimumAmount.Cmp(amt) > 0 {
+		return "", fmt.Errorf("below the minimum amount (%v)", amt)
+	}
 	snowflake, _ := ctx.Value("snowflake").(int)
 	if authed, _ := ctx.Value("authed").(bool); !authed {
 		return "", fmt.Errorf("not authed in the handler")
