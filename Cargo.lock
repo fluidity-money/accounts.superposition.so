@@ -286,6 +286,8 @@ dependencies = [
  "bobcat-cd",
  "bobcat-maths",
  "bobcat-storage",
+ "ed25519-dalek",
+ "sha2",
 ]
 
 [[package]]
