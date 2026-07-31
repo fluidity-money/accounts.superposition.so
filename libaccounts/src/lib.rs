@@ -265,7 +265,8 @@ pub enum Args {
     },
     /// Verify that a user signed a statement using the key given.
     /// Simply validates that the verification worked by checking the
-    /// signature and returning without a revert.
+    /// signature and returning without a revert. Could be committed
+    /// on-chain to exchange the nonce.
     Statement {
         slot: u32,
         args: StatementArgs,
