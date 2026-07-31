@@ -54,10 +54,10 @@ binary for deployment.
 
 ### Arbitrum
 
-`0xd94b086dd501ef8db5b1b18306bb14d0dcecfd1d` is the implementation.
+`0x633da7e11101d8274ef654228eaab944c3f323ca` is the implementation.
 `0xEeD043901F4c34147bA8702E739749546b593d6c` is the upgradeable proxy address.
 `0x6221a9c005f6e47eb398fd867784cacfdcfff4e7` is the admin address (not an admin contract).
-The factory address here is used by the other accounts.
+The factory address here is used by the other accounts for the fresh setup.
 
 `0x92e89251b619a5ba2efc0f76efc3051595b489b7` is the enclave implementation, and
 `0x58A5f520FF7A6F59863e8a73b066A975799d5d48` is the admin.
