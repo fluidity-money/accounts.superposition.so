@@ -98,8 +98,19 @@ type (
 	}
 
 	TransferOnly struct {
-		Slot uint32             `json:"slot"`
+		Slot uint32           `json:"slot"`
 		Args TransferOnlyArgs `json:"transfer_args"`
-		Sig  [64]byte           `json:"sig"`
+		Sig  [64]byte         `json:"sig"`
+	}
+
+	StatementArgs struct {
+		Msg  string   `json:"msg"`
+		MsTs [16]byte `json:"ms_ts"`
+	}
+
+	Statement struct {
+		Slot uint32        `json:"slot"`
+		Args StatementArgs `json:"statement_args"`
+		Sig  [64]byte      `json:"sig"`
 	}
 )

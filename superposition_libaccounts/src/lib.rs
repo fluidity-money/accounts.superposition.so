@@ -10,9 +10,9 @@ pub mod entry_authority;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_solve;
+pub mod entry_statement;
 pub mod entry_transfer_only;
 pub mod entry_version;
-pub mod entry_statement;
 
 pub mod call_authority;
 
@@ -33,9 +33,9 @@ use arbitrary::Arbitrary;
 use entry_authority::entry_authority;
 use entry_fresh::entry_fresh_backwards;
 use entry_solve::{entry_solve_v1, entry_solve_v2};
+use entry_statement::entry_statement;
 use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
-use entry_statement::entry_statement;
 
 type Address = [u8; 20];
 
@@ -271,7 +271,7 @@ pub enum Args {
         slot: u32,
         args: StatementArgs,
         sig: Sig,
-    }
+    },
 }
 
 pub fn entry(x: Args) -> usize {

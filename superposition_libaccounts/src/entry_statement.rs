@@ -1,5 +1,4 @@
-
-use crate::{storage, Sig, StatementArgs};
+use crate::{Sig, StatementArgs, storage};
 
 use bobcat_sdk::precompiles::superposition::edphverify_pre;
 

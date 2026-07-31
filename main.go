@@ -155,7 +155,7 @@ WHERE eoa_addr = $1 AND secret = $2`,
 		var count int
 		if err := row.Scan(&count); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			log.Fatalf("error scanning secrets, snowflake: %v: %v","snowflake", err)
+			log.Fatalf("error scanning secrets, snowflake: %v: %v", "snowflake", err)
 			writeUnauthorised(w)
 			return
 		}
@@ -219,14 +219,14 @@ func main() {
 		Client:              c,
 		Db:                  db,
 		ChainId:             chainId,
-		MinimumAmount: minAmt,
+		MinimumAmount:       minAmt,
 		AccountsFactoryAddr: accountsFactoryAddr,
 		ClaimantHelperAddr:  claimantHelper,
 		AccPubKey:           accPubKey,
 		Fusdc:               fusdc,
 		UrlAlarm:            alarmWebhook,
 		RateLimiting:        rateLimiting,
-		ClaimDisabled: claimDisabled,
+		ClaimDisabled:       claimDisabled,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
