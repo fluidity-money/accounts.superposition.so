@@ -12,12 +12,13 @@ pub mod entry_migrate;
 pub mod entry_solve;
 pub mod entry_transfer_only;
 pub mod entry_version;
+pub mod entry_statement;
 
 pub mod call_authority;
 
 extern crate alloc;
 
-use alloc::vec::Vec;
+use alloc::{string::String, vec::Vec};
 
 use core::{
     fmt::{Display, Formatter},
@@ -34,6 +35,7 @@ use entry_fresh::entry_fresh_backwards;
 use entry_solve::{entry_solve_v1, entry_solve_v2};
 use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
+use entry_statement::entry_statement;
 
 type Address = [u8; 20];
 
@@ -203,12 +205,22 @@ pub struct Transfer {
     pub amt: U,
     pub permit: Option<TransferPermit>,
 }
+
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct TransferOnlyArgs {
     pub args: Vec<Transfer>,
+    pub ms_ts: [u8; 16],
+}
+
+#[derive(
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+)]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
+pub struct StatementArgs {
+    pub msg: String,
     pub ms_ts: [u8; 16],
 }
 
@@ -251,6 +263,14 @@ pub enum Args {
         args: TransferOnlyArgs,
         sig: Sig,
     },
+    /// Verify that a user signed a statement using the key given.
+    /// Simply validates that the verification worked by checking the
+    /// signature and returning without a revert.
+    Statement {
+        slot: u32,
+        args: StatementArgs,
+        sig: Sig,
+    }
 }
 
 pub fn entry(x: Args) -> usize {
@@ -274,5 +294,6 @@ pub fn entry(x: Args) -> usize {
             transfer_owner,
         } => entry_solve_v2(slot, args, Some(permit_owner), Some(transfer_owner)),
         Args::TransferOnly { slot, args, sig } => entry_transfer_only(slot, args, sig),
+        Args::Statement { slot, args, sig } => entry_statement(slot, args, sig),
     }
 }

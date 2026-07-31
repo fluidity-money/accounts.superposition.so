@@ -4,7 +4,7 @@ use bobcat_sdk::maths::U;
 
 use ed25519_dalek::{Digest, Sha512, SigningKey};
 
-use libaccounts::{Args, ArgsAddr, FromArgs, Sig, SolveArgs, SolveArgsSigArgs,};
+use libaccounts::{Args, ArgsAddr, FromArgs, Sig, SolveArgs, SolveArgsSigArgs};
 
 use core::{
     fmt::{Display, Formatter},
