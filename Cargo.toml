@@ -1,5 +1,5 @@
 [workspace]
-members = ["accounts-cli","contract", "libaccounts"]
+members = ["accounts-cli","contract", "superposition_libaccounts"]
 resolver = "3"
 
 [workspace.dependencies]

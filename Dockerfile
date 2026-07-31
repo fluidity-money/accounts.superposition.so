@@ -14,19 +14,19 @@ WORKDIR /build
 
 COPY Cargo.toml Cargo.lock* ./
 COPY contract/Cargo.toml contract/Cargo.toml
-COPY libaccounts/Cargo.toml libaccounts/Cargo.toml
+COPY superposition_libaccounts/Cargo.toml superposition_libaccounts/Cargo.toml
 COPY accounts-cli/Cargo.toml accounts-cli/Cargo.toml
 COPY .cargo .cargo
 
-RUN mkdir -p contract/src libaccounts/src accounts-cli/src && \
+RUN mkdir -p contract/src superposition_libaccounts/src accounts-cli/src && \
 	echo "fn main() {}" > contract/src/main.rs && \
-	echo "" > libaccounts/src/lib.rs && \
+	echo "" > superposition_libaccounts/src/lib.rs && \
 	echo "fn main() {}" > accounts-cli/src/main.rs
 
 RUN cargo fetch || true
 
 COPY contract contract
-COPY libaccounts libaccounts
+COPY superposition_libaccounts superposition_libaccounts
 COPY accounts-cli accounts-cli
 COPY wasm-post.sh check-codesize.sh ./
 RUN chmod +x wasm-post.sh check-codesize.sh

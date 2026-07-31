@@ -7,7 +7,7 @@ name = "accounts-cli-fuzz"
 version = "0.0.0"
 dependencies = [
  "borsh",
- "libaccounts",
+ "superposition_libaccounts",
  "libfuzzer-sys",
 ]
 
@@ -549,7 +549,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57d8d8ce877200136358e0bbff3a77965875db3af755a11e1fa6b1b3e2df13ea"
 
 [[package]]
-name = "libaccounts"
+name = "superposition_libaccounts"
 version = "0.1.0"
 dependencies = [
  "arbitrary",
