@@ -83,16 +83,14 @@ Inside this workspace:
 
 ```toml
 [dependencies]
-superposition_libaccounts = { path = "../superposition_libaccounts", features = ["std"] }
-borsh = "1"
-bobcat-sdk = { git = "https://github.com/fluidity-money/bobcat-sdk" }
-ed25519-dalek = "2"
-const-hex = "1"
+superposition_libaccounts = { path = "../superposition_libaccounts" }
+borsh = "1.5.7"
+bobcat-sdk = "=0.7.44"
+ed25519-dalek = { version = "2.1.1", default-features = false, features = ["digest"] }
+const-hex = "1.17.0"
 ```
 
-The exact dependency sources and versions should normally match the workspace's root `Cargo.toml` and `Cargo.lock`.
-
-The contract supports `no_std`. Client-side code should enable the crate's `std` feature.
+The exact dependency versions should normally match the workspace's root `Cargo.toml` and `Cargo.lock`. The core library supports `no_std`; enable its `std` feature when using its optional standard-library support.
 
 ## Common helpers
 

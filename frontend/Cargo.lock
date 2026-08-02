@@ -427,9 +427,9 @@ name = "frontend"
 version = "0.1.0"
 dependencies = [
  "bobcat-sdk",
- "superposition_libaccounts",
  "serde",
  "serde-wasm-bindgen",
+ "superposition_libaccounts",
  "wasm-bindgen",
 ]
 
@@ -480,19 +480,6 @@ name = "keccak-const"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57d8d8ce877200136358e0bbff3a77965875db3af755a11e1fa6b1b3e2df13ea"
-
-[[package]]
-name = "superposition_libaccounts"
-version = "0.1.0"
-dependencies = [
- "array-concat",
- "bobcat-sdk",
- "borsh",
- "const-hex",
- "serde",
- "serde_json",
- "sha2",
-]
 
 [[package]]
 name = "libc"
@@ -775,6 +762,19 @@ name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
+
+[[package]]
+name = "superposition_libaccounts"
+version = "0.1.0"
+dependencies = [
+ "array-concat",
+ "bobcat-sdk",
+ "borsh",
+ "const-hex",
+ "serde",
+ "serde_json",
+ "sha2",
+]
 
 [[package]]
 name = "syn"

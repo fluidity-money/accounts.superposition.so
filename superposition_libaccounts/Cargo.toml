@@ -1,6 +1,6 @@
 [package]
 name = "superposition_libaccounts"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 license = "MIT"
 description = "Superposition accounts calldata and utilities functions. Used to generate calldata for in-browser signing on a single deployment."
@@ -10,7 +10,7 @@ repository = "https://github.com/fluidity-money/accounts.superposition.so"
 [lib]
 
 [features]
-std = ["bobcat-sdk/serde", "clap"]
+std = ["bobcat-sdk/serde", "bobcat-sdk/ed25519-dalek", "clap"]
 panic-revert = ["bobcat-sdk/panic-revert"]
 arbitrary = ["dep:arbitrary", "bobcat-sdk/arbitrary"]
 alloy-enabled = ["bobcat-sdk/alloy-enabled"]
@@ -18,7 +18,7 @@ alloy-enabled = ["bobcat-sdk/alloy-enabled"]
 [dependencies]
 array-concat.workspace = true
 borsh.workspace = true
-bobcat-sdk.workspace = true
+bobcat-sdk = { version = ">=0.7.44", features = ["alloc", "serde", "borsh", "panic-revert"] }
 clap = { version = ">=4.0.0", optional = true, features = ["derive"] }
 const-hex.workspace = true
 serde = { version = ">=1.0.0", default-features = false, features = ["derive", "alloc"] }
@@ -29,5 +29,4 @@ proptest-derive = { version = "0.7.0", optional = true }
 arbitrary = { version = "1.4.2", features = ["derive"], optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-bobcat-sdk = { workspace = true, features = ["ed25519-dalek", "std"] }
-
+bobcat-sdk = { workspace = true, features = ["ed25519-dalek", "ruint-enabled"] }
