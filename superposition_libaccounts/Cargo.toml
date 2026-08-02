@@ -3,6 +3,9 @@ name = "superposition_libaccounts"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
+description = "Superposition accounts calldata and utilities functions. Used to generate calldata for in-browser signing on a single deployment."
+homepage = "https://fluiditylabs.io"
+repository = "https://github.com/fluidity-money/accounts.superposition.so"
 
 [lib]
 
