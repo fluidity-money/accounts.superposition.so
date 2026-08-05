@@ -84,6 +84,7 @@ enum CliArgs {
         target: ArgsAddr,
         cd: ArgsBytes,
     },
+    Version,
 }
 
 fn entry(x: CliArgs) {
@@ -218,6 +219,10 @@ fn entry(x: CliArgs) {
                 const_hex::encode(cd.0)
             );
         }
+        CliArgs::Version => eprintln!(
+            "{}",
+            const_hex::encode(borsh::to_vec(&Args::Version).unwrap())
+        ),
     }
 }
 

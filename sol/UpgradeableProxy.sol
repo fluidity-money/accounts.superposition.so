@@ -19,6 +19,10 @@ contract UpgradeableProxy {
     /// @dev EOA owner of this account that we use. Will be the admin.
     address private ethereumOwner;
 
+    mapping(uint256 => uint256) private timestamps;
+
+    uint256 private version;
+
     constructor(
         address _impl,
         address _admin,
@@ -41,6 +45,7 @@ contract UpgradeableProxy {
             sstore(correctEdSlot, _publicKey)
         }
         ethereumOwner = _admin;
+        version = 2;
     }
 
     fallback() external payable {

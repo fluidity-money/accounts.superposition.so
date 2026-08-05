@@ -54,8 +54,8 @@ binary for deployment.
 
 ### Arbitrum
 
-`0x633da7e11101d8274ef654228eaab944c3f323ca` is the implementation.
-`0xEeD043901F4c34147bA8702E739749546b593d6c` is the upgradeable proxy address.
+`0x66dab1fe11ec22e4700daaa50cdac03fcde9de2e` is the implementation.
+`0x04cDAf344F459E7c0eE86e8088dB603aEc035c86` is the upgradeable proxy address.
 `0x6221a9c005f6e47eb398fd867784cacfdcfff4e7` is the admin address (not an admin contract).
 The factory address here is used by the other accounts for the fresh setup.
 

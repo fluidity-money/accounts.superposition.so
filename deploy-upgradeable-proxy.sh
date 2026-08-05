@@ -1,10 +1,10 @@
 #!/bin/sh -u
 
-impl=0x92e89251b619a5ba2efc0f76efc3051595b489b7
+impl=0x66dab1fe11ec22e4700daaa50cdac03fcde9de2e
 
 forge create \
 	--rpc-url $SPN_SUPERPOSITION_URL \
-	--private-key "$SPN_PRIVATE_KEY" \
+	--private-key "$SPN_SUPERPOSITION_KEY" \
 	--broadcast \
 	sol/UpgradeableProxy.sol:UpgradeableProxy \
 	--constructor-args \
