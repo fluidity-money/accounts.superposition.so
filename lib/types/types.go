@@ -71,10 +71,15 @@ type (
 	Authority struct{}
 
 	SolveV2 struct {
-		Slot          uint32             `json:"slot"`
-		Args          []SolveArgsSigArgs `json:"args"`
-		PermitOwner   [20]byte           `json:"permit_owner"`
-		TransferOwner [20]byte           `json:"transfer_owner"`
+		Slot uint32      `json:"slot"`
+		Args SolveV2Args `json:"args"`
+		Sig  [64]byte    `json:"sig"`
+	}
+
+	SolveV2Args struct {
+		Args          []SolveArgs `json:"args"`
+		PermitOwner   [20]byte    `json:"permit_owner"`
+		TransferOwner [20]byte    `json:"transfer_owner"`
 	}
 
 	TransferPermit struct {

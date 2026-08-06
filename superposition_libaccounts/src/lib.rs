@@ -182,6 +182,18 @@ pub struct SolveArgsSigArgs {
     pub args: SolveArgs,
 }
 
+#[derive(
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+)]
+#[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
+pub struct SolveV2Args {
+    pub args: Vec<SolveArgs>,
+    /// Owner of the permit blob that was generated.
+    pub permit_owner: [u8; 20],
+    /// Owner of the transferFrom that we send to get tokens.
+    pub transfer_owner: [u8; 20],
+}
+
 /// Version of Permit but without the token field for transferring.
 #[derive(
     BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
@@ -248,14 +260,11 @@ pub enum Args {
     },
     Version,
     Authority,
-    // Execute some calldata, with an explicit owner for the permit blobs.
+    // Execute some calldata, with explicit owners bound by one signature.
     SolveV2 {
         slot: u32,
-        args: Vec<SolveArgsSigArgs>,
-        /// Owner of the permit blob that was generated.
-        permit_owner: [u8; 20],
-        /// Owner of the transferFrom that we send to get tokens.
-        transfer_owner: [u8; 20],
+        args: SolveV2Args,
+        sig: Sig,
     },
     // Simply transfer some funds, using the account system as the router.
     TransferOnly {
@@ -288,12 +297,7 @@ pub fn entry(x: Args) -> usize {
         Args::Solve { slot, args } => entry_solve_v1(slot, args),
         Args::Version => entry_version(),
         Args::Authority => entry_authority(),
-        Args::SolveV2 {
-            slot,
-            args,
-            permit_owner,
-            transfer_owner,
-        } => entry_solve_v2(slot, args, Some(permit_owner), Some(transfer_owner)),
+        Args::SolveV2 { slot, args, sig } => entry_solve_v2(slot, args, sig),
         Args::TransferOnly { slot, args, sig } => entry_transfer_only(slot, args, sig),
         Args::Statement { slot, args, sig } => entry_statement(slot, args, sig),
     }

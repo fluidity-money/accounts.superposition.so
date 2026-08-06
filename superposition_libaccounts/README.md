@@ -41,11 +41,11 @@ A solve is the general-purpose operation. One signed solve can:
 4. call arbitrary calldata on the target;
 5. check the account's remaining balance for every pulled token.
 
-`Solve` uses the account's stored Ethereum owner for permits and transfers. `SolveV2` is the same operation with explicit `permit_owner` and `transfer_owner` addresses.
+`Solve` uses the account's stored Ethereum owner for permits and transfers. `SolveV2` is the same operation with explicit `permit_owner` and `transfer_owner` addresses. A `SolveV2` signature covers one `SolveV2Args` value containing the complete solve batch and both owner addresses.
 
 If an authority is configured, the target's code hash must be approved by calling `allowed(bytes32)` on the authority contract.
 
-Several `SolveArgsSigArgs` values may be batched in one outer request. Each inner `SolveArgs` has its own signature and nonce.
+Several `SolveArgsSigArgs` values may be batched in one `Solve` request. Each inner `SolveArgs` has its own signature and nonce. In `SolveV2`, the batch is a `Vec<SolveArgs>` inside a single signed `SolveV2Args` envelope instead.
 
 ### `TransferOnly`
 
@@ -253,7 +253,7 @@ The Ethereum signature must recover to `eoa_addr` from the personal-sign message
 These details are easy to get wrong in clients:
 
 - Encode outer requests and signed inner values with Borsh, not Ethereum ABI encoding.
-- Sign only the inner `SolveArgs`, `TransferOnlyArgs`, or `StatementArgs`, not the outer `Args` enum.
+- Sign only the inner `SolveArgs`, `SolveV2Args`, `TransferOnlyArgs`, or `StatementArgs`, not the outer `Args` enum. For `SolveV2`, this binds the entire batch plus `permit_owner` and `transfer_owner` with one signature.
 - Sign using Ed25519ph with SHA-512, matching `SigningKey::sign_prehashed`.
 - `U` values are fixed 32-byte unsigned integers. Follow the encoding used by `bobcat_sdk::maths::U` rather than substituting a variable-length integer.
 - Keep `ms_ts` unique. A reused value reverts even when the signed content differs.

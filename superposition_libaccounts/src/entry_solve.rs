@@ -13,24 +13,16 @@ use bobcat_sdk::{
     precompiles::superposition::edphverify_pre,
 };
 
-use crate::{FromArgs, Permit, SolveArgs, SolveArgsSigArgs, call_authority, storage};
+use crate::{
+    FromArgs, Permit, Sig, SolveArgs, SolveArgsSigArgs, SolveV2Args, call_authority, storage,
+};
 
 pub fn entry_solve(
-    owner: u32,
-    args: Vec<SolveArgsSigArgs>,
-    permit_owner: Option<[u8; 20]>,
-    transfer_owner: Option<[u8; 20]>,
+    args: Vec<SolveArgs>,
+    permit_owner: [u8; 20],
+    transfer_owner: [u8; 20],
 ) -> usize {
-    let eth_owner: [u8; 20] = storage::ethereum_owner::get().into();
-    let permit_owner = permit_owner.unwrap_or(eth_owner);
-    let transfer_owner = transfer_owner.unwrap_or(eth_owner);
-    let ed_owner = storage::ed25519_slot::get(&owner.into());
-    for SolveArgsSigArgs { sig, args } in args {
-        assert!(edphverify_pre(
-            &borsh::to_vec(&args).unwrap(),
-            ed_owner,
-            sig.0
-        ));
+    for args in args {
         let SolveArgs {
             permit,
             from,
@@ -121,14 +113,33 @@ pub fn entry_solve(
 }
 
 pub fn entry_solve_v1(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
-    entry_solve(owner, args, None, None)
+    let ed_owner = storage::ed25519_slot::get(&owner.into());
+    let args = args
+        .into_iter()
+        .map(|SolveArgsSigArgs { sig, args }| {
+            assert!(edphverify_pre(
+                &borsh::to_vec(&args).unwrap(),
+                ed_owner,
+                sig.0
+            ));
+            args
+        })
+        .collect();
+    let eth_owner: [u8; 20] = storage::ethereum_owner::get().into();
+    entry_solve(args, eth_owner, eth_owner)
 }
 
-pub fn entry_solve_v2(
-    owner: u32,
-    args: Vec<SolveArgsSigArgs>,
-    permit_owner: Option<[u8; 20]>,
-    transfer_owner: Option<[u8; 20]>,
-) -> usize {
-    entry_solve(owner, args, permit_owner, transfer_owner)
+pub fn entry_solve_v2(owner: u32, args: SolveV2Args, sig: Sig) -> usize {
+    let ed_owner = storage::ed25519_slot::get(&owner.into());
+    assert!(edphverify_pre(
+        &borsh::to_vec(&args).unwrap(),
+        ed_owner,
+        sig.0
+    ));
+    let SolveV2Args {
+        args,
+        permit_owner,
+        transfer_owner,
+    } = args;
+    entry_solve(args, permit_owner, transfer_owner)
 }
