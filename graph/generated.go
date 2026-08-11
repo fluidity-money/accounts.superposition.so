@@ -2758,20 +2758,13 @@ func (ec *executionContext) unmarshalInputMint(ctx context.Context, obj any) (mo
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"asset", "market", "outcome", "amount", "permit", "referrer", "ms_ts"}
+	fieldsInOrder := [...]string{"market", "outcome", "amount", "permit", "referrer", "ms_ts"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "asset":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("asset"))
-			data, err := ec.unmarshalOAsset2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Asset = data
 		case "market":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("market"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -3871,22 +3864,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalOAsset2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx context.Context, v any) (*model.Asset, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.Asset)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOAsset2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v *model.Asset) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v any) (bool, error) {

@@ -149,12 +149,7 @@ fn entry(x: CliArgs) {
                 .collect::<Vec<_>>();
             println!(
                 "0x{}",
-                create_blob(
-                    &borsh::to_vec(&Args::Solve {
-                        args: solve_args
-                    })
-                    .unwrap()
-                )
+                create_blob(&borsh::to_vec(&Args::Solve { args: solve_args }).unwrap())
             );
         }
         CliArgs::SignTokenSpend {

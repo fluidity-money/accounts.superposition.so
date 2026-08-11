@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"encoding/json"
 	"testing"
 
 	fuzz "github.com/AdaLogics/go-fuzz-headers"
@@ -52,5 +53,18 @@ func TestSolveV2ArgsBindsOwners(t *testing.T) {
 	}
 	if bytes.Equal(encoded, changedTransferEncoded) {
 		t.Fatal("changing transfer owner did not change signed bytes")
+	}
+}
+
+func TestPermitJSONUsesAssetField(t *testing.T) {
+	encoded, err := json.Marshal(Permit{Asset: AssetArb})
+	if err != nil {
+		t.Fatalf("encoding permit: %v", err)
+	}
+	if !bytes.Contains(encoded, []byte(`"asset":1`)) {
+		t.Fatalf("permit JSON does not contain asset field: %s", encoded)
+	}
+	if bytes.Contains(encoded, []byte(`"token"`)) {
+		t.Fatalf("permit JSON still contains token field: %s", encoded)
 	}
 }

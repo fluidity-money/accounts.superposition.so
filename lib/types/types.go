@@ -1,6 +1,11 @@
 package types
 
-import "github.com/near/borsh-go"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/near/borsh-go"
+)
 
 const (
 	ArgsFreshBackwards borsh.Enum = iota
@@ -19,16 +24,17 @@ const (
 	AssetWeth
 )
 
-func AssetFromString(x string) (a *Asset) {
-	switch x {
-	case "usdc":
-		*a = AssetUsdc
-	case "arb":
-		*a = AssetArb
-	case "weth":
-		*a = AssetWeth
+func AssetFromString(x string) (Asset, error) {
+	switch strings.ToUpper(x) {
+	case "USDC":
+		return AssetUsdc, nil
+	case "ARB":
+		return AssetArb, nil
+	case "WETH":
+		return AssetWeth, nil
+	default:
+		return 0, fmt.Errorf("unknown asset %q", x)
 	}
-	return
 }
 
 type (
@@ -43,7 +49,7 @@ type (
 	}
 
 	Permit struct {
-		Asset    Asset    `json:"token"`
+		Asset    Asset    `json:"asset"`
 		Deadline uint64   `json:"deadline"`
 		V        uint8    `json:"v"`
 		R        [32]byte `json:"r"`

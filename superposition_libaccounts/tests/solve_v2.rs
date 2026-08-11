@@ -1,4 +1,4 @@
-use superposition_libaccounts::SolveV2Args;
+use superposition_libaccounts::{Asset, SolveV2Args};
 
 #[test]
 fn solve_v2_signed_args_bind_permit_owner() {
@@ -30,4 +30,11 @@ fn solve_v2_signed_args_bind_transfer_owner() {
         borsh::to_vec(&args).unwrap(),
         borsh::to_vec(&changed).unwrap()
     );
+}
+
+#[test]
+fn assets_are_single_byte_ids() {
+    assert_eq!(borsh::to_vec(&Asset::USDC).unwrap(), vec![0]);
+    assert_eq!(borsh::to_vec(&Asset::ARB).unwrap(), vec![1]);
+    assert_eq!(borsh::to_vec(&Asset::WETH).unwrap(), vec![2]);
 }

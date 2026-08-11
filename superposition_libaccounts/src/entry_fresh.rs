@@ -74,10 +74,7 @@ pub fn entry_fresh_backwards(
     if !solve_args.is_empty() {
         revert_if_bad_call_unit_vec!(call_unit_err_vec(
             proxy,
-            &borsh::to_vec(&Args::Solve {
-                args: solve_args
-            })
-            .unwrap(),
+            &borsh::to_vec(&Args::Solve { args: solve_args }).unwrap(),
             &U::ZERO,
             u64::MAX
         ));

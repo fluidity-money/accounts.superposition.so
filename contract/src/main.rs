@@ -2,7 +2,7 @@
 #![no_std]
 
 use bobcat_sdk::{
-    cd::{read_words},
+    cd::read_words,
     entry::{read_args_vec, write_result_word},
     proxy::SEL_MIGRATE,
     storage::{flush_guard, reentrancy_guard_const_keccak, storage_load},

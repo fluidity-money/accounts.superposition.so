@@ -29,7 +29,6 @@ type FromArgs struct {
 }
 
 type Mint struct {
-	Asset    *Asset  `json:"asset,omitempty"`
 	Market   string  `json:"market"`
 	Outcome  string  `json:"outcome"`
 	Amount   string  `json:"amount"`
