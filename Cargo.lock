@@ -13,6 +13,7 @@ dependencies = [
  "const-hex",
  "ed25519-dalek",
  "mini-alloc",
+ "superposition-assets",
  "superposition_libaccounts",
 ]
 

@@ -14,3 +14,4 @@ const-hex.workspace = true
 ed25519-dalek = { version = "2.1.1", default-features = false, features = ["digest"] }
 superposition_libaccounts = { version = "0.3.0", path = "../superposition_libaccounts" }
 mini-alloc.workspace = true
+superposition-assets.workspace = true

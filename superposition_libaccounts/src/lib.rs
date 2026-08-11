@@ -257,7 +257,6 @@ pub enum Args {
     },
     /// Execute some calldata.
     Solve {
-        slot: u32,
         args: Vec<SolveArgsSigArgs>,
     },
     Version,
@@ -269,7 +268,6 @@ pub enum Args {
     },
     // Simply transfer some funds, using the account system as the router.
     TransferOnly {
-        slot: u32,
         args: TransferOnlyArgs,
         sig: Sig,
     },
@@ -294,11 +292,11 @@ pub fn entry(x: Args) -> usize {
             solve_args,
             authority,
         } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args, authority),
-        Args::Solve { slot, args } => entry_solve_v1(slot, args),
+        Args::Solve { args } => entry_solve_v1(args),
         Args::Version => entry_version(),
         Args::Authority => entry_authority(),
         Args::SolveV2 { args, sig } => entry_solve_v2(args, sig),
-        Args::TransferOnly { slot, args, sig } => entry_transfer_only(slot, args, sig),
+        Args::TransferOnly { args, sig } => entry_transfer_only(args, sig),
         Args::Statement { args, sig } => entry_statement(args, sig),
     }
 }

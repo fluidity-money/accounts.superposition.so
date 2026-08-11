@@ -11,6 +11,14 @@ const (
 	ArgsTransferOnly
 )
 
+type Asset uint8
+
+const (
+	AssetUsdc Asset = iota
+	AssetArb
+	AssetWeth
+)
+
 type (
 	Args struct {
 		Enum           borsh.Enum     `borsh_enum:"true" json:"enum"`
@@ -23,7 +31,7 @@ type (
 	}
 
 	Permit struct {
-		Token    [20]byte `json:"token"`
+		Asset    Asset `json:"token"`
 		Deadline uint64   `json:"deadline"`
 		V        uint8    `json:"v"`
 		R        [32]byte `json:"r"`
@@ -31,7 +39,7 @@ type (
 	}
 
 	FromArgs struct {
-		Token      [20]byte `json:"token"`
+		Token      Asset `json:"asset"`
 		ToTake     [32]byte `json:"to_take"`
 		MaxUnspent [32]byte `json:"max_unspent"`
 	}
@@ -91,7 +99,7 @@ type (
 
 	Transfer struct {
 		From      [20]byte        `json:"from"`
-		Token     [20]byte        `json:"token"`
+		Token     Asset        `json:"asset"`
 		Recipient [20]byte        `json:"recipient"`
 		Amount    [32]byte        `json:"amount"`
 		Permit    *TransferPermit `json:"permit"`

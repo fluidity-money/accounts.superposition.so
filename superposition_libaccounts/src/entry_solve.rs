@@ -114,8 +114,8 @@ pub fn entry_solve(
     0
 }
 
-pub fn entry_solve_v1(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
-    let ed_owner = storage::ed25519_slot::get(&owner.into());
+pub fn entry_solve_v1(args: Vec<SolveArgsSigArgs>) -> usize {
+    let ed_owner = storage::ed25519_slot::get(&U::ZERO);
     let args = args
         .into_iter()
         .map(|SolveArgsSigArgs { sig, args }| {

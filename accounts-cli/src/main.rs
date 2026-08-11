@@ -6,6 +6,8 @@ use ed25519_dalek::{Digest, Sha512, SigningKey};
 
 use superposition_libaccounts::{Args, ArgsAddr, FromArgs, Sig, SolveArgs, SolveArgsSigArgs};
 
+use superposition_assets::Asset;
+
 use core::{
     fmt::{Display, Formatter},
     str::FromStr,
@@ -60,15 +62,12 @@ enum CliArgs {
     SignSolve {
         #[arg(value_parser = U::from_str)]
         priv_key: U,
-        slot: u32,
         solve_args: Vec<SolveArgs>,
     },
     SignTokenSpend {
         #[arg(value_parser = U::from_str)]
         priv_key: U,
-        #[arg(default_value_t = 0)]
-        slot: u32,
-        from_token: ArgsAddr,
+        from_asset: Asset,
         #[arg(value_parser = U::from_str, default_value_t = U::ZERO)]
         min_spend: U,
         target: ArgsAddr,
@@ -133,7 +132,6 @@ fn entry(x: CliArgs) {
         }
         CliArgs::SignSolve {
             priv_key,
-            slot,
             solve_args,
         } => {
             let k = SigningKey::from_bytes(&priv_key.0);
@@ -152,7 +150,6 @@ fn entry(x: CliArgs) {
                 "0x{}",
                 create_blob(
                     &borsh::to_vec(&Args::Solve {
-                        slot,
                         args: solve_args
                     })
                     .unwrap()
@@ -161,15 +158,13 @@ fn entry(x: CliArgs) {
         }
         CliArgs::SignTokenSpend {
             priv_key,
-            slot,
-            from_token,
+            from_asset,
             min_spend,
             target,
             ms_ts,
             cd,
         } => entry(CliArgs::SignSolve {
             priv_key,
-            slot,
             solve_args: vec![SolveArgs {
                 permit: vec![],
                 from: vec![FromArgs {
