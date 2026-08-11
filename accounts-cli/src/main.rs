@@ -67,6 +67,7 @@ enum CliArgs {
     SignTokenSpend {
         #[arg(value_parser = U::from_str)]
         priv_key: U,
+        #[arg(value_parser = Asset::try_from_str)]
         from_asset: Asset,
         #[arg(value_parser = U::from_str, default_value_t = U::ZERO)]
         min_spend: U,

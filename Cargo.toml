@@ -3,12 +3,12 @@ members = ["accounts-cli","contract", "superposition_libaccounts"]
 resolver = "3"
 
 [workspace.dependencies]
-bobcat-sdk = { version = "=0.7.44", features = ["alloc", "serde", "borsh", "panic-revert"] }
+bobcat-sdk = { version = ">=0.7.44", features = ["alloc", "serde", "borsh", "panic-revert"] }
 borsh = { version = "1.5.7", default-features = false }
 mini-alloc = { version = "1.0.0", default-features = false }
 array-concat = "0.5.5"
 const-hex = { version = "1.17.0", default-features = false, features = ["serde", "alloc"] }
-superposition-assets = { version = ">=0.4.0", features = ["borsh", "serde"] }
+superposition-assets = { version = ">=0.4.3", features = ["borsh", "serde"] }
 
 [profile.release]
 codegen-units = 1
