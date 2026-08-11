@@ -2,13 +2,10 @@
 #![no_std]
 
 use bobcat_sdk::{
-    cd::{address, read_words},
-    entry::{revert_if_bad_call_unit_vec, msg_sender, revert_if_bad_call_slice_vec, read_args_vec, write_result_word},
+    cd::{read_words},
+    entry::{read_args_vec, write_result_word},
     proxy::SEL_MIGRATE,
-    maths::U,
     storage::{flush_guard, reentrancy_guard_const_keccak, storage_load},
-    interfaces::eip20::make_fn_transfer_from,
-    call::safe_call_bool_err_vec
 };
 
 use borsh::de::BorshDeserialize;
