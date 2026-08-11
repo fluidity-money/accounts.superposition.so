@@ -2,29 +2,31 @@
 
 [ -z "$(git status --porcelain)" ] || exit 1
 
-ver_cur="$(awk -F'"' '/^version[[:space:]]*=/ { print $2 }' bobcat-sdk/Cargo.toml | tail -n1)"
+ver_cur="$(awk -F'"' '/^version[[:space:]]*=/ { print $2 }' superposition_libaccounts/Cargo.toml | head -n1)"
+ver_major="$(printf '%s\n' "$ver_cur" | cut -d. -f1)"
+ver_minor="$(printf '%s\n' "$ver_cur" | cut -d. -f2)"
 
-ver_minor="$(echo "$ver_cur" | cut -d. -f2)"
+[ "$ver_major" = "0" ]
+ver_next="0.$((ver_minor + 1)).0"
 
-ver_next="0.$(echo $ver_minor '+ 1' | bc).0"
+# The published library is the release version source of truth. Keep local
+# path-dependency requirements aligned with the version being released.
+sed -i "0,/^version[[:space:]]*=[[:space:]]*\"$ver_cur\"/s//version = \"$ver_next\"/" \
+	superposition_libaccounts/Cargo.toml
+find . -mindepth 2 -maxdepth 2 -name Cargo.toml -exec \
+	sed -i "/superposition_libaccounts.*path[[:space:]]*=/s/version[[:space:]]*=[[:space:]]*\"[^\"]*\"/version = \"$ver_next\"/" {} +
 
-files=$(find -maxdepth 2 -name Cargo.toml)
+cargo check --workspace
+cargo publish --dry-run --locked --package superposition_libaccounts
 
-sed -i "s/$ver_cur/$ver_next/g" $files
-
-git add $files
-
+git add Cargo.lock ./*/Cargo.toml
 git commit -m 'Release new version'
 
-cargo publish -n
+git checkout -b "release-$ver_next"
+git tag --annotate "$ver_next" --message "accounts.superposition.so $ver_next"
 
-git checkout -b release-$ver_next
-
-git tag -a $ver_next
-
-# Any patches for bugs are cherry picked into this release, with a nightly build being made
-# every day using the CI that can be pointed to. The minor releasing needs to be done here.
-
-git push --tags -u release-$ver_next
+# Bug fixes are cherry-picked onto this release branch. CI creates a nightly
+# tag whenever the release branch advances.
+git push --tags --set-upstream origin "release-$ver_next"
 
 git checkout trunk
