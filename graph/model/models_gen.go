@@ -2,6 +2,13 @@
 
 package model
 
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type CreateAccount struct {
 	EoaAddr   string  `json:"eoa_addr"`
 	SigV      int32   `json:"sigV"`
@@ -22,6 +29,7 @@ type FromArgs struct {
 }
 
 type Mint struct {
+	Asset    *Asset  `json:"asset,omitempty"`
 	Market   string  `json:"market"`
 	Outcome  string  `json:"outcome"`
 	Amount   string  `json:"amount"`
@@ -68,4 +76,61 @@ type Statistics struct {
 	TxWeek int32 `json:"txWeek"`
 	// Transactions count of all time.
 	TxAllTime int32 `json:"txAllTime"`
+}
+
+type Asset string
+
+const (
+	AssetUsdc Asset = "USDC"
+	AssetArb  Asset = "ARB"
+	AssetWeth Asset = "WETH"
+)
+
+var AllAsset = []Asset{
+	AssetUsdc,
+	AssetArb,
+	AssetWeth,
+}
+
+func (e Asset) IsValid() bool {
+	switch e {
+	case AssetUsdc, AssetArb, AssetWeth:
+		return true
+	}
+	return false
+}
+
+func (e Asset) String() string {
+	return string(e)
+}
+
+func (e *Asset) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Asset(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Asset", str)
+	}
+	return nil
+}
+
+func (e Asset) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Asset) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Asset) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

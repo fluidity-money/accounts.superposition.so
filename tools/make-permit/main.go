@@ -2,11 +2,11 @@ package main
 
 import (
 	"crypto/ecdsa"
-	"math/big"
-	"os"
-	"log/slog"
 	"encoding/hex"
 	"encoding/json"
+	"log/slog"
+	"math/big"
+	"os"
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
 	ethCrypto "github.com/ethereum/go-ethereum/crypto"

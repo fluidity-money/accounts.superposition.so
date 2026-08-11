@@ -19,6 +19,18 @@ const (
 	AssetWeth
 )
 
+func AssetFromString(x string) (a *Asset) {
+	switch x {
+	case "usdc":
+		*a = AssetUsdc
+	case "arb":
+		*a = AssetArb
+	case "weth":
+		*a = AssetWeth
+	}
+	return
+}
+
 type (
 	Args struct {
 		Enum           borsh.Enum     `borsh_enum:"true" json:"enum"`
@@ -31,7 +43,7 @@ type (
 	}
 
 	Permit struct {
-		Asset    Asset `json:"token"`
+		Asset    Asset    `json:"token"`
 		Deadline uint64   `json:"deadline"`
 		V        uint8    `json:"v"`
 		R        [32]byte `json:"r"`
@@ -39,7 +51,7 @@ type (
 	}
 
 	FromArgs struct {
-		Token      Asset `json:"asset"`
+		Asset      Asset    `json:"asset"`
 		ToTake     [32]byte `json:"to_take"`
 		MaxUnspent [32]byte `json:"max_unspent"`
 	}
@@ -99,7 +111,7 @@ type (
 
 	Transfer struct {
 		From      [20]byte        `json:"from"`
-		Token     Asset        `json:"asset"`
+		Asset     Asset           `json:"asset"`
 		Recipient [20]byte        `json:"recipient"`
 		Amount    [32]byte        `json:"amount"`
 		Permit    *TransferPermit `json:"permit"`

@@ -81,6 +81,10 @@ const (
 	// people from claiming using the accounts service.
 	EnvFeatureClaimDisabled = "SPN_FEATURE_CLAIM_DISABLED"
 
+	// EnvFeatureMultiAssets to use for multiple asset types to be
+	// supported in the router.
+	EnvFeatureMultiAssets = "SPN_FEATURE_MULTI_ASSETS"
+
 	// EnvMinimumAmount to use as the deposit feature. If unset, not used, must be base 10.
 	EnvMinimumAmount = "SPN_MINIMUM_AMOUNT"
 )
@@ -206,14 +210,12 @@ func main() {
 		log.Fatalf("accounts public key: %v", err)
 	}
 	claimDisabled := os.Getenv(EnvFeatureClaimDisabled) != ""
+	multiAssets := os.Getenv(EnvFeatureMultiAssets) != ""
 	alarmWebhook := os.Getenv(EnvAlarmWebhook)
 	var accPubKey [32]byte
 	copy(accPubKey[:], accPubKeyB)
 	adminSecret := os.Getenv(EnvAdminSecret)
-	var (
-		fusdc          = ethCommon.HexToAddress(os.Getenv(EnvFusdcAddr))
-		claimantHelper = ethCommon.HexToAddress(os.Getenv(EnvClaimantHelperAddr))
-	)
+	claimantHelper := ethCommon.HexToAddress(os.Getenv(EnvClaimantHelperAddr))
 	rateLimiting := ratelimit.Run(db, true)
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
 		Client:              c,
@@ -223,10 +225,10 @@ func main() {
 		AccountsFactoryAddr: accountsFactoryAddr,
 		ClaimantHelperAddr:  claimantHelper,
 		AccPubKey:           accPubKey,
-		Fusdc:               fusdc,
 		UrlAlarm:            alarmWebhook,
 		RateLimiting:        rateLimiting,
-		ClaimDisabled:       claimDisabled,
+		FeatureClaimDisabled:       claimDisabled,
+		FeatureMultiAssets: multiAssets,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

@@ -16,8 +16,7 @@ type Resolver struct {
 	ChainId, MinimumAmount                  *big.Int
 	AccountsFactoryAddr, ClaimantHelperAddr ethCommon.Address
 	AccPubKey                               [32]byte
-	Fusdc                                   [20]byte
 	UrlAlarm                                string
 	RateLimiting                            ratelimit.Server
-	ClaimDisabled                           bool
+	FeatureClaimDisabled, FeatureMultiAssets                           bool
 }

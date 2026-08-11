@@ -49,7 +49,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		err = convertor.TagFreshBackwardsWithMint(
 			ProgDalek,
 			f,
-			r.Fusdc,
+			types.AssetUsdc,
 			mint.Market,
 			mint.Outcome,
 			mint.Amount,
@@ -222,7 +222,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 	}
 	f, err := convertor.CreateSolveArgsSigArgs(
 		ProgDalek,
-		r.Fusdc,
+		types.AssetUsdc,
 		mint.Market,
 		mint.Outcome,
 		mint.Amount,
@@ -296,7 +296,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 
 // ClaimRewards is the resolver for the claimRewards field.
 func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error) {
-	if r.ClaimDisabled {
+	if r.FeatureClaimDisabled {
 		return "", fmt.Errorf("claim is disabled")
 	}
 	snowflake, _ := ctx.Value("snowflake").(int)

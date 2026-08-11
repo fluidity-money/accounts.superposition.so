@@ -143,7 +143,7 @@ func CreateAccountToFreshBackwards(pubKey [32]byte, createAccount model.CreateAc
 }
 
 func NewPermit(
-	token [20]byte,
+	asset types.Asset,
 	deadline uint64,
 	permitV int32,
 	permitR, permitS string,
@@ -161,7 +161,7 @@ func NewPermit(
 		return nil, fmt.Errorf("permit s: %v", err)
 	}
 	return &types.Permit{
-		Token:    token,
+		Asset:    asset,
 		Deadline: deadline,
 		V:        v,
 		R:        r,
@@ -172,7 +172,7 @@ func NewPermit(
 // CreateSolveArgsSigArgs for minting by also creating 9lives calldata.
 func CreateSolveArgsSigArgs(
 	prog string,
-	token [20]byte,
+	asset types.Asset,
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
 	permit *model.Permit,
@@ -214,7 +214,7 @@ func CreateSolveArgsSigArgs(
 	cd := ninelives.NewMintScheduleClaim(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
 		From: []types.FromArgs{{
-			Token:  token,
+			Asset:  asset,
 			ToTake: a,
 			//MaxUnspent: [32]byte{},
 		}},
@@ -228,7 +228,7 @@ func CreateSolveArgsSigArgs(
 		}
 		d := uint64(permit.Deadline)
 		p, err := NewPermit(
-			token,
+			asset,
 			d,
 			permit.PermitV,
 			permit.PermitR,
@@ -263,7 +263,7 @@ func CreateSolveArgsSigArgs(
 func TagFreshBackwardsWithMint(
 	prog string,
 	f *types.FreshBackwards,
-	token [20]byte,
+	asset types.Asset,
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
 	permit *model.Permit,
@@ -271,7 +271,7 @@ func TagFreshBackwardsWithMint(
 ) error {
 	m, err := CreateSolveArgsSigArgs(
 		prog,
-		token,
+		asset,
 		market, outcome, amount, referrer, recipient,
 		permit,
 		msTs,

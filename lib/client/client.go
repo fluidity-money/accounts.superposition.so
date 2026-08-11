@@ -71,7 +71,7 @@ func SendArguments(
 		new(big.Int).Mul(baseFee, big.NewInt(2)),
 	)
 	baseTx := ethTypes.DynamicFeeTx{
-		ChainID: chainId,
+		ChainID:   chainId,
 		Nonce:     nonce,
 		GasFeeCap: gasFeeCap,
 		GasTipCap: gasTipCap,

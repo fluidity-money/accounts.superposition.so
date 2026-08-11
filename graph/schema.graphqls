@@ -1,4 +1,10 @@
 
+enum Asset {
+  USDC,
+  ARB,
+  WETH
+}
+
 type Query {
   """
   Get the system management ed25519 public key this server is managing. Useful for the

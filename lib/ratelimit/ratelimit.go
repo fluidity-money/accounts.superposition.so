@@ -19,8 +19,8 @@ const (
 // req for the internal lookup of bloom filter cache hits.
 type (
 	req struct {
-		id      string
-		resp    chan bool
+		id   string
+		resp chan bool
 	}
 
 	Server struct {
