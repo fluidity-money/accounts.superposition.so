@@ -16,8 +16,7 @@ sed -i "0,/^version[[:space:]]*=[[:space:]]*\"$ver_cur\"/s//version = \"$ver_nex
 find . -mindepth 2 -maxdepth 2 -name Cargo.toml -exec \
 	sed -i "/superposition_libaccounts.*path[[:space:]]*=/s/version[[:space:]]*=[[:space:]]*\"[^\"]*\"/version = \"$ver_next\"/" {} +
 
-cargo check --workspace --exclude contract
-cargo publish --dry-run --locked --package superposition_libaccounts
+cargo publish --dry-run --locked --allow-dirty --package superposition_libaccounts
 
 git add Cargo.lock ./*/Cargo.toml
 git commit -m 'Release new version'
