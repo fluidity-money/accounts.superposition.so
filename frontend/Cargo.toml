@@ -7,7 +7,7 @@ edition = "2024"
 
 [dependencies]
 bobcat-sdk = { version = "0.7.7", features = ["wasm-bindgen-wasi", "alloy-enabled"] }
-superposition_libaccounts = { version = "0.1.0", path = "../superposition_libaccounts" }
+superposition_libaccounts = { version = "0.2.0", path = "../superposition_libaccounts" }
 serde = "1.0.228"
 serde-wasm-bindgen = "0.6.5"
 wasm-bindgen = "0.2.105"
