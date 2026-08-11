@@ -18,7 +18,7 @@ find . -mindepth 2 -maxdepth 2 -name Cargo.toml -exec \
 
 cargo publish --dry-run --allow-dirty --package superposition_libaccounts
 
-git add Cargo.lock ./*/Cargo.toml
+git add -A
 git commit -m 'Release new version'
 
 git checkout -b "release-$ver_next"
