@@ -8,6 +8,7 @@ borsh = { version = "1.5.7", default-features = false }
 mini-alloc = { version = "1.0.0", default-features = false }
 array-concat = "0.5.5"
 const-hex = { version = "1.17.0", default-features = false, features = ["serde", "alloc"] }
+superposition-assets = { version = ">=0.4.0", features = ["borsh", "serde"] }
 
 [profile.release]
 codegen-units = 1

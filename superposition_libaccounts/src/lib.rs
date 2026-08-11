@@ -25,6 +25,8 @@ use core::{
     str::FromStr,
 };
 
+pub use superposition_assets::Asset;
+
 use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
 
 #[cfg(feature = "arbitrary")]
@@ -81,7 +83,7 @@ impl FromStr for ArgsAddr {
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Permit {
-    pub token: ArgsAddr,
+    pub asset: Asset,
     pub deadline: u64,
     v: u8,
     r: U,
@@ -112,7 +114,7 @@ impl FromStr for Permit {
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct FromArgs {
-    pub token: ArgsAddr,
+    pub asset: Asset,
     pub to_take: U,
     pub max_unspent: U,
 }
@@ -212,7 +214,7 @@ pub struct TransferPermit {
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Transfer {
     pub from: ArgsAddr,
-    pub token: ArgsAddr,
+    pub asset: Asset,
     pub recipient: ArgsAddr,
     pub amt: U,
     pub permit: Option<TransferPermit>,
@@ -262,7 +264,6 @@ pub enum Args {
     Authority,
     // Execute some calldata, with explicit owners bound by one signature.
     SolveV2 {
-        slot: u32,
         args: SolveV2Args,
         sig: Sig,
     },
@@ -296,7 +297,7 @@ pub fn entry(x: Args) -> usize {
         Args::Solve { slot, args } => entry_solve_v1(slot, args),
         Args::Version => entry_version(),
         Args::Authority => entry_authority(),
-        Args::SolveV2 { slot, args, sig } => entry_solve_v2(slot, args, sig),
+        Args::SolveV2 { args, sig } => entry_solve_v2(args, sig),
         Args::TransferOnly { slot, args, sig } => entry_transfer_only(slot, args, sig),
         Args::Statement { args, sig } => entry_statement(args, sig),
     }

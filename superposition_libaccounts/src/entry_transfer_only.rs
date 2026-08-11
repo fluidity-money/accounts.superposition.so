@@ -21,15 +21,16 @@ pub fn entry_transfer_only(slot: u32, args: TransferOnlyArgs, sig: Sig) -> usize
     storage::timestamps::exchange(&ms_ts.into());
     for Transfer {
         from,
-        token,
+        asset,
         recipient,
         permit,
         amt,
     } in args
     {
+        let token: [u8; 20] = asset.into();
         if let Some(TransferPermit { deadline, v, r, s }) = permit {
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
-                token.0,
+                token,
                 &make_fn_permit(
                     from.0,
                     contract_address(),
@@ -44,7 +45,7 @@ pub fn entry_transfer_only(slot: u32, args: TransferOnlyArgs, sig: Sig) -> usize
             ));
         };
         revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
-            token.0,
+            token,
             &make_fn_transfer_from(from.0, recipient.0, &amt),
             &U::ZERO,
             u64::MAX,

@@ -173,7 +173,7 @@ fn entry(x: CliArgs) {
             solve_args: vec![SolveArgs {
                 permit: vec![],
                 from: vec![FromArgs {
-                    token: from_token,
+                    asset: from_asset,
                     to_take: min_spend,
                     max_unspent: min_spend,
                 }],

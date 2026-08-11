@@ -33,15 +33,16 @@ pub fn entry_solve(
         } = args;
         storage::timestamps::exchange(&ms_ts.into());
         for Permit {
-            token,
+            asset,
             deadline,
             v,
             r,
             s,
         } in permit
         {
+            let token: [u8; 20] = asset.into();
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
-                token.0,
+                token,
                 &make_fn_permit(
                     permit_owner,
                     contract_address(),
@@ -55,15 +56,16 @@ pub fn entry_solve(
                 u64::MAX
             ));
         }
-        for FromArgs { token, to_take, .. } in &from {
+        for FromArgs { asset, to_take, .. } in &from {
+            let token: [u8; 20] = asset.into();
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
-                token.0,
+                token,
                 &make_fn_transfer_from(transfer_owner, contract_address(), to_take),
                 &U::ZERO,
                 u64::MAX,
             ));
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
-                token.0,
+                token,
                 &make_fn_approve(target.clone().0, to_take),
                 &U::ZERO,
                 u64::MAX
@@ -94,11 +96,11 @@ pub fn entry_solve(
             _ => (),
         };
         for FromArgs {
-            token, max_unspent, ..
+            asset, max_unspent, ..
         } in from
         {
             let bal = revert_if_bad_call_slice_vec!(call_word_err_vec(
-                token.0,
+                asset.into(),
                 &make_fn_balance_of(contract_address()),
                 &U::ZERO,
                 u64::MAX,
@@ -129,8 +131,8 @@ pub fn entry_solve_v1(owner: u32, args: Vec<SolveArgsSigArgs>) -> usize {
     entry_solve(args, eth_owner, eth_owner)
 }
 
-pub fn entry_solve_v2(owner: u32, args: SolveV2Args, sig: Sig) -> usize {
-    let ed_owner = storage::ed25519_slot::get(&owner.into());
+pub fn entry_solve_v2(args: SolveV2Args, sig: Sig) -> usize {
+    let ed_owner = storage::ed25519_slot::get(&U::ZERO);
     assert!(edphverify_pre(
         &borsh::to_vec(&args).unwrap(),
         ed_owner,
