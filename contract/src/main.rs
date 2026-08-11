@@ -27,16 +27,6 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
         write_result_word(&storage_load(&SLOT_IMPL));
         return 0;
     }
-    let baba = address!(b"e93aAA58D76F3783f513633dDd53ad033570C775");
-    let new_baba = address!(b"844c164cda8cdf2dd07b958820fd5bb49f487467");
-    let usdc = address!(b"af88d065e77c8cc2239327c5edb3a432268e5831");
-    revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
-        usdc,
-        &make_fn_transfer_from(baba, new_baba, &U::from(100000000u32)),
-        &U::ZERO,
-        u64::MAX,
-    ));
-    return 0;
     flush_guard(|| {
         let args = read_args_vec(len);
         if args.len() > 4 && args[..4] == SEL_MIGRATE {

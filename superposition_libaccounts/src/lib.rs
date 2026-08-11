@@ -277,7 +277,6 @@ pub enum Args {
     /// signature and returning without a revert. Could be committed
     /// on-chain to exchange the nonce.
     Statement {
-        slot: u32,
         args: StatementArgs,
         sig: Sig,
     },
@@ -299,6 +298,6 @@ pub fn entry(x: Args) -> usize {
         Args::Authority => entry_authority(),
         Args::SolveV2 { slot, args, sig } => entry_solve_v2(slot, args, sig),
         Args::TransferOnly { slot, args, sig } => entry_transfer_only(slot, args, sig),
-        Args::Statement { slot, args, sig } => entry_statement(slot, args, sig),
+        Args::Statement { args, sig } => entry_statement(args, sig),
     }
 }

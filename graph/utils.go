@@ -53,8 +53,14 @@ VALUES ($1, $2, $3, $4)`,
 	}
 }
 
-func isNotIgnoreableErr(err error) bool {
+func isIgnorable(err error) bool {
 	es := err.Error()
-	x := strings.Contains(es, "res: 99090e") || strings.Contains(es, "res: 990999") || strings.Contains(es, "ERC20: transfer amount exceeds balance")
-	return !x
+	switch {
+	case strings.Contains(es, "res: 99090e"),
+		strings.Contains(es, "ERC20: transfer amount exceeds balance"),
+		strings.Contains(es, "res: 990995"):
+		return true
+	default:
+		return false
+	}
 }

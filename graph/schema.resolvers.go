@@ -89,7 +89,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			"create s", createAccount.SigS,
 		)
 		// We ignore messages if someone is trying to buy at the end of a market:
-		if isNotIgnoreableErr(err) {
+		if !isIgnorable(err) {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
 				"create account exec, user address: %v, sender: %v, contract: %v, err: %v",
 				eoa,
@@ -243,7 +243,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"ms ts", mint.MsTs,
 			"snowflake", snowflake,
 		)
-		if isNotIgnoreableErr(err) {
+		if !isIgnorable(err) {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
 				"mint, market: %v, outcome: %v, user address: %v, sender: %v, err: %v",
 				mint.Market,
@@ -278,7 +278,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 			"err", err,
 			"snowflake", snowflake,
 		)
-		if isNotIgnoreableErr(err) {
+		if !isIgnorable(err) {
 			activateSoftAlarm(r.UrlAlarm, snowflake, fmt.Errorf(
 				"mint send, market: %v, outcome: %v, user address: %v, sender: %v, err: %v",
 				mint.Market,
