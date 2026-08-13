@@ -18,7 +18,7 @@ pub mod call_authority;
 
 extern crate alloc;
 
-use alloc::{string::String, vec::Vec};
+use alloc::vec::Vec;
 
 use core::{
     fmt::{Display, Formatter},
@@ -234,7 +234,7 @@ pub struct TransferOnlyArgs {
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct StatementArgs {
-    pub msg: String,
+    pub msg: Vec<u8>,
     pub ms_ts: [u8; 16],
 }
 
