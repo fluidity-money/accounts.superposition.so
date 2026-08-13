@@ -235,7 +235,7 @@ pub struct TransferOnlyArgs {
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct StatementArgs {
     pub msg: Vec<u8>,
-    pub ms_ts: [u8; 16],
+    pub ms_ts: [u8; 6],
 }
 
 #[derive(
