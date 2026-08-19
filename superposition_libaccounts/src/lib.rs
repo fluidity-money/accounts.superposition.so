@@ -13,6 +13,7 @@ pub mod entry_solve;
 pub mod entry_statement;
 pub mod entry_transfer_only;
 pub mod entry_version;
+pub mod entry_owner;
 
 pub mod call_authority;
 
@@ -38,6 +39,7 @@ use entry_solve::{entry_solve_v1, entry_solve_v2};
 use entry_statement::entry_statement;
 use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
+use entry_owner::entry_owner;
 
 type Address = [u8; 20];
 
@@ -279,6 +281,8 @@ pub enum Args {
         args: StatementArgs,
         sig: Sig,
     },
+    /// Get the owner of this account.
+    Owner,
 }
 
 pub fn entry(x: Args) -> usize {
@@ -298,5 +302,6 @@ pub fn entry(x: Args) -> usize {
         Args::SolveV2 { args, sig } => entry_solve_v2(args, sig),
         Args::TransferOnly { args, sig } => entry_transfer_only(args, sig),
         Args::Statement { args, sig } => entry_statement(args, sig),
+        Args::Owner => entry_owner(),
     }
 }
