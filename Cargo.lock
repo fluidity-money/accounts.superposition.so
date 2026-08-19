@@ -1164,7 +1164,7 @@ dependencies = [
 
 [[package]]
 name = "superposition_libaccounts"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "arbitrary",
  "array-concat",
