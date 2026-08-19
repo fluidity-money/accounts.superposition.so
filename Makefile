@@ -7,7 +7,7 @@ comma := ,
 CARGO_EXTRA_FEATURES := \
 	$(if ${SPN_PANIC_REVERT},--features panic-revert)
 
-build: accounts.superposition.so.wasm accounts-cli.out frontend bootstrap.zip
+build: accounts.superposition.so.wasm accounts-cli.out bootstrap.zip
 
 accounts.superposition.so.wasm: $(shell find Cargo.* contract superposition_libaccounts -type f)
 	@rm -f accounts.superposition.so.wasm
@@ -27,13 +27,6 @@ ed25519-dalek-ph.out: $(shell find Cargo.* ed25519-dalek-ph -type f)
 	@cd ed25519-dalek-ph && \
 		cargo build --release --bin ed25519-dalek-ph && \
 		mv target/release/ed25519-dalek-ph ../ed25519-dalek-ph.out
-
-frontend: out/frontend_bg.wasm
-
-out/frontend_bg.wasm: $(shell find Cargo.* superposition_libaccounts frontend -type f)
-	@cd frontend && \
-		cargo build --release --target wasm32-wasip1 && \
-		wasm-bindgen target/wasm32-wasip1/release/frontend.wasm --out-dir ../out
 
 accounts.superposition.so: $(shell find -name '*.go') ed25519-dalek-ph.out
 	@go build
