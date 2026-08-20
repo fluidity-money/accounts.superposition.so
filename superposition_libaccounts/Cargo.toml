@@ -30,4 +30,4 @@ arbitrary = { version = "1.4.2", features = ["derive"], optional = true }
 superposition-assets.workspace = true
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-bobcat-sdk = { version = ">=0.7.44", features = ["ed25519-dalek", "ruint-enabled"] }
+bobcat-sdk = { version = ">=0.7.44", default-features = false, features = ["ed25519-dalek", "ruint-enabled"] }
