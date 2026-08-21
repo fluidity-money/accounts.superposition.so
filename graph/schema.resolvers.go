@@ -26,6 +26,9 @@ import (
 
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
+	if r.FeatureMintDisabled {
+		return nil, fmt.Errorf("mint disabled")
+	}
 	amt, _ := new(big.Int).SetString(mint.Amount, 10)
 	//minimum amount > amt
 	if r.MinimumAmount.Cmp(amt) > 0 {
@@ -202,6 +205,9 @@ SELECT accounts_insert_nonce_secret_3($1, $2, $3)`,
 
 // NinelivesMint is the resolver for the ninelivesMint field.
 func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error) {
+	if r.FeatureMintDisabled {
+		return "", fmt.Errorf("mint disabled")
+	}
 	amt, _ := new(big.Int).SetString(mint.Amount, 10)
 	//minimum amount > amt
 	if r.MinimumAmount.Cmp(amt) > 0 {

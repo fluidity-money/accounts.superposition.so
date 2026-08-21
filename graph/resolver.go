@@ -18,5 +18,5 @@ type Resolver struct {
 	AccPubKey                               [32]byte
 	UrlAlarm                                string
 	RateLimiting                            ratelimit.Server
-	FeatureClaimDisabled                    bool
+	FeatureClaimDisabled, FeatureMintDisabled                    bool
 }
