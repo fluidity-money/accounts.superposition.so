@@ -265,7 +265,6 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		types.Args{
 			Enum: types.ArgsSolve,
 			Solve: types.Solve{
-				Slot: 0,
 				Args: []types.SolveArgsSigArgs{*f},
 			},
 		},
@@ -337,7 +336,6 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		types.Args{
 			Enum: types.ArgsSolve,
 			Solve: types.Solve{
-				Slot: 0,
 				Args: []types.SolveArgsSigArgs{*f},
 			},
 		},

@@ -14,6 +14,8 @@ const (
 	ArgsAuthority
 	ArgsSolveV2
 	ArgsTransferOnly
+	ArgsStatement
+	ArgsOwner
 )
 
 type Asset uint8
@@ -46,6 +48,8 @@ type (
 		Authority      Authority      `json:"authority"`
 		SolveV2        SolveV2        `json:"solve_v2"`
 		TransferOnly   TransferOnly   `json:"transfer_only"`
+		Statement      Statement      `json:"statement"`
+		Owner          Owner          `json:"owner"`
 	}
 
 	Permit struct {
@@ -70,8 +74,10 @@ type (
 		MsTs   [16]byte   `json:"ms_ts"`
 	}
 
+	Sig [64]byte
+
 	SolveArgsSigArgs struct {
-		Sig  [64]byte  `json:"sig"`
+		Sig  Sig       `json:"sig"`
 		Args SolveArgs `json:"args"`
 	}
 
@@ -88,7 +94,6 @@ type (
 	}
 
 	Solve struct {
-		Slot uint32             `json:"slot"`
 		Args []SolveArgsSigArgs `json:"args"`
 	}
 
@@ -97,9 +102,8 @@ type (
 	Authority struct{}
 
 	SolveV2 struct {
-		Slot uint32      `json:"slot"`
 		Args SolveV2Args `json:"args"`
-		Sig  [64]byte    `json:"sig"`
+		Sig  Sig         `json:"sig"`
 	}
 
 	SolveV2Args struct {
@@ -119,7 +123,7 @@ type (
 		From      [20]byte        `json:"from"`
 		Asset     Asset           `json:"asset"`
 		Recipient [20]byte        `json:"recipient"`
-		Amount    [32]byte        `json:"amount"`
+		Amt       [32]byte        `json:"amt"`
 		Permit    *TransferPermit `json:"permit"`
 	}
 
@@ -129,19 +133,19 @@ type (
 	}
 
 	TransferOnly struct {
-		Slot uint32           `json:"slot"`
 		Args TransferOnlyArgs `json:"transfer_args"`
-		Sig  [64]byte         `json:"sig"`
+		Sig  Sig              `json:"sig"`
 	}
 
 	StatementArgs struct {
-		Msg  string   `json:"msg"`
-		MsTs [16]byte `json:"ms_ts"`
+		Msg  []byte   `json:"msg"`
+		MsTs [6]byte  `json:"ms_ts"`
 	}
 
 	Statement struct {
-		Slot uint32        `json:"slot"`
 		Args StatementArgs `json:"statement_args"`
-		Sig  [64]byte      `json:"sig"`
+		Sig  Sig           `json:"sig"`
 	}
+
+	Owner struct{}
 )
