@@ -81,6 +81,9 @@ const (
 	// people from claiming using the accounts service.
 	EnvFeatureClaimDisabled = "SPN_FEATURE_CLAIM_DISABLED"
 
+	// EnvFeatureMintDisabled to prevent minting (in lieu of Rfqhub).
+	EnvFeatureMintDisabled = "SPN_FEATURE_MINT_DISABLED"
+
 	// EnvMinimumAmount to use as the deposit feature. If unset, not used, must be base 10.
 	EnvMinimumAmount = "SPN_MINIMUM_AMOUNT"
 )
@@ -205,7 +208,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("accounts public key: %v", err)
 	}
-	claimDisabled := os.Getenv(EnvFeatureClaimDisabled) != ""
+	var (
+		claimDisabled = os.Getenv(EnvFeatureClaimDisabled) != ""
+		mintDisabled = os.Getenv(EnvFeatureMintDisabled) != ""
+	)
 	alarmWebhook := os.Getenv(EnvAlarmWebhook)
 	var accPubKey [32]byte
 	copy(accPubKey[:], accPubKeyB)
@@ -223,6 +229,7 @@ func main() {
 		UrlAlarm:             alarmWebhook,
 		RateLimiting:         rateLimiting,
 		FeatureClaimDisabled: claimDisabled,
+		FeatureMintDisabled: mintDisabled,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
