@@ -76,7 +76,7 @@ pub fn entry_solve(
             let c = code_hash(target.0);
             if !call_authority::is_allowed(authority_addr.into(), c) {
                 // Branching to avoid possibly always making this string:
-                panic!("not allowed: {}", const_hex::encode(&c.0));
+                panic!("not allowed: {}", const_hex::encode(c.0));
             }
         }
         match safe_call_unit_err_vec(target.0, &cd, &U::ZERO, u64::MAX) {

@@ -108,7 +108,7 @@ fn entry(x: CliArgs) {
                 .into_iter()
                 .map(|args| {
                     let mut d = Sha512::new();
-                    d.update(&borsh::to_vec(&args).unwrap());
+                    d.update(borsh::to_vec(&args).unwrap());
                     SolveArgsSigArgs {
                         sig: Sig(k.sign_prehashed(d, None).unwrap().to_bytes()),
                         args,
@@ -140,7 +140,7 @@ fn entry(x: CliArgs) {
                 .into_iter()
                 .map(|args| {
                     let mut d = Sha512::new();
-                    d.update(&borsh::to_vec(&args).unwrap());
+                    d.update(borsh::to_vec(&args).unwrap());
                     SolveArgsSigArgs {
                         sig: Sig(k.sign_prehashed(d, None).unwrap().to_bytes()),
                         args,
@@ -190,9 +190,9 @@ fn entry(x: CliArgs) {
         } => {
             let k = SigningKey::from_bytes(&priv_key.0);
             let mut x = Sha512::new();
-            x.update(&contract.0);
-            x.update(&nonce.to_be_bytes());
-            x.update(&target.0);
+            x.update(contract.0);
+            x.update(nonce.to_be_bytes());
+            x.update(target.0);
             x.update(&cd.0);
             let sig = k.sign_prehashed(x, None).unwrap().to_bytes();
             println!(
