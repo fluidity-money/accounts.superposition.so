@@ -40,7 +40,7 @@ pub fn entry_solve(
             s,
         } in permit
         {
-            let token: [u8; 20] = asset.into();
+            let token: [u8; 20] = asset.addr();
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token,
                 &make_fn_permit(
@@ -57,7 +57,7 @@ pub fn entry_solve(
             ));
         }
         for FromArgs { asset, to_take, .. } in &from {
-            let token: [u8; 20] = asset.into();
+            let token: [u8; 20] = asset.addr();
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
                 token,
                 &make_fn_transfer_from(transfer_owner, contract_address(), to_take),
