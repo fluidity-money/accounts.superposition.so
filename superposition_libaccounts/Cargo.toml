@@ -1,6 +1,6 @@
 [package]
 name = "superposition_libaccounts"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2024"
 license = "MIT"
 description = "Superposition accounts calldata and utilities functions. Used to generate calldata for in-browser signing on a single deployment."
