@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/fluidity-money/superposition-assets"
+
 	fuzz "github.com/AdaLogics/go-fuzz-headers"
 
 	"github.com/near/borsh-go"
@@ -57,7 +59,7 @@ func TestSolveV2ArgsBindsOwners(t *testing.T) {
 }
 
 func TestPermitJSONUsesAssetField(t *testing.T) {
-	encoded, err := json.Marshal(Permit{Asset: AssetArb})
+	encoded, err := json.Marshal(Permit{Asset: superposition_assets.AssetArb})
 	if err != nil {
 		t.Fatalf("encoding permit: %v", err)
 	}

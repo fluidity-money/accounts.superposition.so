@@ -1,8 +1,7 @@
 package types
 
 import (
-	"fmt"
-	"strings"
+	"github.com/fluidity-money/superposition-assets"
 
 	"github.com/near/borsh-go"
 )
@@ -18,27 +17,6 @@ const (
 	ArgsOwner
 )
 
-type Asset uint8
-
-const (
-	AssetUsdc Asset = iota
-	AssetArb
-	AssetWeth
-)
-
-func AssetFromString(x string) (Asset, error) {
-	switch strings.ToUpper(x) {
-	case "USDC":
-		return AssetUsdc, nil
-	case "ARB":
-		return AssetArb, nil
-	case "WETH":
-		return AssetWeth, nil
-	default:
-		return 0, fmt.Errorf("unknown asset %q", x)
-	}
-}
-
 type (
 	Args struct {
 		Enum           borsh.Enum     `borsh_enum:"true" json:"enum"`
@@ -53,7 +31,7 @@ type (
 	}
 
 	Permit struct {
-		Asset    Asset    `json:"asset"`
+		Asset    superposition_assets.Asset    `json:"asset"`
 		Deadline uint64   `json:"deadline"`
 		V        uint8    `json:"v"`
 		R        [32]byte `json:"r"`
@@ -61,7 +39,7 @@ type (
 	}
 
 	FromArgs struct {
-		Asset      Asset    `json:"asset"`
+		Asset      superposition_assets.Asset    `json:"asset"`
 		ToTake     [32]byte `json:"to_take"`
 		MaxUnspent [32]byte `json:"max_unspent"`
 	}
@@ -121,7 +99,7 @@ type (
 
 	Transfer struct {
 		From      [20]byte        `json:"from"`
-		Asset     Asset           `json:"asset"`
+		Asset     superposition_assets.Asset           `json:"asset"`
 		Recipient [20]byte        `json:"recipient"`
 		Amt       [32]byte        `json:"amt"`
 		Permit    *TransferPermit `json:"permit"`

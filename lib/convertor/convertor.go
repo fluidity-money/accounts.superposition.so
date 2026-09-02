@@ -13,6 +13,8 @@ import (
 	"github.com/fluidity-money/accounts.superposition.so/lib/ninelives"
 	"github.com/fluidity-money/accounts.superposition.so/lib/types"
 
+	"github.com/fluidity-money/superposition-assets"
+
 	ethCommon "github.com/ethereum/go-ethereum/common"
 
 	"github.com/near/borsh-go"
@@ -143,7 +145,7 @@ func CreateAccountToFreshBackwards(pubKey [32]byte, createAccount model.CreateAc
 }
 
 func NewPermit(
-	asset types.Asset,
+	asset superposition_assets.Asset,
 	deadline uint64,
 	permitV int32,
 	permitR, permitS string,
@@ -172,7 +174,7 @@ func NewPermit(
 // CreateSolveArgsSigArgs for minting by also creating 9lives calldata.
 func CreateSolveArgsSigArgs(
 	prog string,
-	asset types.Asset,
+	asset superposition_assets.Asset,
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
 	permit *model.Permit,
@@ -263,7 +265,7 @@ func CreateSolveArgsSigArgs(
 func TagFreshBackwardsWithMint(
 	prog string,
 	f *types.FreshBackwards,
-	asset types.Asset,
+	asset superposition_assets.Asset,
 	market, outcome, amount, referrer string,
 	recipient ethCommon.Address,
 	permit *model.Permit,

@@ -1,6 +1,6 @@
 module github.com/fluidity-money/accounts.superposition.so
 
-go 1.25
+go 1.27.0
 
 require (
 	github.com/99designs/gqlgen v0.17.87
@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-lambda-go v1.52.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/ethereum/go-ethereum v1.17.0
+	github.com/fluidity-money/superposition-assets v0.0.0-20260902132025-7f0a0b0511fe
 	github.com/lib/pq v1.11.2
 	github.com/near/borsh-go v0.3.1
 	github.com/stretchr/testify v1.11.1

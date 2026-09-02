@@ -70,6 +70,10 @@ github.com/ethereum/go-ethereum v1.17.0 h1:2D+1Fe23CwZ5tQoAS5DfwKFNI1HGcTwi65/kR
 github.com/ethereum/go-ethereum v1.17.0/go.mod h1:2W3msvdosS/MCWytpqTcqgFiRYbTH59FxDJzqah120o=
 github.com/ferranbt/fastssz v0.1.4 h1:OCDB+dYDEQDvAgtAGnTSidK1Pe2tW3nFV40XyMkTeDY=
 github.com/ferranbt/fastssz v0.1.4/go.mod h1:Ea3+oeoRGGLGm5shYAeDgu6PGUlcvQhE2fILyD9+tGg=
+github.com/fluidity-money/superposition-assets v0.0.0-20260902131830-e9092ddc4841 h1:tYr0SohFukikxsfTT9kvLUELbOgJo7kOiUg4rdwZby0=
+github.com/fluidity-money/superposition-assets v0.0.0-20260902131830-e9092ddc4841/go.mod h1:ej95AmAf8Q5FHYIfLMq+cyqS4aXIiVowwR0zQZTDeuI=
+github.com/fluidity-money/superposition-assets v0.0.0-20260902132025-7f0a0b0511fe h1:c3x7aybBSov/xivXgrk0NizNXzJ+mLCIQzBJjO4h5Rs=
+github.com/fluidity-money/superposition-assets v0.0.0-20260902132025-7f0a0b0511fe/go.mod h1:ej95AmAf8Q5FHYIfLMq+cyqS4aXIiVowwR0zQZTDeuI=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
 github.com/getsentry/sentry-go v0.27.0 h1:Pv98CIbtB3LkMWmXi4Joa5OOcwbmnX88sF5qbK3r3Ps=
