@@ -52,7 +52,11 @@ contract TestAccounts is Test {
         vm.etch(0xC3E443bE2Cfa4F41a5F5E4978D012847d355b419, IArbFoundry(address(vm)).deployStylusCode(
             "superposition-precompiles/precompiles-ed25519.wasm"
         ).code);
-        erc20 = new TestErc20();
+        vm.etch(0x1F4350205A556587fF3a1F2CB627613685dAcB73, IArbFoundry(address(vm)).deployStylusCode(
+            "superposition-precompiles/precompiles-sha512.wasm"
+        ).code);
+        erc20 = TestErc20(0xaf88d065e77c8cC2239327C5EDb3A432268e5831);
+        vm.etch(address(erc20), type(TestErc20).runtimeCode);
         target = new TestTarget();
         authority = new TestAuthority();
         accounts = address(new TransparentUpgradeableProxy(impl, address(this), ""));
@@ -110,20 +114,19 @@ contract TestAccounts is Test {
         revertMsg(rc, rd);
         address client = abi.decode(rd, (address));
         assertNotEq(address(0), client);
-        x = new string[](9);
+        x = new string[](8);
         // We've observed some strange hex behaviour with Foundry, so we're
         // setting the ms_ts to 0 explicitly:
         x[0] = "./accounts-cli.out";
         x[1] = "sign-token-spend";
         x[2] = "1"; // Private key
-        x[3] = "0"; // Slot
-        x[4] = vm.toString(address(erc20));
-        x[5] = "100";
-        x[6] = vm.toString(address(target));
+        x[3] = "USDC";
+        x[4] = "100";
+        x[5] = vm.toString(address(target));
         // The ms ts:
-        x[7] = "0";
+        x[6] = "0";
         // The invoke selector:
-        x[8] = "0xcab7f521";
+        x[7] = "0xcab7f521";
         cd = vm.ffi(x);
         (rc, rd) = client.call(cd);
         revertMsg(rc, rd);
