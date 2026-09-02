@@ -22,6 +22,7 @@ import (
 	"github.com/fluidity-money/accounts.superposition.so/lib/convertor"
 	"github.com/fluidity-money/accounts.superposition.so/lib/db"
 	"github.com/fluidity-money/accounts.superposition.so/lib/types"
+	"github.com/fluidity-money/superposition-assets"
 )
 
 // CreateAccountExec is the resolver for the createAccountExec field.
@@ -52,7 +53,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		err = convertor.TagFreshBackwardsWithMint(
 			ProgDalek,
 			f,
-			types.AssetUsdc,
+			superposition_assets.AssetUsdc,
 			mint.Market,
 			mint.Outcome,
 			mint.Amount,
@@ -228,7 +229,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 	}
 	f, err := convertor.CreateSolveArgsSigArgs(
 		ProgDalek,
-		types.AssetUsdc,
+		superposition_assets.AssetUsdc,
 		mint.Market,
 		mint.Outcome,
 		mint.Amount,
