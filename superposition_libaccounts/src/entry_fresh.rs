@@ -101,7 +101,7 @@ mod test {
             "{}",
             const_hex::encode(const_estimate_addr_pre(
                 address!(b"0000000000000000000000000000000000000000"),
-                &make_metamorphic_beacon_proxy(address!(
+                &make_metamorphic_evmfn_beacon_proxy(address!(
                     b"0000000000000000000000000000000000000000"
                 )),
                 &address!(b"feb6034fc7df27df18a3a6bad5fb94c0d3dcb6d5"),

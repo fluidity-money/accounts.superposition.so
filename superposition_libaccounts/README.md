@@ -85,7 +85,7 @@ Inside this workspace:
 [dependencies]
 superposition_libaccounts = { path = "../superposition_libaccounts" }
 borsh = "1.5.7"
-bobcat-sdk = "=0.7.44"
+bobcat-sdk = "">=0.9.6"
 ed25519-dalek = { version = "2.1.1", default-features = false, features = ["digest"] }
 const-hex = "1.17.0"
 ```

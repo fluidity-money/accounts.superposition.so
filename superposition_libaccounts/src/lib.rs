@@ -1,8 +1,18 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use bobcat_sdk::{maths::U, storage::const_slot_off_curve};
+use bobcat_sdk::{
+    maths::U,
+    precompiles::superposition::{BcSha512, sha512},
+    storage::const_slot_off_curve,
+};
 
 use borsh::{BorshDeserialize, BorshSerialize};
+
+#[cfg(feature = "signing")]
+use ed25519_dalek::SigningKey;
+
+#[cfg(feature = "signing")]
+use bobcat_sdk::precompiles::superposition::ed25519_sign_post;
 
 pub mod storage;
 
@@ -16,6 +26,8 @@ pub mod entry_transfer_only;
 pub mod entry_version;
 
 pub mod call_authority;
+
+use array_concat::concat_arrays;
 
 extern crate alloc;
 
@@ -283,6 +295,29 @@ pub enum Args {
     },
     /// Get the owner of this account.
     Owner,
+}
+
+pub fn statement_sha512(msg: Vec<u8>, ms_ts: [u8; 6], contract_addr: [u8; 20]) -> BcSha512 {
+    let content = borsh::to_vec(&StatementArgs { msg, ms_ts }).unwrap();
+    let mut contract_addr_: [u8; 40] = [0u8; 40];
+    const_hex::encode_to_slice(contract_addr, &mut contract_addr_).unwrap();
+    let msg: [u8; 77] = concat_arrays!(*b"Superposition Accounts statement for ", contract_addr_);
+    let mut msg = msg.to_vec();
+    msg.extend(content);
+    sha512(&msg.to_vec())
+}
+
+#[cfg(feature = "signing")]
+pub fn sign_statement(
+    key: SigningKey,
+    msg: Vec<u8>,
+    ms_ts: [u8; 6],
+    contract_addr: [u8; 20],
+) -> Sig {
+    Sig(ed25519_sign_post(
+        key,
+        statement_sha512(msg, ms_ts, contract_addr),
+    ))
 }
 
 pub fn entry(x: Args) -> usize {

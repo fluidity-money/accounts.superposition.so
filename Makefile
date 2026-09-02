@@ -38,8 +38,8 @@ bootstrap.zip: bootstrap ed25519-dalek-ph.out
 	@zip bootstrap.zip bootstrap ed25519-dalek-ph.out
 
 clean:
-	@rm -rf \
-		target \
+	@cargo clean
+	@rm -r \
 		accounts.superposition.so.wasm \
 		accounts-cli.out \
 		accounts-superposition.so \

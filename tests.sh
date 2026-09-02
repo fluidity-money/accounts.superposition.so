@@ -5,7 +5,7 @@ if ! which convertor-fuzz >/dev/null 2>&1; then
 	exit 1
 fi
 
-cargo test --features std,proptest
+cargo test --features std,proptest,signing
 
 export SPN_PANIC_REVERT=yes
 

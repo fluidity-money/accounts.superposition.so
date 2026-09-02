@@ -1,22 +1,14 @@
-use crate::{Sig, StatementArgs, storage};
+use crate::{Sig, StatementArgs, statement_sha512, storage};
 
-use bobcat_sdk::{entry::contract_address, maths::U, precompiles::superposition::edphverify_pre};
+use bobcat_sdk::{entry::contract_address, maths::U, precompiles::superposition::edphverify_post};
 
-use array_concat::concat_arrays;
-
-pub fn entry_statement(args: StatementArgs, sig: Sig) -> usize {
-    let content = borsh::to_vec(&args).unwrap();
-    let mut contract_addr: [u8; 40] = [0u8; 40];
-    const_hex::encode_to_slice(contract_address(), &mut contract_addr).unwrap();
-    let msg: [u8; 90] = concat_arrays!(*b"Superposition Accounts statement for ", contract_addr);
-    let mut msg = msg.to_vec();
-    msg.extend(content);
-    assert!(edphverify_pre(
-        &msg,
+pub fn entry_statement(StatementArgs { msg, ms_ts }: StatementArgs, sig: Sig) -> usize {
+    let hash = statement_sha512(msg, ms_ts, contract_address());
+    assert!(edphverify_post(
+        hash,
         storage::ed25519_slot::get(&U::ZERO),
         sig.0
     ));
-    let StatementArgs { ms_ts, .. } = args;
     storage::timestamps::exchange(&ms_ts.into());
     0
 }
