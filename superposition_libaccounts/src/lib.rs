@@ -34,7 +34,7 @@ extern crate alloc;
 use alloc::vec::Vec;
 
 use core::{
-    fmt::{Display, Formatter},
+    fmt::{Display, Formatter, Result as FmtResult},
     str::FromStr,
 };
 
@@ -74,7 +74,7 @@ pub struct ArgsAddr(pub Address);
 pub struct ErrArgsAddr;
 
 impl Display for ErrArgsAddr {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "args from str err")
     }
 }
@@ -108,7 +108,7 @@ pub struct Permit {
 pub struct ErrPermitFromStr;
 
 impl Display for ErrPermitFromStr {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "args from permit err")
     }
 }
@@ -137,7 +137,7 @@ pub struct FromArgs {
 pub struct ErrFromArgs;
 
 impl Display for ErrFromArgs {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "args from permit err")
     }
 }
@@ -168,7 +168,7 @@ pub struct SolveArgs {
 pub struct ErrSolveArgs;
 
 impl Display for ErrSolveArgs {
-    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "solve args err")
     }
 }
@@ -295,6 +295,12 @@ pub enum Args {
     },
     /// Get the owner of this account.
     Owner,
+}
+
+impl Display for Args {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "args from str err")
+    }
 }
 
 pub fn statement_sha512(msg: Vec<u8>, ms_ts: [u8; 6], contract_addr: [u8; 20]) -> BcSha512 {
