@@ -1,6 +1,6 @@
 [package]
 name = "contract"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 license = "MIT"
 publish = false
@@ -16,5 +16,5 @@ panic-revert = ["superposition_libaccounts/panic-revert"]
 bobcat-sdk.workspace = true
 borsh.workspace = true
 const-hex.workspace = true
-superposition_libaccounts = { path = "../superposition_libaccounts" }
+superposition_libaccounts = { path = "../superposition_libaccounts", default-features = false }
 mini-alloc.workspace = true
