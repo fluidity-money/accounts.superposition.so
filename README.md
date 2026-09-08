@@ -64,21 +64,6 @@ The factory address here is used by the other accounts for the fresh setup.
 `0x27c74C72EdEAA9D17f482B2f1a961b293FdF345D` is the enclave proxy. The enclave public key
 is `0xcb47705059ef7fb821fe4ee502682ba6fc94702a722a1f4cabebdc2351fed263` on Arbitrum.
 
-### Superposition
-
-`0xb838e2C1C9e525dFE18D35cd906aEe141ce9CfC2` is the proxy of the main accounts factory.
-`0x5c153dcb6cfbd0ffe0f565185a19a1961df0903b` is the implementation.
-
-`0x4B4e7127A5Ae64D7c96997B2c23BdB09C4d47d3F` is the implementation of the 9lives Authority
-address. `0x0e3CD9653D9d9610281551d8E3C98035215EA18e` is the proxy.
-
-`0xb23FC1084D686230422e238f97D80c320D7387ee` is the upgradeable factory contract that's
-used by the RPC service. `0x7cedA534aE176F1556a4A05fed3847ed2EFF912d` is the admin, and
-the public key for the rpc service is
-`0xf513398eeedc30f944006f896f157c21f2f6edd050a56cb9d97eb654826a9548`. The implementation
-for this contract is `0xcdcef020fd8e000af3e90022df8576b0c060c161`, which is the accounts
-service with the SolveV2 and Transfer functions that the main contracts don't support.
-
 ## Building
 
 	make
