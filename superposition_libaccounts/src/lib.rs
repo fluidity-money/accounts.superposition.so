@@ -40,8 +40,6 @@ use core::{
 
 pub use superposition_assets::Asset;
 
-use serde::{Deserialize as SerdeDeserialize, Serialize as SerdeSerialize};
-
 #[cfg(feature = "arbitrary")]
 use arbitrary::Arbitrary;
 
@@ -64,8 +62,6 @@ pub const SLOT_IMPL: U = const_slot_off_curve(b"eip1967.proxy.implementation");
     Clone,
     PartialEq,
     Default,
-    SerdeSerialize,
-    SerdeDeserialize,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct ArgsAddr(pub Address);
@@ -93,7 +89,7 @@ impl FromStr for ArgsAddr {
 }
 
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Permit {
@@ -113,18 +109,8 @@ impl Display for ErrPermitFromStr {
     }
 }
 
-impl core::error::Error for ErrPermitFromStr {}
-
-impl FromStr for Permit {
-    type Err = ErrPermitFromStr;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s).map_err(|_| ErrPermitFromStr)
-    }
-}
-
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct FromArgs {
@@ -144,16 +130,8 @@ impl Display for ErrFromArgs {
 
 impl core::error::Error for ErrFromArgs {}
 
-impl FromStr for FromArgs {
-    type Err = ErrFromArgs;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s).map_err(|_| ErrFromArgs)
-    }
-}
-
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct SolveArgs {
@@ -175,22 +153,14 @@ impl Display for ErrSolveArgs {
 
 impl core::error::Error for ErrSolveArgs {}
 
-impl FromStr for SolveArgs {
-    type Err = ErrSolveArgs;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s).map_err(|_| ErrSolveArgs)
-    }
-}
-
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
-pub struct Sig(#[serde(with = "const_hex")] pub [u8; 64]);
+pub struct Sig(pub [u8; 64]);
 
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct SolveArgsSigArgs {
@@ -199,7 +169,7 @@ pub struct SolveArgsSigArgs {
 }
 
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct SolveV2Args {
@@ -212,7 +182,7 @@ pub struct SolveV2Args {
 
 /// Version of Permit but without the token field for transferring.
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct TransferPermit {
@@ -223,7 +193,7 @@ pub struct TransferPermit {
 }
 
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Transfer {
@@ -235,7 +205,7 @@ pub struct Transfer {
 }
 
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct TransferOnlyArgs {
@@ -244,7 +214,7 @@ pub struct TransferOnlyArgs {
 }
 
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct StatementArgs {
@@ -253,7 +223,7 @@ pub struct StatementArgs {
 }
 
 #[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug, SerdeSerialize, SerdeDeserialize,
+    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
 )]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub enum Args {

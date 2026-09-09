@@ -7,7 +7,7 @@ bobcat-sdk = { version = ">=0.9.6", features = ["alloc", "serde", "borsh", "pani
 borsh = { version = "1.5.7", default-features = false }
 mini-alloc = { version = "1.0.0", default-features = false }
 array-concat = "0.5.5"
-const-hex = { version = "1.17.0", default-features = false, features = ["serde", "alloc"] }
+const-hex = { version = "1.17.0", default-features = false, features = ["alloc"] }
 superposition-assets = { version = ">=0.4.3", features = ["borsh", "serde"] }
 
 [profile.release]

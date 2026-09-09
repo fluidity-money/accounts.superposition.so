@@ -35,7 +35,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
             reentrancy_guard_const_keccak(b"superposition.accounts", || {
                 entry(
                     Args::deserialize(&mut args.as_slice())
-                        .map_err(|_| panic!("weird: {}", const_hex::encode(args)))
+                        .map_err(|err| panic!("weird: {}: err: {err}", const_hex::encode(args)))
                         .unwrap(),
                 )
             })

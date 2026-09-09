@@ -19,7 +19,7 @@ signing = ["bobcat-sdk/ed25519-dalek", "dep:ed25519-dalek"]
 [dependencies]
 array-concat.workspace = true
 borsh.workspace = true
-bobcat-sdk = { version = ">=0.9.6", default-features = false, features = ["alloc", "serde", "borsh", "panic-revert", "std", "sha512", "tickmath-local"] }
+bobcat-sdk = { version = ">=0.9.6", default-features = false, features = ["alloc", "serde", "borsh", "panic-revert", "sha512", "tickmath-local"] }
 clap = { version = ">=4.0.0", optional = true, features = ["derive"] }
 const-hex.workspace = true
 serde = { version = ">=1.0.0", default-features = false, features = ["derive", "alloc"] }

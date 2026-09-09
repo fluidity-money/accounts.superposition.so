@@ -6,7 +6,7 @@ fn trun_left_0x {
 
 ed_key=1d3af78f9dfdbf86c888ed29b415e13d6ac3ce85ee90f02806820bd17f360474
 authority_addr=`{trun_left_0x 0x6221a9c005f6e47eb398fd867784cacfdcfff4e7}
-impl_addr=`{trun_left_0x 0xe48aaecf9b9b13e5524ba3b45b242850128c22b0}
+impl_addr=`{trun_left_0x 0x34a464b4c77527736ea81b1a2bb200014691648c}
 
 url=https://arb1.arbitrum.io/rpc
 
