@@ -71,12 +71,21 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 			mint.Permit,
 			mint.MsTs,
 		)
+		slog.Error("Error creating the mint blob",
+			"err", err,
+			"snowflake", snowflake,
+			"eoa", eoa,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("mint tagging: %v", err)
 		}
 	}
 	privKey, sender, err := db.PickPrivateKey(ctx, r.Db)
 	if err != nil {
+		slog.Error("Error picking the private key",
+			"err", err,
+			"snowflake", snowflake,
+		)
 		log.Fatalf("error picking private key: %v", err)
 	}
 	h, gasLimit, err := client.SendArguments(
