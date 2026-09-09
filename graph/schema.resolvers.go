@@ -58,6 +58,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		return nil, fmt.Errorf("not eoa address")
 	}
 	eoa := ethCommon.HexToAddress(createAccount.EoaAddr)
+	slog.Debug("Creating a new account", "eoa", eoa, "snowflake", snowflake)
 	if mint != nil {
 		err = convertor.TagFreshBackwardsWithMint(
 			ProgDalek,
@@ -88,6 +89,15 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		)
 		log.Fatalf("error picking private key: %v", err)
 	}
+	args := types.Args{
+		Enum:           types.ArgsFreshBackwards,
+		FreshBackwards: *f,
+	}
+	slog.Debug("Sending arguments for new account creation",
+		"eoa", eoa,
+		"snowflake", snowflake,
+		"args", args,
+	)
 	h, gasLimit, err := client.SendArguments(
 		ctx,
 		r.Client,
@@ -95,10 +105,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		privKey,
 		*sender,
 		r.AccountsFactoryAddr,
-		types.Args{
-			Enum:           types.ArgsFreshBackwards,
-			FreshBackwards: *f,
-		},
+		args,
 		isDryrun(dryrun),
 	)
 	if err != nil {
@@ -122,12 +129,22 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 		}
 		return nil, fmt.Errorf("send arguments: fresh backwards %+v: %v", f, err)
 	}
+	slog.Debug("Sent transaction on-chain for new account creation",
+		"h", h,
+		"eoa", eoa,
+		"snowflake", snowflake,
+	)
 	// We can tolerate a situation where the request drops off here due to a
 	// issue with the database, since the frontend willpresumably greedily
 	// reauthenticate when the user tries.
 	secret := makeSecret()
 	secretX := hex.EncodeToString(secret)
 	if !isDryrun(dryrun) {
+		slog.Debug("Inserting into database accounts secret",
+			"h", h,
+			"eoa", eoa,
+			"snowflake", snowflake,
+		)
 		eoaS := strings.ToLower(eoa.String())
 		if !isDryrun(dryrun) {
 			_, err = r.Db.Exec(`
