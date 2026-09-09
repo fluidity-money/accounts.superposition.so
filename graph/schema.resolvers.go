@@ -204,6 +204,20 @@ func (r *mutationResolver) RequestSecret(ctx context.Context, eoaAddr string, no
 		)
 		return "", fmt.Errorf("bad derivation: %v, expected: %v", eoaAddr_, expAddr)
 	}
+	clientAddr := types.GetClientAddr(r.AccountsFactoryAddr, eoaAddr_)
+	if r.FeatureCheckCode {
+		accCode, err := r.Client.CodeAt(ctx, clientAddr, nil)
+		if err != nil {
+			return "", fmt.Errorf("acc addr searching error")
+		}
+		if len(accCode) == 0 {
+			slog.Error("Account has no code that was requested",
+				"eoa", eoaAddr_,
+				"snowflake", snowflake,
+			)
+			return "", fmt.Errorf("account has no code")
+		}
+	}
 	eoaS := strings.ToLower(eoaAddr_.String())
 	secret := makeSecret()
 	secretX := hex.EncodeToString(secret)

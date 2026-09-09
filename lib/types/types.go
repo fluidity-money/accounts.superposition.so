@@ -31,17 +31,17 @@ type (
 	}
 
 	Permit struct {
-		Asset    superposition_assets.Asset    `json:"asset"`
-		Deadline uint64   `json:"deadline"`
-		V        uint8    `json:"v"`
-		R        [32]byte `json:"r"`
-		S        [32]byte `json:"s"`
+		Asset    superposition_assets.Asset `json:"asset"`
+		Deadline uint64                     `json:"deadline"`
+		V        uint8                      `json:"v"`
+		R        [32]byte                   `json:"r"`
+		S        [32]byte                   `json:"s"`
 	}
 
 	FromArgs struct {
-		Asset      superposition_assets.Asset    `json:"asset"`
-		ToTake     [32]byte `json:"to_take"`
-		MaxUnspent [32]byte `json:"max_unspent"`
+		Asset      superposition_assets.Asset `json:"asset"`
+		ToTake     [32]byte                   `json:"to_take"`
+		MaxUnspent [32]byte                   `json:"max_unspent"`
 	}
 
 	SolveArgs struct {
@@ -98,11 +98,11 @@ type (
 	}
 
 	Transfer struct {
-		From      [20]byte        `json:"from"`
-		Asset     superposition_assets.Asset           `json:"asset"`
-		Recipient [20]byte        `json:"recipient"`
-		Amt       [32]byte        `json:"amt"`
-		Permit    *TransferPermit `json:"permit"`
+		From      [20]byte                   `json:"from"`
+		Asset     superposition_assets.Asset `json:"asset"`
+		Recipient [20]byte                   `json:"recipient"`
+		Amt       [32]byte                   `json:"amt"`
+		Permit    *TransferPermit            `json:"permit"`
 	}
 
 	TransferOnlyArgs struct {
@@ -116,8 +116,8 @@ type (
 	}
 
 	StatementArgs struct {
-		Msg  []byte   `json:"msg"`
-		MsTs [6]byte  `json:"ms_ts"`
+		Msg  []byte  `json:"msg"`
+		MsTs [6]byte `json:"ms_ts"`
 	}
 
 	Statement struct {

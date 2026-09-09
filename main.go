@@ -84,6 +84,9 @@ const (
 	// EnvFeatureMintDisabled to prevent minting (in lieu of Rfqhub).
 	EnvFeatureMintDisabled = "SPN_FEATURE_MINT_DISABLED"
 
+	// EnvFeatureCheckCode to check code if we're about to send a secret first.
+	EnvFeatureCheckCode = "SPN_FEATURE_CHECK_CODE"
+
 	// EnvMinimumAmount to use as the deposit feature. If unset, not used, must be base 10.
 	EnvMinimumAmount = "SPN_MINIMUM_AMOUNT"
 )
@@ -210,7 +213,8 @@ func main() {
 	}
 	var (
 		claimDisabled = os.Getenv(EnvFeatureClaimDisabled) != ""
-		mintDisabled = os.Getenv(EnvFeatureMintDisabled) != ""
+		mintDisabled  = os.Getenv(EnvFeatureMintDisabled) != ""
+		checkCode     = os.Getenv(EnvFeatureCheckCode) != ""
 	)
 	alarmWebhook := os.Getenv(EnvAlarmWebhook)
 	var accPubKey [32]byte
@@ -229,7 +233,8 @@ func main() {
 		UrlAlarm:             alarmWebhook,
 		RateLimiting:         rateLimiting,
 		FeatureClaimDisabled: claimDisabled,
-		FeatureMintDisabled: mintDisabled,
+		FeatureMintDisabled:  mintDisabled,
+		FeatureCheckCode:     checkCode,
 	}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
