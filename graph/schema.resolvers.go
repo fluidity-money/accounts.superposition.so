@@ -27,23 +27,6 @@ import (
 
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
-	if r.FeatureMintDisabled {
-		return nil, fmt.Errorf("mint disabled")
-	}
-	if mint == nil {
-		return nil, fmt.Errorf("mint empty")
-	}
-	if mint.Amount == "" {
-		return nil, fmt.Errorf("amount is empty")
-	}
-	amt, ok := new(big.Int).SetString(mint.Amount, 10)
-	if !ok {
-		return nil, fmt.Errorf("bad amount")
-	}
-	//minimum amount > amt
-	if r.MinimumAmount.Cmp(amt) > 0 {
-		return nil, fmt.Errorf("below the minimum amount (%v)", amt)
-	}
 	snowflake, _ := ctx.Value("snowflake").(int)
 	f, err := convertor.CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
 	if err != nil {
