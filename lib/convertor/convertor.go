@@ -22,6 +22,36 @@ import (
 
 var MaxBytes32 [32]byte
 
+func CreateSolveV2(
+	prog string,
+	args []types.SolveArgs,
+	permitOwner, transferOwner ethCommon.Address,
+) (*types.Args, error) {
+	solveArgs := types.SolveV2Args{
+		Args:          args,
+		PermitOwner:   permitOwner,
+		TransferOwner: transferOwner,
+	}
+	encoded, err := borsh.Serialize(solveArgs)
+	if err != nil {
+		return nil, fmt.Errorf("making solve v2 digest: %v", err)
+	}
+	digest := sha512.Sum512(encoded)
+	sig, err := exec.Command(prog, hex.EncodeToString(digest[:])).Output()
+	if err != nil {
+		return nil, fmt.Errorf("invoking dalekph: %v, %v", string(sig), err)
+	}
+	var signature types.Sig
+	copy(signature[:], sig)
+	return &types.Args{
+		Enum: types.ArgsSolveV2,
+		SolveV2: types.SolveV2{
+			Args: solveArgs,
+			Sig:  signature,
+		},
+	}, nil
+}
+
 func strToBytes8(s string) ([8]byte, error) {
 	var b [8]byte
 	i, err := hex.Decode(b[:], []byte(strings.TrimPrefix(s, "0x")))

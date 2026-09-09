@@ -50,6 +50,7 @@ macro_rules! storage {
         }
     };
 }
+
 storage! {
     // Was this contract created?
     was_created(),

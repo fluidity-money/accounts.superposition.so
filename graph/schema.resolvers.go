@@ -30,7 +30,10 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	if r.FeatureMintDisabled {
 		return nil, fmt.Errorf("mint disabled")
 	}
-	amt, _ := new(big.Int).SetString(mint.Amount, 10)
+	amt, ok := new(big.Int).SetString(mint.Amount, 10)
+	if !ok {
+		return nil, fmt.Errorf("bad amount")
+	}
 	//minimum amount > amt
 	if r.MinimumAmount.Cmp(amt) > 0 {
 		return nil, fmt.Errorf("below the minimum amount (%v)", amt)
@@ -262,6 +265,15 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		}
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
+	solveV2, err := convertor.CreateSolveV2(
+		ProgDalek,
+		[]types.SolveArgs{f.Args},
+		eoa,
+		eoa,
+	)
+	if err != nil {
+		return "", fmt.Errorf("error creating solve v2 args: %v", err)
+	}
 	h, gasLimit, err := client.SendArguments(
 		ctx,
 		r.Client,
@@ -269,12 +281,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		privKey,
 		*sender,
 		clientAddr,
-		types.Args{
-			Enum: types.ArgsSolve,
-			Solve: types.Solve{
-				Args: []types.SolveArgsSigArgs{*f},
-			},
-		},
+		*solveV2,
 		isDryrun(dryrun),
 	)
 	if err != nil {
@@ -333,6 +340,15 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		)
 		return "", fmt.Errorf("error creating solve args: %v", err)
 	}
+	solveV2, err := convertor.CreateSolveV2(
+		ProgDalek,
+		[]types.SolveArgs{f.Args},
+		eoa,
+		eoa,
+	)
+	if err != nil {
+		return "", fmt.Errorf("error creating solve v2 args: %v", err)
+	}
 	h, gasLimit, err := client.SendArguments(
 		ctx,
 		r.Client,
@@ -340,12 +356,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 		privKey,
 		*sender,
 		clientAddr,
-		types.Args{
-			Enum: types.ArgsSolve,
-			Solve: types.Solve{
-				Args: []types.SolveArgsSigArgs{*f},
-			},
-		},
+		*solveV2,
 		isDryrun(dryrun),
 	)
 	if err != nil {
