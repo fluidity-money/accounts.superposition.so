@@ -30,6 +30,9 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	if r.FeatureMintDisabled {
 		return nil, fmt.Errorf("mint disabled")
 	}
+	if mint == nil {
+		return nil, fmt.Errorf("mint empty")
+	}
 	if mint.Amount == "" {
 		return nil, fmt.Errorf("amount is empty")
 	}
