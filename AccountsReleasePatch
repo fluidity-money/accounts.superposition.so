@@ -2,16 +2,14 @@
 
 [ -z "$(git status --porcelain)" ] || exit 1
 
-ver_cur="$(awk -F'"' '/^version[[:space:]]*=/ { print $2 }' bobcat-sdk/Cargo.toml | tail -n1)"
+ver_cur="$(awk -F'"' '/^version[[:space:]]*=/ { print $2 }' superposition_libaccounts/Cargo.toml | tail -n1)"
 
 ver_minor="$(echo "$ver_cur" | cut -d. -f2)"
 ver_patch="$(echo "$ver_cur" | cut -d. -f3)"
 
 ver_next="0.$ver_minor.$(echo $ver_patch '+ 1' | bc)"
 
-files=$(find -maxdepth 2 -name Cargo.toml)
-
-sed -i "s/$ver_cur/$ver_next/g" $files
+sed -i "s/$ver_cur/$ver_next/g" superposition_libaccounts/Cargo.toml
 
 git add $files
 
