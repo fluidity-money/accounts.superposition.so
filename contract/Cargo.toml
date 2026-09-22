@@ -13,7 +13,7 @@ std = ["bobcat-sdk/std"]
 panic-revert = ["superposition_libaccounts/panic-revert"]
 
 [dependencies]
-bobcat-sdk.workspace = true
+bobcat-sdk = { workspace = true, features = [ "panic-revert", "alloc", "serde", "borsh" ] }
 borsh.workspace = true
 const-hex.workspace = true
 superposition_libaccounts = { path = "../superposition_libaccounts", default-features = false }
