@@ -42,8 +42,8 @@ pub fn entry_migrate(ed_key: &U, evm_owner: &U, impl_addr: &U, authority_addr: &
     // safe to have here, at the end:
     if !is_first_time {
         assert_eq!(
-            storage::ethereum_owner::get(),
-            msg_sender().into(),
+            storage::ethereum_owner::get().addr(),
+            msg_sender(),
             "bad migrator"
         );
     }

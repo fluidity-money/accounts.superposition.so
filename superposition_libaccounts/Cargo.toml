@@ -10,11 +10,13 @@ repository = "https://github.com/fluidity-money/accounts.superposition.so"
 [lib]
 
 [features]
+default-features = ["dont-define-symbols"]
 std = ["bobcat-sdk/serde", "bobcat-sdk/ed25519-dalek", "clap"]
 panic-revert = ["bobcat-sdk/panic-revert"]
 arbitrary = ["dep:arbitrary", "bobcat-sdk/arbitrary", "superposition-assets/arbitrary"]
 alloy-enabled = ["bobcat-sdk/alloy-enabled"]
 signing = ["bobcat-sdk/ed25519-dalek", "dep:ed25519-dalek"]
+dont-define-symbols = ["bobcat-sdk/dont-define-symbols"]
 
 [dependencies]
 array-concat.workspace = true
