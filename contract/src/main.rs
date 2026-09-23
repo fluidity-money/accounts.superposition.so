@@ -5,7 +5,7 @@ use bobcat_sdk::{
     cd::read_words,
     entry::{read_args_vec, write_result_word},
     proxy::SEL_MIGRATE,
-    storage::{flush_guard, reentrancy_guard_const_keccak, storage_load},
+    storage::{flush_guard, storage_load},
 };
 
 use borsh::de::BorshDeserialize;
@@ -32,13 +32,11 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
             let (ed_key, eoa_owner, impl_addr, authority_addr) = read_words!(&args[4..], 4);
             entry_migrate(ed_key, eoa_owner, impl_addr, authority_addr)
         } else {
-            reentrancy_guard_const_keccak(b"superposition.accounts", || {
-                entry(
-                    Args::deserialize(&mut args.as_slice())
-                        .map_err(|err| panic!("weird: {}: err: {err}", const_hex::encode(args)))
-                        .unwrap(),
-                )
-            })
+            entry(
+                Args::deserialize(&mut args.as_slice())
+                    .map_err(|err| panic!("weird: {}: err: {err}", const_hex::encode(args)))
+                    .unwrap(),
+            )
         }
     })
 }

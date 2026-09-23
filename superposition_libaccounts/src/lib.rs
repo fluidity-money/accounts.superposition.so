@@ -3,7 +3,7 @@
 use bobcat_sdk::{
     maths::U,
     precompiles::superposition::{BcSha512, sha512},
-    storage::const_slot_off_curve,
+    storage::{const_slot_off_curve, reentrancy_guard_const_keccak},
 };
 
 use borsh::{BorshDeserialize, BorshSerialize};
@@ -17,10 +17,10 @@ use bobcat_sdk::precompiles::superposition::ed25519_sign_post;
 pub mod storage;
 
 pub mod entry_authority;
+pub mod entry_ed25519_key;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_owner;
-pub mod entry_ed25519_key;
 pub mod entry_solve;
 pub mod entry_statement;
 pub mod entry_transfer_only;
@@ -50,13 +50,13 @@ use serde::{
 use arbitrary::Arbitrary;
 
 use entry_authority::entry_authority;
+use entry_ed25519_key::entry_ed25519_key;
 use entry_fresh::entry_fresh_backwards;
 use entry_owner::entry_owner;
 use entry_solve::{entry_solve_v1, entry_solve_v2};
 use entry_statement::entry_statement;
 use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
-use entry_ed25519_key::entry_ed25519_key;
 
 type Address = [u8; 20];
 
@@ -351,6 +351,8 @@ pub fn sign_statement(
     ))
 }
 
+pub const REENTRANCY_KEY: &'static [u8] = b"superposition.accounts";
+
 pub fn entry(x: Args) -> usize {
     match x {
         Args::FreshBackwards {
@@ -362,11 +364,17 @@ pub fn entry(x: Args) -> usize {
             solve_args,
             authority,
         } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args, authority),
-        Args::Solve { args } => entry_solve_v1(args),
+        Args::Solve { args } => {
+            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_solve_v1(args))
+        }
         Args::Version => entry_version(),
         Args::Authority => entry_authority(),
-        Args::SolveV2 { args, sig } => entry_solve_v2(args, sig),
-        Args::TransferOnly { args, sig } => entry_transfer_only(args, sig),
+        Args::SolveV2 { args, sig } => {
+            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_solve_v2(args, sig))
+        }
+        Args::TransferOnly { args, sig } => {
+            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_transfer_only(args, sig))
+        }
         Args::Statement { args, sig } => entry_statement(args, sig),
         Args::Owner => entry_owner(),
         Args::Ed25519Key => entry_ed25519_key(),
