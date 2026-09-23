@@ -4,7 +4,9 @@ use bobcat_sdk::maths::U;
 
 use ed25519_dalek::{Digest, Sha512, SigningKey};
 
-use superposition_libaccounts::{Args, ArgsAddr, FromArgs, Sig, SolveArgs, SolveArgsSigArgs};
+use superposition_libaccounts::{
+    Args, ArgsAddr, FromArgs, Sig, SolveArgs, SolveArgsSigArgs, StatementArgs,
+};
 
 use superposition_assets::Asset;
 
@@ -19,6 +21,17 @@ use std::io::{Read, stdin};
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ArgsBytes(Vec<u8>);
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ArgsSig([u8; 64]);
+
+impl Default for ArgsSig {
+    fn default() -> Self {
+        ArgsSig([0u8; 64])
+    }
+}
+#[derive(Debug, Clone, PartialEq)]
+pub struct ArgsMsTsSmall([u8; 6]);
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct ErrArgsBytes;
@@ -35,7 +48,27 @@ impl FromStr for ArgsBytes {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         const_hex::decode(s.trim_start_matches("0x"))
             .map_err(|_| ErrArgsBytes)
-            .map(ArgsBytes)
+            .map(Self)
+    }
+}
+
+impl FromStr for ArgsSig {
+    type Err = ErrArgsBytes;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        const_hex::decode_to_array(s.trim_start_matches("0x"))
+            .map_err(|_| ErrArgsBytes)
+            .map(Self)
+    }
+}
+
+impl FromStr for ArgsMsTsSmall {
+    type Err = ErrArgsBytes;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        const_hex::decode_to_array(s.trim_start_matches("0x"))
+            .map_err(|_| ErrArgsBytes)
+            .map(Self)
     }
 }
 
@@ -85,6 +118,11 @@ enum CliArgs {
         cd: ArgsBytes,
     },
     Version,
+    Statement {
+        msg: ArgsBytes,
+        ms_ts: ArgsMsTsSmall,
+        sig: ArgsSig,
+    },
 }
 
 fn entry(x: CliArgs) {
@@ -200,19 +238,25 @@ fn entry(x: CliArgs) {
                 const_hex::encode(sig),
                 const_hex::encode(nonce.to_be_bytes()),
                 const_hex::encode(target.0),
-                const_hex::encode(cd.clone().0)
-            );
-            eprintln!(
-                "{}{}{}{}",
-                const_hex::encode(sig),
-                const_hex::encode(nonce.to_be_bytes()),
-                const_hex::encode(target.0),
                 const_hex::encode(cd.0)
             );
         }
-        CliArgs::Version => eprintln!(
+        CliArgs::Version => println!(
             "{}",
             const_hex::encode(borsh::to_vec(&Args::Version).unwrap())
+        ),
+        CliArgs::Statement { msg, ms_ts, sig } => println!(
+            "{}",
+            const_hex::encode(
+                &borsh::to_vec(&Args::Statement {
+                    args: StatementArgs {
+                        msg: msg.0,
+                        ms_ts: ms_ts.0
+                    },
+                    sig: Sig(sig.0)
+                })
+                .unwrap()
+            )
         ),
     }
 }

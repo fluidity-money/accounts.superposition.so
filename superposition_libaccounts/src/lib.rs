@@ -41,11 +41,8 @@ use core::{
 pub use superposition_assets::Asset;
 
 use serde::{
-    de::Error,
-    Deserialize as SerdeDeserialize,
-    Deserializer as SerdeDeserializer,
-    Serialize as SerdeSerialize,
-    Serializer as SerdeSerializer,
+    Deserialize as SerdeDeserialize, Deserializer as SerdeDeserializer,
+    Serialize as SerdeSerialize, Serializer as SerdeSerializer, de::Error,
 };
 
 #[cfg(feature = "arbitrary")]
@@ -189,9 +186,7 @@ impl FromStr for SolveArgs {
     }
 }
 
-#[derive(
-    BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug,
-)]
+#[derive(BorshDeserialize, BorshSerialize, Clone, PartialEq, Debug)]
 #[cfg_attr(feature = "arbitrary", derive(Arbitrary))]
 pub struct Sig(pub [u8; 64]);
 
@@ -210,8 +205,7 @@ impl<'de> SerdeDeserialize<'de> for Sig {
         D: SerdeDeserializer<'de>,
     {
         let s = <&str>::deserialize(d)?;
-        let bytes = const_hex::decode_to_array::<_, 64>(s)
-            .map_err(D::Error::custom)?;
+        let bytes = const_hex::decode_to_array::<_, 64>(s).map_err(D::Error::custom)?;
         Ok(Self(bytes))
     }
 }

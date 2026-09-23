@@ -2,9 +2,11 @@
 mod test {
     use proptest::prelude::*;
 
-    use superposition_libaccounts::{entry_statement::entry_statement, StatementArgs, storage, sign_statement};
+    use superposition_libaccounts::{
+        StatementArgs, entry_statement::entry_statement, sign_statement, storage,
+    };
 
-    use bobcat_sdk::{maths::U, entry::contract_address};
+    use bobcat_sdk::{entry::contract_address, maths::U};
 
     use ed25519_dalek::SigningKey;
 
