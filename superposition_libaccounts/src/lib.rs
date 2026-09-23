@@ -20,6 +20,7 @@ pub mod entry_authority;
 pub mod entry_fresh;
 pub mod entry_migrate;
 pub mod entry_owner;
+pub mod entry_ed25519_key;
 pub mod entry_solve;
 pub mod entry_statement;
 pub mod entry_transfer_only;
@@ -55,6 +56,7 @@ use entry_solve::{entry_solve_v1, entry_solve_v2};
 use entry_statement::entry_statement;
 use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
+use entry_ed25519_key::entry_ed25519_key;
 
 type Address = [u8; 20];
 
@@ -316,6 +318,8 @@ pub enum Args {
     },
     /// Get the owner of this account.
     Owner,
+    /// Get the ed25519 owner of this account at slot 0.
+    Ed25519Key,
 }
 
 impl Display for Args {
@@ -365,5 +369,6 @@ pub fn entry(x: Args) -> usize {
         Args::TransferOnly { args, sig } => entry_transfer_only(args, sig),
         Args::Statement { args, sig } => entry_statement(args, sig),
         Args::Owner => entry_owner(),
+        Args::Ed25519Key => entry_ed25519_key(),
     }
 }
