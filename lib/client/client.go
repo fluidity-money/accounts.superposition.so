@@ -18,26 +18,22 @@ import (
 	"github.com/near/borsh-go"
 )
 
-// SendArguments by estimating the gas of the execution, then send with
-// the private key. Simulates using an anonymous sender, and uses the nonce
-// from the sender when sending.
-func SendArguments(
+// Send calldata that's given, without any special work involving
+// encoding the messages. Useful for just using the accounts engine as a
+// sending service.
+func Send(
 	ctx context.Context,
 	c *ethclient.Client,
 	chainId *big.Int,
 	privateKey *ecdsa.PrivateKey,
 	from, to ethCommon.Address,
-	args types.Args,
+	b []byte,
 	dryrun bool,
 ) (
 	tx *ethCommon.Hash,
 	gasLimit uint64,
 	err error,
 ) {
-	b, err := borsh.Serialize(args)
-	if err != nil {
-		return nil, 0, fmt.Errorf("serialising borsh: %v", err)
-	}
 	gasLimit, err = c.EstimateGas(ctx, ethereum.CallMsg{
 		From: from,
 		To:   &to,
@@ -110,5 +106,35 @@ func SendArguments(
 		}
 	}
 	h := signed.Hash()
-	return &h, gasLimit, nil
+	return &h, gasLimit, nil}
+
+// SendArguments by estimating the gas of the execution, then send with
+// the private key. Simulates using an anonymous sender, and uses the nonce
+// from the sender when sending.
+func SendArguments(
+	ctx context.Context,
+	c *ethclient.Client,
+	chainId *big.Int,
+	privateKey *ecdsa.PrivateKey,
+	from, to ethCommon.Address,
+	args types.Args,
+	dryrun bool,
+) (
+	tx *ethCommon.Hash,
+	gasLimit uint64,
+	err error,
+) {
+	b, err := borsh.Serialize(args)
+	if err != nil {
+		return nil, 0, fmt.Errorf("serialising borsh: %v", err)
+	}
+	return Send(ctx,
+		c,
+		chainId,
+		privateKey,
+		from,
+		to,
+		b,
+		dryrun,
+	)
 }
