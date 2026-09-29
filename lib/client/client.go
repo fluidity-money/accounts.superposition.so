@@ -28,12 +28,16 @@ func Send(
 	privateKey *ecdsa.PrivateKey,
 	from, to ethCommon.Address,
 	b []byte,
+	eth *big.Int,
 	dryrun bool,
 ) (
 	tx *ethCommon.Hash,
 	gasLimit uint64,
 	err error,
 ) {
+	if eth == nil {
+		eth = new(big.Int)
+	}
 	gasLimit, err = c.EstimateGas(ctx, ethereum.CallMsg{
 		From: from,
 		To:   &to,
@@ -72,7 +76,7 @@ func Send(
 		GasFeeCap: gasFeeCap,
 		GasTipCap: gasTipCap,
 		Gas:       gasLimit,
-		Value:     new(big.Int),
+		Value:     eth,
 		Data:      b,
 		To:        &to,
 	}
@@ -135,6 +139,7 @@ func SendArguments(
 		from,
 		to,
 		b,
+		nil,
 		dryrun,
 	)
 }
