@@ -42,6 +42,7 @@ func Send(
 		From: from,
 		To:   &to,
 		Data: b,
+		Value: eth,
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf(
