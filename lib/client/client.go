@@ -52,7 +52,7 @@ func Send(
 			err,
 		)
 	}
-	gasLimit += uint64(float64(gasLimit) * 0.15)
+	gasLimit += uint64(float64(gasLimit) * 0.30)
 	header, err := c.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		return nil, 0, fmt.Errorf("header: %v", err)
