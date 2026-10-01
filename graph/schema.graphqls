@@ -118,10 +118,14 @@ type Mutation {
   a secret key that can be used to spend from the account.
   """
   createAccountExec(
-      createAccount: CreateAccount!,
-      mint: Mint,
-      dryrun: Boolean
+    createAccount: CreateAccount!,
+    mint: Mint,
+    dryrun: Boolean
   ): CreateAccountExec
+
+  createAccountExecSocial(
+
+  )
 
   """
   Request the existing secret that was created for this account. It needs a signature of

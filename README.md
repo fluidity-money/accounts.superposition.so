@@ -17,6 +17,13 @@ must support the function `allowed(address)(bool)`. These authorities are consul
 before executing a transaction to check if the hash of the contract they're calling is
 whitelisted.
 
+A "Social Vault" contract is available for liquidity deposited by anyone, but accessible
+to users that are able to receive a signature from the server, making web2 authentication
+rails possible.
+
+The Clearinghouse contract sweeps funds to ETH, using Uniswap, once the estimated value
+for the asset type exceeds $5. It needs to be called via a cron.
+
 Migrations are possible by the EOA owner of the contract.
 
 ## Deployment layout
