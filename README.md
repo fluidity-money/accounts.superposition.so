@@ -58,6 +58,7 @@ binary for deployment.
 `0xeC9932f0862a7AFd26E258fDFE1201271ae3C3Aa` is the upgradeable proxy address.
 `0x6221a9c005f6e47eb398fd867784cacfdcfff4e7` is the admin address (not an admin contract).
 The factory address here is used by the other accounts for the fresh setup.
+`0x9a825aC86EF902e06fdd2a22190ba6d52e3fAe3C` is the MassSendArbitrum contract.
 
 `0x92e89251b619a5ba2efc0f76efc3051595b489b7` is the enclave implementation, and
 `0x58A5f520FF7A6F59863e8a73b066A975799d5d48` is the admin.
