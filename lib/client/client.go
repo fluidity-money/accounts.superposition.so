@@ -94,7 +94,7 @@ func Send(
 		Gas:       gasLimit,
 		Value:     eth,
 		Data:      b,
-		To:        &to,
+		To:        &target,
 	}
 	unsigned := ethTypes.NewTx(&baseTx)
 	signer := ethTypes.NewLondonSigner(chainId)
