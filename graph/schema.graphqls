@@ -120,12 +120,8 @@ type Mutation {
   createAccountExec(
     createAccount: CreateAccount!,
     mint: Mint,
-    dryrun: Boolean
+   dryrun: Boolean
   ): CreateAccountExec
-
-  createAccountExecSocial(
-
-  )
 
   """
   Request the existing secret that was created for this account. It needs a signature of
