@@ -42,12 +42,12 @@ func Send(
 	}
 	var (
 		target ethCommon.Address
-		b []byte
+		b      []byte
 	)
 	if useSafetyRouter {
 		target = addrSafetyRouter
 		b = append(
-			ethCommon.LeftPadBytes(addrSafetyRouter.Bytes(), 32),
+			ethCommon.LeftPadBytes(to.Bytes(), 32),
 			b_...,
 		)
 	} else {
@@ -55,9 +55,9 @@ func Send(
 		b = b_
 	}
 	gasLimit, err = c.EstimateGas(ctx, ethereum.CallMsg{
-		From: from,
-		To:   &target,
-		Data: b,
+		From:  from,
+		To:    &target,
+		Data:  b,
 		Value: eth,
 	})
 	if err != nil {

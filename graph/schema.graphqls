@@ -120,7 +120,7 @@ type Mutation {
   createAccountExec(
     createAccount: CreateAccount!,
     mint: Mint,
-   dryrun: Boolean
+    dryrun: Boolean
   ): CreateAccountExec
 
   """

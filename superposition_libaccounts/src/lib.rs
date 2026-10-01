@@ -56,7 +56,7 @@ use entry_authority::entry_authority;
 use entry_ed25519_key::entry_ed25519_key;
 use entry_fresh::entry_fresh_backwards;
 use entry_owner::entry_owner;
-use entry_solve::{entry_solve_v1, entry_solve_v2};
+use entry_solve::{entry_solve_v1, entry_solve_v2, entry_solve_v3};
 use entry_statement::entry_statement;
 use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
@@ -404,7 +404,7 @@ pub fn entry(network: Network, x: Args) -> usize {
         Args::Statement { args, sig } => entry_statement(args, sig),
         Args::Owner => entry_owner(),
         Args::Ed25519Key => entry_ed25519_key(),
-        Args::SolveV3 { args, user_sig, server_sig } => todo!(),
+        Args::SolveV3 { args, sig } => entry_solve_v3(network, args, sig),
         Args::AssetsVersion => entry_assets_version(),
     }
 }
