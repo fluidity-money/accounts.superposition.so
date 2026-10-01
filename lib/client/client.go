@@ -52,6 +52,7 @@ func Send(
 		)
 	} else {
 		target = to
+		b = b_
 	}
 	gasLimit, err = c.EstimateGas(ctx, ethereum.CallMsg{
 		From: from,
