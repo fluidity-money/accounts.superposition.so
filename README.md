@@ -75,6 +75,8 @@ binary for deployment.
 `0x6221a9c005f6e47eb398fd867784cacfdcfff4e7` is the admin address (not an admin contract).
 The factory address here is used by the other accounts for the fresh setup.
 `0x9a825aC86EF902e06fdd2a22190ba6d52e3fAe3C` is the MassSendArbitrum contract.
+`0xF9f8355363ba4712422e6bB39347673Dde896c21` is the SafetyRouter contract that currently
+checks contracts using up to `Ed25519Key`.
 
 `0x92e89251b619a5ba2efc0f76efc3051595b489b7` is the enclave implementation, and
 `0x58A5f520FF7A6F59863e8a73b066A975799d5d48` is the admin.
