@@ -89,6 +89,10 @@ const (
 
 	// EnvMinimumAmount to use as the deposit feature. If unset, not used, must be base 10.
 	EnvMinimumAmount = "SPN_MINIMUM_AMOUNT"
+
+	// EnvSafetyRouter to use for the validation check on-chain
+	// before calldata sending.
+	EnvSafetyRouter = "SPN_SAFETY_ROUTER_ADDR"
 )
 
 type authMiddleware struct {
@@ -203,7 +207,7 @@ func main() {
 	if !ethCommon.IsHexAddress(safetyRouterAddrS) {
 		log.Fatal("safety router addr not set")
 	}
-	safetyRouterAddr := ethCommon.HexToAddress(safetyRouterS)
+	safetyRouterAddr := ethCommon.HexToAddress(safetyRouterAddrS)
 	accountsFactoryAddrS := os.Getenv(EnvAccountsFactoryAddr)
 	if !ethCommon.IsHexAddress(accountsFactoryAddrS) {
 		log.Fatal("accounts factory addr not set")
@@ -234,7 +238,7 @@ func main() {
 		MinimumAmount:        minAmt,
 		AccountsFactoryAddr:  accountsFactoryAddr,
 		ClaimantHelperAddr:   claimantHelper,
-		SafetyrouterAddr:     safetyrouterAddr,
+		SafetyRouterAddr:     safetyRouterAddr,
 		AccPubKey:            accPubKey,
 		UrlAlarm:             alarmWebhook,
 		RateLimiting:         rateLimiting,
