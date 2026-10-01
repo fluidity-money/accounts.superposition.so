@@ -84,6 +84,9 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	h, gasLimit, err := client.SendArguments(
 		ctx,
 		r.Client,
+		r.SafetyRouterAddr,
+		// We disable the SafetyRouter here since the interaction is a factory:
+		false,
 		r.ChainId,
 		privKey,
 		*sender,
@@ -306,6 +309,8 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 	h, gasLimit, err := client.SendArguments(
 		ctx,
 		r.Client,
+		r.SafetyRouterAddr,
+		true,
 		r.ChainId,
 		privKey,
 		*sender,
@@ -381,6 +386,9 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 	h, gasLimit, err := client.SendArguments(
 		ctx,
 		r.Client,
+		r.SafetyRouterAddr,
+		// SafetyRouter enabled since this is a client:
+		true,
 		r.ChainId,
 		privKey,
 		*sender,

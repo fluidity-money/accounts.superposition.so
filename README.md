@@ -28,6 +28,11 @@ for the transaction is valid, and then SolveV3 is called that performs the trans
 compensation token to the Clearinghouse contract (so the server does the heavy lifting of
 validating the amounts are okay.)
 
+A "Safety router" contract is available that checks the hash of the target to prevent a
+ddos or exploit situation from being the case. It should be disabled when interacting with
+the factory (and by any RPC derivatives of this contract, which should assume everything
+is fine.)
+
 Migrations are possible by the EOA owner of the contract.
 
 ## Deployment layout

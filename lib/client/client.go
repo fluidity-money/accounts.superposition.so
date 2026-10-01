@@ -24,10 +24,12 @@ import (
 func Send(
 	ctx context.Context,
 	c *ethclient.Client,
+	addrSafetyRouter ethCommon.Address,
+	useSafetyRouter bool,
 	chainId *big.Int,
 	privateKey *ecdsa.PrivateKey,
 	from, to ethCommon.Address,
-	b []byte,
+	b_ []byte,
 	eth *big.Int,
 	dryrun bool,
 ) (
@@ -38,9 +40,22 @@ func Send(
 	if eth == nil {
 		eth = new(big.Int)
 	}
+	var (
+		target ethCommon.Address
+		b []byte
+	)
+	if useSafetyRouter {
+		target = addrSafetyRouter
+		b = append(
+			ethCommon.LeftPadBytes(addrSafetyRouter.Bytes(), 32),
+			b_...,
+		)
+	} else {
+		target = to
+	}
 	gasLimit, err = c.EstimateGas(ctx, ethereum.CallMsg{
 		From: from,
-		To:   &to,
+		To:   &target,
 		Data: b,
 		Value: eth,
 	})
@@ -91,7 +106,7 @@ func Send(
 		resp, err := c.CallContract(ctx,
 			ethereum.CallMsg{
 				From: from,
-				To:   &to,
+				To:   &target,
 				Data: b,
 			},
 			nil,
@@ -111,7 +126,8 @@ func Send(
 		}
 	}
 	h := signed.Hash()
-	return &h, gasLimit, nil}
+	return &h, gasLimit, nil
+}
 
 // SendArguments by estimating the gas of the execution, then send with
 // the private key. Simulates using an anonymous sender, and uses the nonce
@@ -119,6 +135,8 @@ func Send(
 func SendArguments(
 	ctx context.Context,
 	c *ethclient.Client,
+	addrSafetyRouter ethCommon.Address,
+	useSafetyRouter bool,
 	chainId *big.Int,
 	privateKey *ecdsa.PrivateKey,
 	from, to ethCommon.Address,
@@ -135,6 +153,8 @@ func SendArguments(
 	}
 	return Send(ctx,
 		c,
+		addrSafetyRouter,
+		useSafetyRouter,
 		chainId,
 		privateKey,
 		from,

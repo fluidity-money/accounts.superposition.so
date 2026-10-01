@@ -199,6 +199,11 @@ func main() {
 			log.Fatalf("bad minimum amount: %v", s)
 		}
 	}
+	safetyRouterAddrS := os.Getenv(EnvSafetyRouter)
+	if !ethCommon.IsHexAddress(safetyRouterAddrS) {
+		log.Fatal("safety router addr not set")
+	}
+	safetyRouterAddr := ethCommon.HexToAddress(safetyRouterS)
 	accountsFactoryAddrS := os.Getenv(EnvAccountsFactoryAddr)
 	if !ethCommon.IsHexAddress(accountsFactoryAddrS) {
 		log.Fatal("accounts factory addr not set")
@@ -229,6 +234,7 @@ func main() {
 		MinimumAmount:        minAmt,
 		AccountsFactoryAddr:  accountsFactoryAddr,
 		ClaimantHelperAddr:   claimantHelper,
+		SafetyrouterAddr:     safetyrouterAddr,
 		AccPubKey:            accPubKey,
 		UrlAlarm:             alarmWebhook,
 		RateLimiting:         rateLimiting,
