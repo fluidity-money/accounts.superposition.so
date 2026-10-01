@@ -1,4 +1,5 @@
-accounts.superposition.so.wasm
+arbitrum.accounts.superposition.so.wasm
+robinhood.accounts.superposition.so.wasm
 *.wat
 *.wasm1
 target

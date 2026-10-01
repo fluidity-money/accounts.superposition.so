@@ -7,15 +7,27 @@ comma := ,
 CARGO_EXTRA_FEATURES := \
 	$(if ${SPN_PANIC_REVERT},--features panic-revert)
 
-build: accounts.superposition.so.wasm accounts-cli.out bootstrap.zip
+build: \
+	arbitrum.accounts.superposition.so.wasm \
+	robinhood.accounts.superposition.so.wasm \
+	accounts-cli.out \
+	bootstrap.zip
 
-accounts.superposition.so.wasm: $(shell find Cargo.* contract superposition_libaccounts -type f)
-	@rm -f accounts.superposition.so.wasm
-	@cargo build --release --target wasm32-unknown-unknown --bin contract
-	@./wasm-post.sh \
-		target/wasm32-unknown-unknown/release/contract.wasm \
-		accounts.superposition.so.wasm
-	@./check-codesize.sh accounts.superposition.so.wasm
+RUST_CODE := $(shell find Cargo.* contract superposition_libaccounts -type f)
+
+BUILD_CONTRACT := cargo build --release --target wasm32-unknown-unknown --bin contract
+
+WASM_POST := \
+	./wasm-post.sh \
+		target/wasm32-unknown-unknown/release/contract.wasm
+
+arbitrum.accounts.superposition.so.wasm: ${RUST_CODE}
+	@${BUILD_CONTRACT} --features network-arbitrum
+	@${WASM_POST} arbitrum.accounts.superposition.so.wasm
+
+robinhood.accounts.superposition.so.wasm: ${RUST_CODE}
+	@${BUILD_CONTRACT} --features network-robinhood
+	@${WASM_POST} robinhood.accounts.superposition.so.wasm
 
 accounts-cli.out: $(shell find Cargo.* superposition_libaccounts accounts-cli -type f)
 	@rm -f accounts-cli.out

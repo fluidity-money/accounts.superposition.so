@@ -16,6 +16,14 @@ static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
 
 use superposition_libaccounts::{Args, SLOT_IMPL, entry, entry_migrate::entry_migrate};
 
+use superposition_assets::Network;
+
+#[cfg(all(feature = "network-arbitrum", feature = "network-robinhood"))]
+compile_error!("network-arbitrum and network-robinhood can't be both enabled");
+
+#[cfg(not(any(feature = "network-arbitrum", feature = "network-robinhood")))]
+compile_error!("network-arbitrum or network-robinhood must be enabled");
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
     // If we don't get amessage, we dump the location of the implementation.
@@ -24,6 +32,10 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
         write_result_word(&storage_load(&SLOT_IMPL));
         return 0;
     }
+    #[cfg(feature = "network-arbitrum")]
+    let network = Network::Arbitrum;
+    #[cfg(feature = "network-robinhood")]
+    let network = Network::Robinhood;
     flush_guard(|| {
         let args = read_args_vec(len);
         if args.len() > 4 && args[..4] == SEL_MIGRATE {
@@ -33,6 +45,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
             entry_migrate(ed_key, eoa_owner, impl_addr, authority_addr)
         } else {
             entry(
+                network,
                 Args::deserialize(&mut args.as_slice())
                     .map_err(|err| panic!("weird: {}: err: {err}", const_hex::encode(args)))
                     .unwrap(),

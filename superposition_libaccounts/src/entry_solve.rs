@@ -17,7 +17,10 @@ use crate::{
     FromArgs, Permit, Sig, SolveArgs, SolveArgsSigArgs, SolveV2Args, call_authority, storage,
 };
 
+use superposition_assets::Network;
+
 pub fn entry_solve(
+    network: Network,
     args: Vec<SolveArgs>,
     permit_owner: [u8; 20],
     transfer_owner: [u8; 20],
@@ -40,7 +43,7 @@ pub fn entry_solve(
             s,
         } in permit
         {
-            let token: [u8; 20] = asset.addr();
+            let token: [u8; 20] = asset.addr(network).unwrap();
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token,
                 &make_fn_permit(
@@ -57,7 +60,7 @@ pub fn entry_solve(
             ));
         }
         for FromArgs { asset, to_take, .. } in &from {
-            let token: [u8; 20] = asset.addr();
+            let token: [u8; 20] = asset.addr(network).unwrap();
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
                 token,
                 &make_fn_transfer_from(transfer_owner, contract_address(), to_take),
@@ -100,7 +103,7 @@ pub fn entry_solve(
         } in from
         {
             let bal = revert_if_bad_call_slice_vec!(call_word_err_vec(
-                asset.into(),
+                asset.addr(network).unwrap(),
                 &make_fn_balance_of(contract_address()),
                 &U::ZERO,
                 u64::MAX,
@@ -114,7 +117,7 @@ pub fn entry_solve(
     0
 }
 
-pub fn entry_solve_v1(args: Vec<SolveArgsSigArgs>) -> usize {
+pub fn entry_solve_v1(network: Network, args: Vec<SolveArgsSigArgs>) -> usize {
     let ed_owner = storage::ed25519_slot::get(&U::ZERO);
     let args = args
         .into_iter()
@@ -128,10 +131,10 @@ pub fn entry_solve_v1(args: Vec<SolveArgsSigArgs>) -> usize {
         })
         .collect();
     let eth_owner: [u8; 20] = storage::ethereum_owner::get().into();
-    entry_solve(args, eth_owner, eth_owner)
+    entry_solve(network, args, eth_owner, eth_owner)
 }
 
-pub fn entry_solve_v2(args: SolveV2Args, sig: Sig) -> usize {
+pub fn entry_solve_v2(network: Network, args: SolveV2Args, sig: Sig) -> usize {
     let ed_owner = storage::ed25519_slot::get(&U::ZERO);
     assert!(edphverify_pre(
         &borsh::to_vec(&args).unwrap(),
@@ -143,5 +146,5 @@ pub fn entry_solve_v2(args: SolveV2Args, sig: Sig) -> usize {
         permit_owner,
         transfer_owner,
     } = args;
-    entry_solve(args, permit_owner, transfer_owner)
+    entry_solve(network, args, permit_owner, transfer_owner)
 }
