@@ -5,7 +5,7 @@
 
 #define macro MAIN() = takes(0) returns(0) {
 	0x0 calldataload
-	// 1790864990 ONLY DEPLOYMENT:
+	// 1790864990 ONLY DEPLOYMENT. This version supports up to Ed25519Key:
 	dup1 extcodehash 0xc93405af7d5432a1465160ee7d0201b7f335f44af433e3ed36615e6d956022bc
 		eq iszero FAIL jumpi
 	0x20 calldatasize sub 0x20 0x0 calldatacopy
