@@ -20,7 +20,7 @@ contract Clearinghouse {
 
     IV4Quoter immutable public QUOTER = IV4Quoter(address(0));
 
-    function estimateEthValue(
+    function estimateEthValueCheckAccounts(
         address _asset,
         uint24 _fee,
         int24 _tickSpacing,

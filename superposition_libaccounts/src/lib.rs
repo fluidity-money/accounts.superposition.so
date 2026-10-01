@@ -338,10 +338,8 @@ pub enum Args {
     /// Get the ed25519 owner of this account at slot 0.
     Ed25519Key,
     /// SolveV3 is a variation of SolveV2, but gas is provided in an asset,
-    /// and a server signature is provided to certify that the gas compensation
-    /// is acceptable. The Clearinghouse contract is used to validate the
-    /// signature and take custody of the assets. The server is expected to
-    /// manage the gas allowance by explicitly setting the upper bound.
+    /// which is transferred to the Clearinghouse contract once the amount
+    /// has been sent.
     SolveV3 {
         args: SolveV3Args,
         user_sig: Sig,

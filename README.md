@@ -22,7 +22,11 @@ to users that are able to receive a signature from the server, making web2 authe
 rails possible.
 
 The Clearinghouse contract sweeps funds to ETH, using Uniswap, once the estimated value
-for the asset type exceeds $5. It needs to be called via a cron.
+for the asset type exceeds $5. It needs to be called via a cronjob. The Clearinghouse
+contract needs to be consulted before sending a transaction to see if the token offered
+for the transaction is valid, and then SolveV3 is called that performs the transfer of the
+compensation token to the Clearinghouse contract (so the server does the heavy lifting of
+validating the amounts are okay.)
 
 Migrations are possible by the EOA owner of the contract.
 

@@ -1,0 +1,18 @@
+// SafetyRouter passes along a function call to a Accounts engine if the
+// hash on the accounts engine is expected. If not, it fails. Loads the
+// address to route the calldata to as the first word argument to the
+// contract to check the hash of.
+
+#define macro MAIN() = takes(0) returns(0) {
+	calldataload
+	// 1790864990 ONLY DEPLOYMENT:
+	dup1 0xc93405af7d5432a1465160ee7d0201b7f335f44af433e3ed36615e6d956022bc eq FAIL jumpi
+	0x0 0x20 0x0 calldatacopy
+	0x0 0x0 calldatasize 0x20 sub 0x0 0x0 dup6 gas call
+	returndatasize 0x0 0x0 returndatacopy
+	returndatasize 0x0 dup3 SUCCESS jumpi revert
+	SUCCESS:
+		return
+	FAIL:
+		0x27e63c44 0x0 sstore 0x04 0x0 revert
+}
