@@ -316,6 +316,30 @@ func CreateSolveArgsSigArgsMint(
 	)
 }
 
+func TagFreshBackwards(
+	prog string,
+	f *types.FreshBackwards,
+	asset superposition_assets.Asset,
+	target, amount string,
+	cd []byte,
+	permit *model.Permit,
+	msTs string,
+) error {
+	m, err := CreateSolveArgsSigArgs(
+		prog,
+		asset,
+		target, amount,
+		cd,
+		permit,
+		msTs,
+	)
+	if err != nil {
+		return err
+	}
+	f.SolveArgs = append(f.SolveArgs, *m)
+	return nil
+}
+
 func TagFreshBackwardsWithMint(
 	prog string,
 	f *types.FreshBackwards,

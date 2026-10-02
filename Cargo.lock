@@ -570,6 +570,8 @@ dependencies = [
 name = "contract-clearinghouse"
 version = "0.1.0"
 dependencies = [
+ "bobcat-sdk",
+ "mini-alloc",
  "superposition-assets",
 ]
 

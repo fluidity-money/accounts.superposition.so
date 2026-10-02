@@ -3,9 +3,15 @@ name = "contract-clearinghouse"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "contract-clearinghouse"
+
 [dependencies]
+bobcat-sdk = { workspace = true, features = ["derive", "panic-revert"] }
+mini-alloc.workspace = true
 superposition-assets.workspace = true
 
 [features]
+std = ["bobcat-sdk/std"]
 network-arbitrum = []
 network-robinhood = []
