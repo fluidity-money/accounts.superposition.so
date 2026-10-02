@@ -3,7 +3,7 @@ use alloc::{format, vec::Vec};
 use bobcat_sdk::{
     call::{call_unit, call_unit_err_vec},
     create::create2_pre_unit,
-    entry::{contract_address, revert_if_bad_call_unit_vec, write_result_word},
+    entry::{contract_address, revert_if_bad_call_unit_vec, write_word},
     maths::U,
     precompiles::ethereum::ecrecover_post,
     proxy::{SEL_MIGRATE, make_metamorphic_evmfn_beacon_proxy},
@@ -79,7 +79,7 @@ pub fn entry_fresh_backwards(
             u64::MAX
         ));
     }
-    write_result_word(&proxy.into());
+    write_word(&proxy.into());
     0
 }
 

@@ -3,7 +3,7 @@
 
 use bobcat_sdk::{
     cd::read_words,
-    entry::{read_args_vec, write_result_word},
+    entry::{read_args_vec, write_word},
     proxy::SEL_MIGRATE,
     storage::{flush_guard, storage_load},
 };
@@ -42,7 +42,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
     // If we don't get amessage, we dump the location of the implementation.
     // This is due to the recursive metamorphic pattern we use for beacons.
     if len == 0 {
-        write_result_word(&storage_load(&SLOT_IMPL));
+        write_word(&storage_load(&SLOT_IMPL));
         return 0;
     }
     #[cfg(feature = "network-arbitrum")]

@@ -1,8 +1,8 @@
 use crate::storage;
 
-use bobcat_sdk::entry::write_result_word;
+use bobcat_sdk::entry::write_word;
 
 pub fn entry_authority() -> usize {
-    write_result_word(&storage::authority::get());
+    write_word(&storage::authority::get());
     0
 }
