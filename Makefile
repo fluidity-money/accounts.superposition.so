@@ -9,7 +9,8 @@ CARGO_EXTRA_FEATURES := \
 
 build: \
 	arbitrum.accounts.superposition.so.wasm \
-	robinhood.accounts.superposition.so.wasm \
+	robinhood-mainnet.accounts.superposition.so.wasm \
+	robinhood-testnet.accounts.superposition.so.wasm \
 	accounts-cli.out \
 	bootstrap.zip
 
@@ -25,9 +26,13 @@ arbitrum.accounts.superposition.so.wasm: ${RUST_CODE}
 	@${BUILD_CONTRACT} --features network-arbitrum
 	@${WASM_POST} arbitrum.accounts.superposition.so.wasm
 
-robinhood.accounts.superposition.so.wasm: ${RUST_CODE}
-	@${BUILD_CONTRACT} --features network-robinhood
-	@${WASM_POST} robinhood.accounts.superposition.so.wasm
+robinhood-mainnet.accounts.superposition.so.wasm: ${RUST_CODE}
+	@${BUILD_CONTRACT} --features network-robinhood-mainnet
+	@${WASM_POST} robinhood-mainnet.accounts.superposition.so.wasm
+
+robinhood-testnet.accounts.superposition.so.wasm: ${RUST_CODE}
+	@${BUILD_CONTRACT} --features network-robinhood-testnet
+	@${WASM_POST} robinhood-testnet.accounts.superposition.so.wasm
 
 accounts-cli.out: $(shell find Cargo.* superposition_libaccounts accounts-cli -type f)
 	@rm -f accounts-cli.out

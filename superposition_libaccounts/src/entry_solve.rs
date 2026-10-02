@@ -14,13 +14,12 @@ use bobcat_sdk::{
 };
 
 use crate::{
-    FromArgs, Permit, Sig, SolveArgs, SolveArgsSigArgs, SolveV2Args, call_authority, storage,
+    FromArgs, Permit, Sig, SolveArgs, SolveArgsSigArgs, SolveV2Args, SolveV3Args, call_authority,
+    storage, Imm,
 };
 
-use superposition_assets::Network;
-
 pub fn entry_solve(
-    network: Network,
+    Imm { network, .. }: &Imm,
     args: Vec<SolveArgs>,
     permit_owner: [u8; 20],
     transfer_owner: [u8; 20],
@@ -43,7 +42,7 @@ pub fn entry_solve(
             s,
         } in permit
         {
-            let token: [u8; 20] = asset.addr(network).unwrap();
+            let token: [u8; 20] = asset.addr(*network).unwrap();
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token,
                 &make_fn_permit(
@@ -60,7 +59,7 @@ pub fn entry_solve(
             ));
         }
         for FromArgs { asset, to_take, .. } in &from {
-            let token: [u8; 20] = asset.addr(network).unwrap();
+            let token: [u8; 20] = asset.addr(*network).unwrap();
             revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
                 token,
                 &make_fn_transfer_from(transfer_owner, contract_address(), to_take),
@@ -103,7 +102,7 @@ pub fn entry_solve(
         } in from
         {
             let bal = revert_if_bad_call_slice_vec!(call_word_err_vec(
-                asset.addr(network).unwrap(),
+                asset.addr(*network).unwrap(),
                 &make_fn_balance_of(contract_address()),
                 &U::ZERO,
                 u64::MAX,
@@ -117,7 +116,7 @@ pub fn entry_solve(
     0
 }
 
-pub fn entry_solve_v1(network: Network, args: Vec<SolveArgsSigArgs>) -> usize {
+pub fn entry_solve_v1(imm: &Imm, args: Vec<SolveArgsSigArgs>) -> usize {
     let ed_owner = storage::ed25519_slot::get(&U::ZERO);
     let args = args
         .into_iter()
@@ -131,10 +130,10 @@ pub fn entry_solve_v1(network: Network, args: Vec<SolveArgsSigArgs>) -> usize {
         })
         .collect();
     let eth_owner: [u8; 20] = storage::ethereum_owner::get().into();
-    entry_solve(network, args, eth_owner, eth_owner)
+    entry_solve(imm, args, eth_owner, eth_owner)
 }
 
-pub fn entry_solve_v2(network: Network, args: SolveV2Args, sig: Sig) -> usize {
+pub fn entry_solve_v2(imm: &Imm, args: SolveV2Args, sig: Sig) -> usize {
     let ed_owner = storage::ed25519_slot::get(&U::ZERO);
     assert!(edphverify_pre(
         &borsh::to_vec(&args).unwrap(),
@@ -146,5 +145,50 @@ pub fn entry_solve_v2(network: Network, args: SolveV2Args, sig: Sig) -> usize {
         permit_owner,
         transfer_owner,
     } = args;
-    entry_solve(network, args, permit_owner, transfer_owner)
+    entry_solve(imm, args, permit_owner, transfer_owner)
+}
+
+pub fn entry_solve_v3(imm: &Imm, args: SolveV3Args, sig: Sig) -> usize {
+    let ed_owner = storage::ed25519_slot::get(&U::ZERO);
+    assert!(edphverify_pre(
+        &borsh::to_vec(&args).unwrap(),
+        ed_owner,
+        sig.0
+    ));
+    let SolveV3Args {
+        args,
+        gas_token,
+        gas_token_amt,
+        gas_token_permit,
+    } = args;
+    // When we take the permit from this user, it might be the case that the
+    // permit blob for the actual underlying asset is enough for permit here,
+    // so this could be redundant to have two blobs if the caller doesn't plan
+    // their use:
+    let eth_owner = storage::ethereum_owner::get().addr();
+    if let Some(Permit {
+        asset,
+        deadline,
+        v,
+        r,
+        s,
+    }) = gas_token_permit
+    {
+        assert_eq!(gas_token, asset, "gas token {gas_token} different from {asset}");
+        revert_if_bad_call_unit_vec!(call_unit_err_vec(
+            asset.addr(imm.network).unwrap(),
+            &make_fn_permit(
+                eth_owner,
+                contract_address(),
+                &U::MAX,
+                &deadline.into(),
+                v,
+                &r,
+                &s
+            ),
+            &U::ZERO,
+            u64::MAX
+        ));
+    };
+    entry_solve(imm, args, eth_owner, eth_owner)
 }

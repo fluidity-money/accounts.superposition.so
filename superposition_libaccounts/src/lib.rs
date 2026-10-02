@@ -18,6 +18,9 @@ use superposition_assets::Network;
 
 pub mod storage;
 
+mod immutables;
+
+pub mod entry_assets_version;
 pub mod entry_authority;
 pub mod entry_ed25519_key;
 pub mod entry_fresh;
@@ -27,7 +30,6 @@ pub mod entry_solve;
 pub mod entry_statement;
 pub mod entry_transfer_only;
 pub mod entry_version;
-pub mod entry_assets_version;
 
 pub mod call_authority;
 
@@ -52,6 +54,7 @@ use serde::{
 #[cfg(feature = "arbitrary")]
 use arbitrary::Arbitrary;
 
+use entry_assets_version::entry_assets_version;
 use entry_authority::entry_authority;
 use entry_ed25519_key::entry_ed25519_key;
 use entry_fresh::entry_fresh_backwards;
@@ -60,7 +63,8 @@ use entry_solve::{entry_solve_v1, entry_solve_v2, entry_solve_v3};
 use entry_statement::entry_statement;
 use entry_transfer_only::entry_transfer_only;
 use entry_version::entry_version;
-use entry_assets_version::entry_assets_version;
+
+pub use immutables::Imm;
 
 type Address = [u8; 20];
 
@@ -290,6 +294,8 @@ pub struct SolveV3Args {
     /// We're assuming here that noone will need to specify more than
     /// the gas allowed.
     pub gas_token_amt: u64,
+    /// Is permit needed for this gas token?
+    pub gas_token_permit: Option<Permit>,
 }
 
 #[derive(
@@ -342,8 +348,7 @@ pub enum Args {
     /// has been sent.
     SolveV3 {
         args: SolveV3Args,
-        user_sig: Sig,
-        server_sig: Sig,
+        sig: Sig,
     },
     AssetsVersion,
 }
@@ -379,7 +384,7 @@ pub fn sign_statement(
 
 pub const REENTRANCY_KEY: &'static [u8] = b"superposition.accounts";
 
-pub fn entry(network: Network, x: Args) -> usize {
+pub fn entry(imm: &Imm, x: Args) -> usize {
     match x {
         Args::FreshBackwards {
             key,
@@ -391,20 +396,20 @@ pub fn entry(network: Network, x: Args) -> usize {
             authority,
         } => entry_fresh_backwards(key, eoa_addr, v, r, s, solve_args, authority),
         Args::Solve { args } => {
-            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_solve_v1(network, args))
+            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_solve_v1(imm, args))
         }
         Args::Version => entry_version(),
         Args::Authority => entry_authority(),
         Args::SolveV2 { args, sig } => {
-            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_solve_v2(network, args, sig))
+            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_solve_v2(imm, args, sig))
         }
-        Args::TransferOnly { args, sig } => {
-            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_transfer_only(network, args, sig))
-        }
+        Args::TransferOnly { args, sig } => reentrancy_guard_const_keccak(REENTRANCY_KEY, || {
+            entry_transfer_only(imm, args, sig)
+        }),
         Args::Statement { args, sig } => entry_statement(args, sig),
         Args::Owner => entry_owner(),
         Args::Ed25519Key => entry_ed25519_key(),
-        Args::SolveV3 { args, sig } => entry_solve_v3(network, args, sig),
+        Args::SolveV3 { args, sig } => entry_solve_v3(imm, args, sig),
         Args::AssetsVersion => entry_assets_version(),
     }
 }

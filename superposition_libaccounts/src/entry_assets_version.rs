@@ -1,4 +1,3 @@
-
 use bobcat_sdk::entry::write_result_word;
 
 pub fn entry_assets_version() -> usize {

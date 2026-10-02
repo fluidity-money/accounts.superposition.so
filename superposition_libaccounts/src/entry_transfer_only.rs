@@ -1,4 +1,4 @@
-use crate::{Sig, Transfer, TransferOnlyArgs, TransferPermit, U, storage};
+use crate::{Imm, Sig, Transfer, TransferOnlyArgs, TransferPermit, U, storage};
 
 use bobcat_sdk::{
     call::{call_unit_err_vec, safe_call_bool_err_vec},
@@ -7,9 +7,7 @@ use bobcat_sdk::{
     precompiles::superposition::edphverify_pre,
 };
 
-use superposition_assets::Network;
-
-pub fn entry_transfer_only(network: Network, args: TransferOnlyArgs, sig: Sig) -> usize {
+pub fn entry_transfer_only(Imm { network, .. }: &Imm, args: TransferOnlyArgs, sig: Sig) -> usize {
     let ed_owner = storage::ed25519_slot::get(&U::ZERO);
     assert!(edphverify_pre(
         &borsh::to_vec(&args).unwrap(),
@@ -29,7 +27,7 @@ pub fn entry_transfer_only(network: Network, args: TransferOnlyArgs, sig: Sig) -
         amt,
     } in args
     {
-        let token: [u8; 20] = asset.addr(network).unwrap();
+        let token: [u8; 20] = asset.addr(*network).unwrap();
         if let Some(TransferPermit { deadline, v, r, s }) = permit {
             revert_if_bad_call_unit_vec!(call_unit_err_vec(
                 token,

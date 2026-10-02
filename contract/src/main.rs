@@ -14,15 +14,28 @@ use borsh::de::BorshDeserialize;
 #[cfg(target_arch = "wasm32")]
 static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
 
-use superposition_libaccounts::{Args, SLOT_IMPL, entry, entry_migrate::entry_migrate};
+use superposition_libaccounts::{Imm, Args, SLOT_IMPL, entry, entry_migrate::entry_migrate};
 
 use superposition_assets::Network;
 
-#[cfg(all(feature = "network-arbitrum", feature = "network-robinhood"))]
-compile_error!("network-arbitrum and network-robinhood can't be both enabled");
+#[cfg(any(
+    all(feature = "network-arbitrum", feature = "network-robinhood-mainnet"),
+    all(feature = "network-arbitrum", feature = "network-robinhood-testnet"),
+    all(
+        feature = "network-robinhood-mainnet",
+        feature = "network-robinhood-testnet"
+    )
+))]
+compile_error!("too many networks enabled");
 
-#[cfg(not(any(feature = "network-arbitrum", feature = "network-robinhood")))]
-compile_error!("network-arbitrum or network-robinhood must be enabled");
+#[cfg(not(any(
+    feature = "network-arbitrum",
+    feature = "network-robinhood-mainnet",
+    feature = "network-robinhood-testnet"
+)))]
+compile_error!(
+    "network-arbitrum, network-robinhood-mainnet or network-robinhood-testnet must be enabled"
+);
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
@@ -33,9 +46,11 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
         return 0;
     }
     #[cfg(feature = "network-arbitrum")]
-    let network = Network::Arbitrum;
-    #[cfg(feature = "network-robinhood")]
-    let network = Network::Robinhood;
+    let imm = Imm { network: Network::Arbitrum, clearinghouse: [0u8; 20] };
+    #[cfg(feature = "network-robinhood-mainnet")]
+    let imm = Imm { network: Network::Robinhood, clearinghouse: [0u8; 20] };
+    #[cfg(feature = "network-robinhood-testnet")]
+    let imm = Imm { network: Network::RobinhoodTestnet, clearinghouse: [0u8; 20] };
     flush_guard(|| {
         let args = read_args_vec(len);
         if args.len() > 4 && args[..4] == SEL_MIGRATE {
@@ -45,7 +60,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
             entry_migrate(ed_key, eoa_owner, impl_addr, authority_addr)
         } else {
             entry(
-                network,
+                &imm,
                 Args::deserialize(&mut args.as_slice())
                     .map_err(|err| panic!("weird: {}: err: {err}", const_hex::encode(args)))
                     .unwrap(),

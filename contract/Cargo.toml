@@ -12,7 +12,8 @@ name = "contract"
 std = ["bobcat-sdk/std"]
 panic-revert = ["superposition_libaccounts/panic-revert"]
 network-arbitrum = []
-network-robinhood = []
+network-robinhood-mainnet = []
+network-robinhood-testnet = []
 
 [dependencies]
 bobcat-sdk = { workspace = true, features = [ "panic-revert", "alloc", "serde", "borsh" ] }
