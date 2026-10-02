@@ -112,6 +112,32 @@ type Statistics {
   txAllTime: Int!
 }
 
+type FlorinOpenPositionResult {
+  hash: String!
+}
+
+input FlorinOpenPosition {
+  """
+  The asset to use to convert to SPY.
+  """
+  fromAsset: Asset!,
+
+  """
+  Amount of Florin to use as the collateral amount when opening a position.
+  """
+  collateralAmt: String!,
+
+  """
+  The loan amount to borrow.
+  """
+  loanAmt: String!,
+
+  """
+  Interest rate, represented as a whole 1e6 number.
+  """
+  interestRate: String!,
+}
+
 type Mutation {
   """
   Create a new account using the key management service intended for API workers. Returns
@@ -148,4 +174,15 @@ type Mutation {
   Claim payoff for the markets given, using the eoa in the header.
   """
   claimRewards(markets: [String!]!, msTs: String!, dryrun: Boolean): String!
+
+  createAccountOpenPosition(
+    createAccount: CreateAccount!,
+    mint: Mint,
+    dryrun: Boolean
+  ): CreateAccountExec
+
+  """
+  Open a position using Florin.
+  """
+  florinOpenPosition(openPosition: FlorinOpenPosition!): FlorinOpenPositionResult
 }

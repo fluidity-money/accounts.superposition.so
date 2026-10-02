@@ -22,6 +22,21 @@ type CreateAccountExec struct {
 	Secret string `json:"secret"`
 }
 
+type FlorinOpenPosition struct {
+	// The asset to use to convert to SPY.
+	FromAsset Asset `json:"fromAsset"`
+	// Amount of Florin to use as the collateral amount when opening a position.
+	CollateralAmt string `json:"collateralAmt"`
+	// The loan amount to borrow.
+	LoanAmt string `json:"loanAmt"`
+	// Interest rate, represented as a whole 1e6 number.
+	InterestRate string `json:"interestRate"`
+}
+
+type FlorinOpenPositionResult struct {
+	Hash string `json:"hash"`
+}
+
 type FromArgs struct {
 	Token      string `json:"token"`
 	ToTake     string `json:"to_take"`
@@ -117,7 +132,7 @@ func (e *Asset) UnmarshalGQL(v any) error {
 }
 
 func (e Asset) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *Asset) UnmarshalJSON(b []byte) error {
