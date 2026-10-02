@@ -47,12 +47,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ClaimRewards                    func(childComplexity int, markets []string, msTs string, dryrun *bool) int
-		CreateAccountExec               func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) int
-		CreateAccountFlorinOpenPosition func(childComplexity int, createAccount model.CreateAccount, openPosition model.FlorinOpenPosition, gasToken model.Asset, gasTokenAmt string, dryrun *bool) int
-		FlorinOpenPosition              func(childComplexity int, openPosition model.FlorinOpenPosition) int
-		NinelivesMint                   func(childComplexity int, mint model.Mint, dryrun *bool) int
-		RequestSecret                   func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) int
+		ClaimRewards      func(childComplexity int, markets []string, msTs string, dryrun *bool) int
+		CreateAccountExec func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) int
+		NinelivesMint     func(childComplexity int, mint model.Mint, dryrun *bool) int
+		RequestSecret     func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) int
 	}
 
 	Query struct {
@@ -82,8 +80,6 @@ type MutationResolver interface {
 	RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) (string, error)
 	NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error)
 	ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error)
-	CreateAccountFlorinOpenPosition(ctx context.Context, createAccount model.CreateAccount, openPosition model.FlorinOpenPosition, gasToken model.Asset, gasTokenAmt string, dryrun *bool) (*model.CreateAccountExec, error)
-	FlorinOpenPosition(ctx context.Context, openPosition model.FlorinOpenPosition) (*model.FlorinOpenPositionResult, error)
 }
 type QueryResolver interface {
 	Publickey(ctx context.Context) (string, error)
@@ -152,28 +148,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.CreateAccountExec(childComplexity, args["createAccount"].(model.CreateAccount), args["mint"].(*model.Mint), args["dryrun"].(*bool)), true
-	case "Mutation.createAccountFlorinOpenPosition":
-		if e.ComplexityRoot.Mutation.CreateAccountFlorinOpenPosition == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createAccountFlorinOpenPosition_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.CreateAccountFlorinOpenPosition(childComplexity, args["createAccount"].(model.CreateAccount), args["openPosition"].(model.FlorinOpenPosition), args["gasToken"].(model.Asset), args["gasTokenAmt"].(string), args["dryrun"].(*bool)), true
-	case "Mutation.florinOpenPosition":
-		if e.ComplexityRoot.Mutation.FlorinOpenPosition == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_florinOpenPosition_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.FlorinOpenPosition(childComplexity, args["openPosition"].(model.FlorinOpenPosition)), true
 	case "Mutation.ninelivesMint":
 		if e.ComplexityRoot.Mutation.NinelivesMint == nil {
 			break
@@ -285,7 +259,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateAccount,
-		ec.unmarshalInputFlorinOpenPosition,
 		ec.unmarshalInputFromArgs,
 		ec.unmarshalInputMint,
 		ec.unmarshalInputPermit,
@@ -392,14 +365,6 @@ func (ec *executionContext) childFields_CreateAccountExec(ctx context.Context, f
 		return ec.fieldContext_CreateAccountExec_secret(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CreateAccountExec", field.Name)
-}
-
-func (ec *executionContext) childFields_FlorinOpenPositionResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "hash":
-		return ec.fieldContext_FlorinOpenPositionResult_hash(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type FlorinOpenPositionResult", field.Name)
 }
 
 func (ec *executionContext) childFields_Statistics(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -595,66 +560,6 @@ func (ec *executionContext) field_Mutation_createAccountExec_args(ctx context.Co
 		return nil, err
 	}
 	args["dryrun"] = arg2
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_createAccountFlorinOpenPosition_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "createAccount",
-		func(ctx context.Context, v any) (model.CreateAccount, error) {
-			return ec.unmarshalNCreateAccount2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐCreateAccount(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["createAccount"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "openPosition",
-		func(ctx context.Context, v any) (model.FlorinOpenPosition, error) {
-			return ec.unmarshalNFlorinOpenPosition2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFlorinOpenPosition(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["openPosition"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "gasToken",
-		func(ctx context.Context, v any) (model.Asset, error) {
-			return ec.unmarshalNAsset2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["gasToken"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "gasTokenAmt",
-		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["gasTokenAmt"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "dryrun",
-		func(ctx context.Context, v any) (*bool, error) {
-			return ec.unmarshalOBoolean2ᚖbool(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["dryrun"] = arg4
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_florinOpenPosition_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "openPosition",
-		func(ctx context.Context, v any) (model.FlorinOpenPosition, error) {
-			return ec.unmarshalNFlorinOpenPosition2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFlorinOpenPosition(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["openPosition"] = arg0
 	return args, nil
 }
 
@@ -1075,94 +980,6 @@ func (ec *executionContext) fieldContext_Mutation_claimRewards(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_claimRewards_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_createAccountFlorinOpenPosition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Mutation_createAccountFlorinOpenPosition(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().CreateAccountFlorinOpenPosition(ctx, fc.Args["createAccount"].(model.CreateAccount), fc.Args["openPosition"].(model.FlorinOpenPosition), fc.Args["gasToken"].(model.Asset), fc.Args["gasTokenAmt"].(string), fc.Args["dryrun"].(*bool))
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.CreateAccountExec) graphql.Marshaler {
-			return ec.marshalOCreateAccountExec2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐCreateAccountExec(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_Mutation_createAccountFlorinOpenPosition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_CreateAccountExec(ctx, field)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createAccountFlorinOpenPosition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_florinOpenPosition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Mutation_florinOpenPosition(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().FlorinOpenPosition(ctx, fc.Args["openPosition"].(model.FlorinOpenPosition))
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.FlorinOpenPositionResult) graphql.Marshaler {
-			return ec.marshalOFlorinOpenPositionResult2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFlorinOpenPositionResult(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_Mutation_florinOpenPosition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_FlorinOpenPositionResult(ctx, field)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_florinOpenPosition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2666,57 +2483,6 @@ func (ec *executionContext) unmarshalInputCreateAccount(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputFlorinOpenPosition(ctx context.Context, obj any) (model.FlorinOpenPosition, error) {
-	var it model.FlorinOpenPosition
-	if obj == nil {
-		return it, nil
-	}
-
-	asMap := map[string]any{}
-	for k, v := range obj.(map[string]any) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"fromAsset", "collateralAmt", "loanAmt", "interestRate"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "fromAsset":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fromAsset"))
-			data, err := ec.unmarshalNAsset2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.FromAsset = data
-		case "collateralAmt":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collateralAmt"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CollateralAmt = data
-		case "loanAmt":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("loanAmt"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.LoanAmt = data
-		case "interestRate":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("interestRate"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.InterestRate = data
-		}
-	}
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputFromArgs(ctx context.Context, obj any) (model.FromArgs, error) {
 	var it model.FromArgs
 	if obj == nil {
@@ -3070,20 +2836,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_claimRewards(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createAccountFlorinOpenPosition":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createAccountFlorinOpenPosition(ctx, field)
-			})
-			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
-			}
-		case "florinOpenPosition":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_florinOpenPosition(ctx, field)
-			})
-			if out.Values[i] == graphql.RequiredNull {
 				out.Invalids++
 			}
 		default:
@@ -3710,16 +3462,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAsset2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx context.Context, v any) (model.Asset, error) {
-	var res model.Asset
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAsset2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx context.Context, sel ast.SelectionSet, v model.Asset) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3755,11 +3497,6 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
-}
-
-func (ec *executionContext) unmarshalNFlorinOpenPosition2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFlorinOpenPosition(ctx context.Context, v any) (model.FlorinOpenPosition, error) {
-	res, err := ec.unmarshalInputFlorinOpenPosition(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNFromArgs2ᚕᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFromArgsᚄ(ctx context.Context, v any) ([]*model.FromArgs, error) {
@@ -4051,13 +3788,6 @@ func (ec *executionContext) marshalOCreateAccountExec2ᚖgithubᚗcomᚋfluidity
 		return graphql.Null
 	}
 	return ec._CreateAccountExec(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOFlorinOpenPositionResult2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFlorinOpenPositionResult(ctx context.Context, sel ast.SelectionSet, v *model.FlorinOpenPositionResult) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._FlorinOpenPositionResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOMint2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐMint(ctx context.Context, v any) (*model.Mint, error) {

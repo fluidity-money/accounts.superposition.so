@@ -417,16 +417,6 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 	return h.Hex(), nil
 }
 
-// CreateAccountFlorinOpenPosition is the resolver for the createAccountFlorinOpenPosition field.
-func (r *mutationResolver) CreateAccountFlorinOpenPosition(ctx context.Context, createAccount model.CreateAccount, openPosition model.FlorinOpenPosition, gasToken model.Asset, gasTokenAmt string, dryrun *bool) (*model.CreateAccountExec, error) {
-	panic(fmt.Errorf("not implemented: CreateAccountFlorinOpenPosition - createAccountFlorinOpenPosition"))
-}
-
-// FlorinOpenPosition is the resolver for the florinOpenPosition field.
-func (r *mutationResolver) FlorinOpenPosition(ctx context.Context, openPosition model.FlorinOpenPosition) (*model.FlorinOpenPositionResult, error) {
-	panic(fmt.Errorf("not implemented: FlorinOpenPosition - florinOpenPosition"))
-}
-
 // Publickey is the resolver for the publickey field.
 func (r *queryResolver) Publickey(ctx context.Context) (string, error) {
 	return hex.EncodeToString(r.AccPubKey[:]), nil
@@ -524,7 +514,10 @@ type (
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
 /*
-	func (r *mutationResolver) CreateAccountOpenPosition(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
-	panic(fmt.Errorf("not implemented: CreateAccountOpenPosition - createAccountOpenPosition"))
+	func (r *mutationResolver) CreateAccountFlorinOpenPosition(ctx context.Context, createAccount model.CreateAccount, openPosition model.FlorinOpenPosition, gasToken model.Asset, gasTokenAmt string, dryrun *bool) (*model.CreateAccountExec, error) {
+	panic(fmt.Errorf("not implemented: CreateAccountFlorinOpenPosition - createAccountFlorinOpenPosition"))
+}
+func (r *mutationResolver) FlorinOpenPosition(ctx context.Context, openPosition model.FlorinOpenPosition) (*model.FlorinOpenPositionResult, error) {
+	panic(fmt.Errorf("not implemented: FlorinOpenPosition - florinOpenPosition"))
 }
 */
