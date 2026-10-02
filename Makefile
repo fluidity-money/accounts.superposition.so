@@ -13,8 +13,8 @@ build: \
 	arbitrum.accounts.superposition.so.wasm \
 	robinhood-mainnet.accounts.superposition.so.wasm \
 	robinhood-testnet.accounts.superposition.so.wasm \
-	arbitrum.clearinghouse.wasm \
-	robinhood-mainnet.clearinghouse.wasm \
+	arbitrum.clearinghouse.superposition.so.wasm \
+	robinhood-mainnet.clearinghouse.superposition.so.wasm \
 	accounts-cli.out \
 	bootstrap.zip
 
@@ -46,11 +46,11 @@ robinhood-testnet.accounts.superposition.so.wasm: ${RUST_CODE_CONTRACT}
 	@${BUILD_CONTRACT} --features network-robinhood-testnet
 	@${WASM_POST} robinhood-testnet.accounts.superposition.so.wasm
 
-arbitrum.clearinghouse.wasm: ${RUST_CODE_CLEARINGHOUSE}
+arbitrum.clearinghouse.superposition.so.wasm: ${RUST_CODE_CLEARINGHOUSE}
 	@${BUILD_CLEARINGHOUSE} --features network-arbitrum
 	@${WASM_POST} arbitrum.clearinghouse.superposition.so.wasm
 
-robinhood-mainnet.clearinghouse.wasm: ${RUST_CODE_CLEARINGHOUSE}
+robinhood-mainnet.clearinghouse.superposition.so.wasm: ${RUST_CODE_CLEARINGHOUSE}
 	@${BUILD_CLEARINGHOUSE} --features network-robinhood
 	@${WASM_POST} robinhood-mainnet.clearinghouse.superposition.so.wasm
 
