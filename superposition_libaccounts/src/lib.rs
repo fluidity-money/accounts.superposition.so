@@ -14,8 +14,6 @@ use ed25519_dalek::SigningKey;
 #[cfg(feature = "signing")]
 use bobcat_sdk::precompiles::superposition::ed25519_sign_post;
 
-use superposition_assets::Network;
-
 pub mod storage;
 
 mod immutables;

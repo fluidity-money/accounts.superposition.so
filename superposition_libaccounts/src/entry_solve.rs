@@ -166,6 +166,8 @@ pub fn entry_solve_v3(imm: &Imm, args: SolveV3Args, sig: Sig) -> usize {
     // so this could be redundant to have two blobs if the caller doesn't plan
     // their use:
     let eth_owner = storage::ethereum_owner::get().addr();
+    let Imm { network, .. } = imm;
+    let gas_token_addr = gas_token.addr(*network).unwrap();
     if let Some(Permit {
         asset,
         deadline,
@@ -176,7 +178,7 @@ pub fn entry_solve_v3(imm: &Imm, args: SolveV3Args, sig: Sig) -> usize {
     {
         assert_eq!(gas_token, asset, "gas token {gas_token} different from {asset}");
         revert_if_bad_call_unit_vec!(call_unit_err_vec(
-            asset.addr(imm.network).unwrap(),
+            gas_token_addr,
             &make_fn_permit(
                 eth_owner,
                 contract_address(),
@@ -190,5 +192,11 @@ pub fn entry_solve_v3(imm: &Imm, args: SolveV3Args, sig: Sig) -> usize {
             u64::MAX
         ));
     };
+    revert_if_bad_call_unit_vec!(safe_call_bool_err_vec(
+        gas_token_addr,
+        &make_fn_transfer_from(eth_owner, imm.clearinghouse, &U::from(gas_token_amt)),
+        &U::ZERO,
+        u64::MAX,
+    ));
     entry_solve(imm, args, eth_owner, eth_owner)
 }
