@@ -47,12 +47,12 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ClaimRewards              func(childComplexity int, markets []string, msTs string, dryrun *bool) int
-		CreateAccountExec         func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) int
-		CreateAccountOpenPosition func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) int
-		FlorinOpenPosition        func(childComplexity int, openPosition model.FlorinOpenPosition) int
-		NinelivesMint             func(childComplexity int, mint model.Mint, dryrun *bool) int
-		RequestSecret             func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) int
+		ClaimRewards                    func(childComplexity int, markets []string, msTs string, dryrun *bool) int
+		CreateAccountExec               func(childComplexity int, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) int
+		CreateAccountFlorinOpenPosition func(childComplexity int, createAccount model.CreateAccount, openPosition model.FlorinOpenPosition, gasToken model.Asset, gasTokenAmt string, dryrun *bool) int
+		FlorinOpenPosition              func(childComplexity int, openPosition model.FlorinOpenPosition) int
+		NinelivesMint                   func(childComplexity int, mint model.Mint, dryrun *bool) int
+		RequestSecret                   func(childComplexity int, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) int
 	}
 
 	Query struct {
@@ -82,7 +82,7 @@ type MutationResolver interface {
 	RequestSecret(ctx context.Context, eoaAddr string, nonce int32, sigV int32, sigR string, sigS string, dryrun *bool) (string, error)
 	NinelivesMint(ctx context.Context, mint model.Mint, dryrun *bool) (string, error)
 	ClaimRewards(ctx context.Context, markets []string, msTs string, dryrun *bool) (string, error)
-	CreateAccountOpenPosition(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error)
+	CreateAccountFlorinOpenPosition(ctx context.Context, createAccount model.CreateAccount, openPosition model.FlorinOpenPosition, gasToken model.Asset, gasTokenAmt string, dryrun *bool) (*model.CreateAccountExec, error)
 	FlorinOpenPosition(ctx context.Context, openPosition model.FlorinOpenPosition) (*model.FlorinOpenPositionResult, error)
 }
 type QueryResolver interface {
@@ -152,17 +152,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.CreateAccountExec(childComplexity, args["createAccount"].(model.CreateAccount), args["mint"].(*model.Mint), args["dryrun"].(*bool)), true
-	case "Mutation.createAccountOpenPosition":
-		if e.ComplexityRoot.Mutation.CreateAccountOpenPosition == nil {
+	case "Mutation.createAccountFlorinOpenPosition":
+		if e.ComplexityRoot.Mutation.CreateAccountFlorinOpenPosition == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createAccountOpenPosition_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_createAccountFlorinOpenPosition_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateAccountOpenPosition(childComplexity, args["createAccount"].(model.CreateAccount), args["mint"].(*model.Mint), args["dryrun"].(*bool)), true
+		return e.ComplexityRoot.Mutation.CreateAccountFlorinOpenPosition(childComplexity, args["createAccount"].(model.CreateAccount), args["openPosition"].(model.FlorinOpenPosition), args["gasToken"].(model.Asset), args["gasTokenAmt"].(string), args["dryrun"].(*bool)), true
 	case "Mutation.florinOpenPosition":
 		if e.ComplexityRoot.Mutation.FlorinOpenPosition == nil {
 			break
@@ -598,7 +598,7 @@ func (ec *executionContext) field_Mutation_createAccountExec_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createAccountOpenPosition_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_createAccountFlorinOpenPosition_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "createAccount",
@@ -609,22 +609,38 @@ func (ec *executionContext) field_Mutation_createAccountOpenPosition_args(ctx co
 		return nil, err
 	}
 	args["createAccount"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "mint",
-		func(ctx context.Context, v any) (*model.Mint, error) {
-			return ec.unmarshalOMint2ᚖgithubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐMint(ctx, v)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "openPosition",
+		func(ctx context.Context, v any) (model.FlorinOpenPosition, error) {
+			return ec.unmarshalNFlorinOpenPosition2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐFlorinOpenPosition(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["mint"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "dryrun",
+	args["openPosition"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "gasToken",
+		func(ctx context.Context, v any) (model.Asset, error) {
+			return ec.unmarshalNAsset2githubᚗcomᚋfluidityᚑmoneyᚋaccountsᚗsuperpositionᚗsoᚋgraphᚋmodelᚐAsset(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["gasToken"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "gasTokenAmt",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["gasTokenAmt"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "dryrun",
 		func(ctx context.Context, v any) (*bool, error) {
 			return ec.unmarshalOBoolean2ᚖbool(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["dryrun"] = arg2
+	args["dryrun"] = arg4
 	return args, nil
 }
 
@@ -1065,17 +1081,17 @@ func (ec *executionContext) fieldContext_Mutation_claimRewards(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createAccountOpenPosition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_createAccountFlorinOpenPosition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Mutation_createAccountOpenPosition(ctx, field)
+			return ec.fieldContext_Mutation_createAccountFlorinOpenPosition(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().CreateAccountOpenPosition(ctx, fc.Args["createAccount"].(model.CreateAccount), fc.Args["mint"].(*model.Mint), fc.Args["dryrun"].(*bool))
+			return ec.Resolvers.Mutation().CreateAccountFlorinOpenPosition(ctx, fc.Args["createAccount"].(model.CreateAccount), fc.Args["openPosition"].(model.FlorinOpenPosition), fc.Args["gasToken"].(model.Asset), fc.Args["gasTokenAmt"].(string), fc.Args["dryrun"].(*bool))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *model.CreateAccountExec) graphql.Marshaler {
@@ -1085,7 +1101,7 @@ func (ec *executionContext) _Mutation_createAccountOpenPosition(ctx context.Cont
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Mutation_createAccountOpenPosition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createAccountFlorinOpenPosition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1102,7 +1118,7 @@ func (ec *executionContext) fieldContext_Mutation_createAccountOpenPosition(ctx 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createAccountOpenPosition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createAccountFlorinOpenPosition_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3056,9 +3072,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createAccountOpenPosition":
+		case "createAccountFlorinOpenPosition":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createAccountOpenPosition(ctx, field)
+				return ec._Mutation_createAccountFlorinOpenPosition(ctx, field)
 			})
 			if out.Values[i] == graphql.RequiredNull {
 				out.Invalids++

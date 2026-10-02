@@ -417,9 +417,9 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 	return h.Hex(), nil
 }
 
-// CreateAccountOpenPosition is the resolver for the createAccountOpenPosition field.
-func (r *mutationResolver) CreateAccountOpenPosition(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
-	panic(fmt.Errorf("not implemented: CreateAccountOpenPosition - createAccountOpenPosition"))
+// CreateAccountFlorinOpenPosition is the resolver for the createAccountFlorinOpenPosition field.
+func (r *mutationResolver) CreateAccountFlorinOpenPosition(ctx context.Context, createAccount model.CreateAccount, openPosition model.FlorinOpenPosition, gasToken model.Asset, gasTokenAmt string, dryrun *bool) (*model.CreateAccountExec, error) {
+	panic(fmt.Errorf("not implemented: CreateAccountFlorinOpenPosition - createAccountFlorinOpenPosition"))
 }
 
 // FlorinOpenPosition is the resolver for the florinOpenPosition field.
@@ -516,3 +516,15 @@ type (
 	mutationResolver struct{ *Resolver }
 	queryResolver    struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *mutationResolver) CreateAccountOpenPosition(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
+	panic(fmt.Errorf("not implemented: CreateAccountOpenPosition - createAccountOpenPosition"))
+}
+*/
