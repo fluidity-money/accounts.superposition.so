@@ -201,23 +201,15 @@ func NewPermit(
 	}, nil
 }
 
-// CreateSolveArgsSigArgs for minting by also creating 9lives calldata.
+// CreateSolveArgsSigArgs using the calldata given (user friendly function for graphs.)
 func CreateSolveArgsSigArgs(
 	prog string,
 	asset superposition_assets.Asset,
-	market, outcome, amount, referrer string,
-	recipient ethCommon.Address,
+	target, amount string,
+	cd []byte,
 	permit *model.Permit,
 	msTs_ string,
 ) (*types.SolveArgsSigArgs, error) {
-	m, err := strToAddr(market)
-	if err != nil {
-		return nil, fmt.Errorf("addr: %v", err)
-	}
-	o, err := strToBytes8(outcome)
-	if err != nil {
-		return nil, fmt.Errorf("outcome: %v", err)
-	}
 	a_, ok := new(big.Int).SetString(amount, 10)
 	if !ok {
 		return nil, fmt.Errorf("amount: %v", amount)
@@ -227,28 +219,20 @@ func CreateSolveArgsSigArgs(
 	}
 	var a [32]byte
 	copy(a[32-len(a_.Bytes()):], a_.Bytes())
-	ref, err := strToAddr(referrer)
-	if err != nil {
-		return nil, fmt.Errorf("referrer: %v", err)
-	}
 	msTsI, ok := new(big.Int).SetString(msTs_, 10)
 	if !ok {
 		return nil, fmt.Errorf("ms ts: %v", msTs_)
 	}
-	var (
-		rec  [20]byte
-		msTs [16]byte
-	)
-	copy(rec[:], recipient.Bytes())
+	m, err := strToAddr(target)
+	if err != nil {
+		return nil, fmt.Errorf("addr: %v", err)
+	}
+	var msTs [16]byte
 	copy(msTs[:], msTsI.Bytes())
-	// We use the schedule claim feature instead of the default mint
-	// so that the rpc users can get out easily:
-	cd := ninelives.NewMint(o, a, ref, rec)
 	solveArgs := types.SolveArgs{
 		From: []types.FromArgs{{
 			Asset:  asset,
 			ToTake: a,
-			//MaxUnspent: [32]byte{},
 		}},
 		Target: m,
 		Cd:     cd,
@@ -292,6 +276,46 @@ func CreateSolveArgsSigArgs(
 	}, nil
 }
 
+// CreateSolveArgsSigArgs for minting by also creating 9lives calldata.
+func CreateSolveArgsSigArgsMint(
+	prog string,
+	asset superposition_assets.Asset,
+	market, outcome, amount, referrer string,
+	recipient ethCommon.Address,
+	permit *model.Permit,
+	msTs_ string,
+) (*types.SolveArgsSigArgs, error) {
+	o, err := strToBytes8(outcome)
+	if err != nil {
+		return nil, fmt.Errorf("outcome: %v", err)
+	}
+	a_, ok := new(big.Int).SetString(amount, 10)
+	if !ok {
+		return nil, fmt.Errorf("amount: %v", amount)
+	}
+	if len(a_.Bytes()) > 32 {
+		return nil, fmt.Errorf("too huge amount: %v", amount)
+	}
+	var a [32]byte
+	copy(a[32-len(a_.Bytes()):], a_.Bytes())
+	ref, err := strToAddr(referrer)
+	if err != nil {
+		return nil, fmt.Errorf("referrer: %v", err)
+	}
+	var rec  [20]byte
+	copy(rec[:], recipient.Bytes())
+	cd := ninelives.NewMint(o, a, ref, rec)
+	return CreateSolveArgsSigArgs(
+		prog,
+		asset,
+		market,
+		amount,
+		cd,
+		permit,
+		msTs_,
+	)
+}
+
 func TagFreshBackwardsWithMint(
 	prog string,
 	f *types.FreshBackwards,
@@ -301,7 +325,7 @@ func TagFreshBackwardsWithMint(
 	permit *model.Permit,
 	msTs string,
 ) error {
-	m, err := CreateSolveArgsSigArgs(
+	m, err := CreateSolveArgsSigArgsMint(
 		prog,
 		asset,
 		market, outcome, amount, referrer, recipient,

@@ -262,7 +262,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 	if err != nil {
 		log.Fatalf("picking private key: %v", err)
 	}
-	f, err := convertor.CreateSolveArgsSigArgs(
+	f, err := convertor.CreateSolveArgsSigArgsMint(
 		ProgDalek,
 		superposition_assets.AssetUsdc,
 		mint.Market,
