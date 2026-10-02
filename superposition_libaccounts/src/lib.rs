@@ -401,9 +401,9 @@ pub fn entry(imm: &Imm, x: Args) -> usize {
         Args::SolveV2 { args, sig } => {
             reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_solve_v2(imm, args, sig))
         }
-        Args::TransferOnly { args, sig } => reentrancy_guard_const_keccak(REENTRANCY_KEY, || {
-            entry_transfer_only(imm, args, sig)
-        }),
+        Args::TransferOnly { args, sig } => {
+            reentrancy_guard_const_keccak(REENTRANCY_KEY, || entry_transfer_only(imm, args, sig))
+        }
         Args::Statement { args, sig } => entry_statement(args, sig),
         Args::Owner => entry_owner(),
         Args::Ed25519Key => entry_ed25519_key(),

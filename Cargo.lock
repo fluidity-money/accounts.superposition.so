@@ -477,6 +477,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "contract-clearinghouse"
+version = "0.1.0"
+dependencies = [
+ "superposition-assets",
+]
+
+[[package]]
 name = "convert_case"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

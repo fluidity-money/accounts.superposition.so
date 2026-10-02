@@ -1,0 +1,11 @@
+[package]
+name = "contract-clearinghouse"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+superposition-assets.workspace = true
+
+[features]
+network-arbitrum = []
+network-robinhood = []

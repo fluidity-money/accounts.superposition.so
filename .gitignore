@@ -1,6 +1,8 @@
 arbitrum.accounts.superposition.so.wasm
 robinhood-mainnet.accounts.superposition.so.wasm
 robinhood-testnet.accounts.superposition.so.wasm
+arbitrum.clearinghouse.superposition.so.wasm
+robinhood-mainnet.clearinghouse.superposition.so.wasm
 *.wat
 *.wasm1
 target

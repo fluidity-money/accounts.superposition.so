@@ -14,8 +14,8 @@ use bobcat_sdk::{
 };
 
 use crate::{
-    FromArgs, Permit, Sig, SolveArgs, SolveArgsSigArgs, SolveV2Args, SolveV3Args, call_authority,
-    storage, Imm,
+    FromArgs, Imm, Permit, Sig, SolveArgs, SolveArgsSigArgs, SolveV2Args, SolveV3Args,
+    call_authority, storage,
 };
 
 pub fn entry_solve(
@@ -176,7 +176,10 @@ pub fn entry_solve_v3(imm: &Imm, args: SolveV3Args, sig: Sig) -> usize {
         s,
     }) = gas_token_permit
     {
-        assert_eq!(gas_token, asset, "gas token {gas_token} different from {asset}");
+        assert_eq!(
+            gas_token, asset,
+            "gas token {gas_token} different from {asset}"
+        );
         revert_if_bad_call_unit_vec!(call_unit_err_vec(
             gas_token_addr,
             &make_fn_permit(

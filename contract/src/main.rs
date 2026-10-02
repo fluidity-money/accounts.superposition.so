@@ -14,7 +14,7 @@ use borsh::de::BorshDeserialize;
 #[cfg(target_arch = "wasm32")]
 static ALLOC: mini_alloc::MiniAlloc = mini_alloc::MiniAlloc::INIT;
 
-use superposition_libaccounts::{Imm, Args, SLOT_IMPL, entry, entry_migrate::entry_migrate};
+use superposition_libaccounts::{Args, Imm, SLOT_IMPL, entry, entry_migrate::entry_migrate};
 
 use superposition_assets::Network;
 
@@ -46,11 +46,20 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
         return 0;
     }
     #[cfg(feature = "network-arbitrum")]
-    let imm = Imm { network: Network::Arbitrum, clearinghouse: [0u8; 20] };
+    let imm = Imm {
+        network: Network::Arbitrum,
+        clearinghouse: [0u8; 20],
+    };
     #[cfg(feature = "network-robinhood-mainnet")]
-    let imm = Imm { network: Network::Robinhood, clearinghouse: [0u8; 20] };
+    let imm = Imm {
+        network: Network::Robinhood,
+        clearinghouse: [0u8; 20],
+    };
     #[cfg(feature = "network-robinhood-testnet")]
-    let imm = Imm { network: Network::RobinhoodTestnet, clearinghouse: [0u8; 20] };
+    let imm = Imm {
+        network: Network::RobinhoodTestnet,
+        clearinghouse: [0u8; 20],
+    };
     flush_guard(|| {
         let args = read_args_vec(len);
         if args.len() > 4 && args[..4] == SEL_MIGRATE {

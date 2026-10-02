@@ -1,4 +1,6 @@
 
+include config.mk
+
 .PHONY: build clean frontend
 
 .DELETE_ON_ERROR:
@@ -11,28 +13,46 @@ build: \
 	arbitrum.accounts.superposition.so.wasm \
 	robinhood-mainnet.accounts.superposition.so.wasm \
 	robinhood-testnet.accounts.superposition.so.wasm \
+	arbitrum.clearinghouse.wasm \
+	robinhood-mainnet.clearinghouse.wasm \
 	accounts-cli.out \
 	bootstrap.zip
 
-RUST_CODE := $(shell find Cargo.* contract superposition_libaccounts -type f)
+RUST_CODE := $(shell find Cargo.* superposition_libaccounts -type f)
 
-BUILD_CONTRACT := cargo build --release --target wasm32-unknown-unknown --bin contract
+RUST_CODE_CONTRACT := ${RUST_CODE} $(shell find contract -type f)
+
+RUST_CODE_CLEARINGHOUSE := ${RUST_CODE} $(shell find contract-clearinghouse -type f)
+
+BUILD_WASM := cargo build --release --target wasm32-unknown-unknown
+
+BUILD_CONTRACT := ${BUILD_WASM} --bin contract
+
+BUILD_CLEARINGHOUSE := ${BUILD_WASM} --bin contract-clearinghouse
 
 WASM_POST := \
 	./wasm-post.sh \
 		target/wasm32-unknown-unknown/release/contract.wasm
 
-arbitrum.accounts.superposition.so.wasm: ${RUST_CODE}
+arbitrum.accounts.superposition.so.wasm: ${RUST_CODE_CONTRACT}
 	@${BUILD_CONTRACT} --features network-arbitrum
 	@${WASM_POST} arbitrum.accounts.superposition.so.wasm
 
-robinhood-mainnet.accounts.superposition.so.wasm: ${RUST_CODE}
+robinhood-mainnet.accounts.superposition.so.wasm: ${RUST_CODE_CONTRACT}
 	@${BUILD_CONTRACT} --features network-robinhood-mainnet
 	@${WASM_POST} robinhood-mainnet.accounts.superposition.so.wasm
 
-robinhood-testnet.accounts.superposition.so.wasm: ${RUST_CODE}
+robinhood-testnet.accounts.superposition.so.wasm: ${RUST_CODE_CONTRACT}
 	@${BUILD_CONTRACT} --features network-robinhood-testnet
 	@${WASM_POST} robinhood-testnet.accounts.superposition.so.wasm
+
+arbitrum.clearinghouse.wasm: ${RUST_CODE_CLEARINGHOUSE}
+	@${BUILD_CLEARINGHOUSE} --features network-arbitrum
+	@${WASM_POST} arbitrum.clearinghouse.superposition.so.wasm
+
+robinhood-mainnet.clearinghouse.wasm: ${RUST_CODE_CLEARINGHOUSE}
+	@${BUILD_CLEARINGHOUSE} --features network-robinhood
+	@${WASM_POST} robinhood-mainnet.clearinghouse.superposition.so.wasm
 
 accounts-cli.out: $(shell find Cargo.* superposition_libaccounts accounts-cli -type f)
 	@rm -f accounts-cli.out
