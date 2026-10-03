@@ -28,7 +28,7 @@ import (
 // CreateAccountExec is the resolver for the createAccountExec field.
 func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount model.CreateAccount, mint *model.Mint, dryrun *bool) (*model.CreateAccountExec, error) {
 	snowflake, _ := ctx.Value("snowflake").(int)
-	f, err := convertor.CreateAccountToFreshBackwards(r.AccPubKey, createAccount)
+	f, err := convertor.CreateAccountToFreshBackwardsGraph(r.AccPubKey, createAccount)
 	if err != nil {
 		slog.Error("create account",
 			"create account", createAccount,
@@ -43,7 +43,7 @@ func (r *mutationResolver) CreateAccountExec(ctx context.Context, createAccount 
 	eoa := ethCommon.HexToAddress(createAccount.EoaAddr)
 	slog.Debug("Creating a new account", "eoa", eoa, "snowflake", snowflake)
 	if mint != nil {
-		err = convertor.TagFreshBackwardsWithMint(
+		err = convertor.TagFreshBackwardsWithMintGraph(
 			ProgDalek,
 			f,
 			superposition_assets.AssetUsdc,
@@ -262,7 +262,7 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 	if err != nil {
 		log.Fatalf("picking private key: %v", err)
 	}
-	f, err := convertor.CreateSolveArgsSigArgsMint(
+	f, err := convertor.CreateSolveArgsSigArgsMintGraph(
 		ProgDalek,
 		superposition_assets.AssetUsdc,
 		mint.Market,
@@ -359,7 +359,7 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 	if err != nil {
 		log.Fatalf("picking private key: %v", err)
 	}
-	f, err := convertor.CreatePayoffForOtherArgs(
+	f, err := convertor.CreatePayoffForOtherArgsGraph(
 		ProgDalek,
 		r.ClaimantHelperAddr,
 		eoa,

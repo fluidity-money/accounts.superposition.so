@@ -30,29 +30,37 @@ BUILD_CONTRACT := ${BUILD_WASM} --bin contract
 
 BUILD_CLEARINGHOUSE := ${BUILD_WASM} --bin contract-clearinghouse
 
-WASM_POST := \
-	./wasm-post.sh \
-		target/wasm32-unknown-unknown/release/contract.wasm
+WASM_POST := ./wasm-post.sh
 
 arbitrum.accounts.superposition.so.wasm: ${RUST_CODE_CONTRACT}
 	@${BUILD_CONTRACT} --features network-arbitrum
-	@${WASM_POST} arbitrum.accounts.superposition.so.wasm
+	@${WASM_POST} \
+		contract.wasm \
+		arbitrum.accounts.superposition.so.wasm
 
 robinhood-mainnet.accounts.superposition.so.wasm: ${RUST_CODE_CONTRACT}
 	@${BUILD_CONTRACT} --features network-robinhood-mainnet
-	@${WASM_POST} robinhood-mainnet.accounts.superposition.so.wasm
+	@${WASM_POST} \
+		contract.wasm \
+		robinhood-mainnet.accounts.superposition.so.wasm
 
 robinhood-testnet.accounts.superposition.so.wasm: ${RUST_CODE_CONTRACT}
 	@${BUILD_CONTRACT} --features network-robinhood-testnet
-	@${WASM_POST} robinhood-testnet.accounts.superposition.so.wasm
+	@${WASM_POST} \
+		contract.wasm \
+		robinhood-testnet.accounts.superposition.so.wasm
 
 arbitrum.clearinghouse.superposition.so.wasm: ${RUST_CODE_CLEARINGHOUSE}
 	@${BUILD_CLEARINGHOUSE} --features network-arbitrum
-	@${WASM_POST} arbitrum.clearinghouse.superposition.so.wasm
+	@${WASM_POST} \
+		contract-clearinghouse.wasm \
+		arbitrum.clearinghouse.superposition.so.wasm
 
 robinhood-mainnet.clearinghouse.superposition.so.wasm: ${RUST_CODE_CLEARINGHOUSE}
 	@${BUILD_CLEARINGHOUSE} --features network-robinhood
-	@${WASM_POST} robinhood-mainnet.clearinghouse.superposition.so.wasm
+	@${WASM_POST} \
+		contract-clearinghouse.wasm \
+		robinhood-mainnet.clearinghouse.superposition.so.wasm
 
 accounts-cli.out: $(shell find Cargo.* superposition_libaccounts accounts-cli -type f)
 	@rm -f accounts-cli.out

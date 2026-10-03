@@ -13,7 +13,7 @@ wasm-opt \
 	--enable-bulk-memory \
 	--strip \
 	-Oz \
-	"$1" \
+	"target/wasm32-unknown-unknown/release/$1" \
 	-o $f.wasm1
 
 wasm2wat -o $f.wat $f.wasm1

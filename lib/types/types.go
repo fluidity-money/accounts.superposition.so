@@ -15,6 +15,9 @@ const (
 	ArgsTransferOnly
 	ArgsStatement
 	ArgsOwner
+	ArgsEd25519Key
+	ArgsSolveV3
+	ArgsAssetsVersion
 )
 
 type (
@@ -28,6 +31,9 @@ type (
 		TransferOnly   TransferOnly   `json:"transfer_only"`
 		Statement      Statement      `json:"statement"`
 		Owner          Owner          `json:"owner"`
+		Ed25519Key Ed25519Key `json:"ed25519_key"`
+		SolveV3 SolveV3 `json:"solve_v3"`
+		AssetsVersion AssetsVersion `json:"asset_version"`
 	}
 
 	Permit struct {
@@ -126,4 +132,20 @@ type (
 	}
 
 	Owner struct{}
+
+	Ed25519Key struct {}
+
+	SolveV3Args struct {
+		Args []SolveArgs `json:"args"`
+		GasToken superposition_assets.Asset `json:"gas_token"`
+		GasTokenAmt uint64 `json:"gas_token_amt"`
+		GasTokenPermit *Permit `json:"gas_token_permit"`
+	}
+
+	SolveV3 struct {
+		Args SolveV3Args `json:"args"`
+		Sig Sig `json:"sig"`
+	}
+
+	AssetsVersion struct {}
 )
