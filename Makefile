@@ -67,13 +67,13 @@ accounts-cli.out: $(shell find Cargo.* superposition_libaccounts accounts-cli -t
 	@cargo build --release --bin accounts-cli
 	@mv target/release/accounts-cli accounts-cli.out
 
-ed25519-dalek-ph.out: $(shell find Cargo.* ed25519-dalek-ph -type f)
+ed25519-dalek-ph.out: $(shell find Cargo.* ed25519-dalek-ph -path '*/target' -prune -o -type f -print)
 	@rm -f ed25519-dalek-ph.out
 	@cd ed25519-dalek-ph && \
 		cargo build --release --bin ed25519-dalek-ph && \
 		mv target/release/ed25519-dalek-ph ../ed25519-dalek-ph.out
 
-accounts.superposition.so: $(shell find -name '*.go') ed25519-dalek-ph.out
+accounts.superposition.so: $(shell find -name '*.go')
 	@go build
 
 bootstrap: accounts.superposition.so
