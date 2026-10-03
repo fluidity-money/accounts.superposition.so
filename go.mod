@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-lambda-go v1.55.1
 	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/ethereum/go-ethereum v1.17.7
-	github.com/fluidity-money/superposition-assets v0.0.0-20261001155344-45916b25e876
+	github.com/fluidity-money/superposition-assets v0.0.0-20261002160639-e69f1628bca5
 	github.com/lib/pq v1.12.3
 	github.com/near/borsh-go v0.3.1
 	github.com/stretchr/testify v1.12.1

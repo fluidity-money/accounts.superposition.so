@@ -150,7 +150,6 @@ func CreatePayoffForOtherArgs(
 		Args: solveArgs,
 	}, nil
 }
-
 func CreatePayoffForOtherArgsGraph(
 	prog string,
 	claimantHelper, eoa ethCommon.Address,
@@ -171,7 +170,6 @@ func CreatePayoffForOtherArgsGraph(
 		}
 		markets[i] = ethCommon.HexToAddress(m)
 	}
-
 	return CreatePayoffForOtherArgs(
 		prog,
 		claimantHelper,
@@ -206,7 +204,6 @@ func CreateAccountToFreshBackwardsGraph(
 	if err != nil {
 		return nil, fmt.Errorf("eoa: %v", err)
 	}
-
 	var authority *types.ArgsAuthorityAddr
 	if a := createAccount.Authority; a != nil {
 		x, err := strToAddr(*a)
@@ -216,21 +213,17 @@ func CreateAccountToFreshBackwardsGraph(
 		v := types.ArgsAuthorityAddr(x)
 		authority = &v
 	}
-
 	if createAccount.SigV < 0 || createAccount.SigV > math.MaxUint8 {
 		return nil, fmt.Errorf("v exceeds")
 	}
-
 	r, err := strToBytes32(createAccount.SigR)
 	if err != nil {
 		return nil, fmt.Errorf("r: %v", err)
 	}
-
 	s, err := strToBytes32(createAccount.SigS)
 	if err != nil {
 		return nil, fmt.Errorf("s: %v", err)
 	}
-
 	return CreateAccountToFreshBackwards(
 		pubKey,
 		eoa,
@@ -265,17 +258,14 @@ func NewPermitGraph(
 	if permitV < 0 || permitV > math.MaxUint8 {
 		return nil, fmt.Errorf("v exceeds")
 	}
-
 	r, err := strToBytes32(permitR)
 	if err != nil {
 		return nil, fmt.Errorf("permit r: %v", err)
 	}
-
 	s, err := strToBytes32(permitS)
 	if err != nil {
 		return nil, fmt.Errorf("permit s: %v", err)
 	}
-
 	return NewPermit(
 		asset,
 		deadline,
@@ -303,16 +293,13 @@ func CreateSolveArgsSigArgs(
 		Cd:     cd,
 		MsTs:   msTs,
 	}
-
 	if permit != nil {
 		solveArgs.Permit = append(solveArgs.Permit, *permit)
 	}
-
 	solveArgsDigest, err := borsh.Serialize(solveArgs)
 	if err != nil {
 		return nil, fmt.Errorf("making digest: %v", err)
 	}
-
 	var sigArr [64]byte
 	d := sha512.Sum512(solveArgsDigest)
 	sig, err := exec.Command(
@@ -322,9 +309,39 @@ func CreateSolveArgsSigArgs(
 	if err != nil {
 		return nil, fmt.Errorf("invoking dalekph: %v, %v", string(sig), err)
 	}
-
 	copy(sigArr[:], sig)
 
+	return &types.SolveArgsSigArgs{
+		Sig:  sigArr,
+		Args: solveArgs,
+	}, nil
+}
+
+func CreateSolveArgsSigArgsNoToken(
+	prog string,
+	target ethCommon.Address,
+	cd []byte,
+	msTs [16]byte,
+) (*types.SolveArgsSigArgs, error) {
+	solveArgs := types.SolveArgs{
+		Target: target,
+		Cd:     cd,
+		MsTs:   msTs,
+	}
+	solveArgsDigest, err := borsh.Serialize(solveArgs)
+	if err != nil {
+		return nil, fmt.Errorf("making digest: %v", err)
+	}
+	var sigArr [64]byte
+	d := sha512.Sum512(solveArgsDigest)
+	sig, err := exec.Command(
+		prog,
+		hex.EncodeToString(d[:]),
+	).Output()
+	if err != nil {
+		return nil, fmt.Errorf("invoking dalekph: %v, %v", string(sig), err)
+	}
+	copy(sigArr[:], sig)
 	return &types.SolveArgsSigArgs{
 		Sig:  sigArr,
 		Args: solveArgs,
@@ -346,7 +363,6 @@ func CreateSolveArgsSigArgsGraph(
 	if len(a_.Bytes()) > 32 {
 		return nil, fmt.Errorf("too huge amount: %v", amount)
 	}
-
 	var a [32]byte
 	copy(a[32-len(a_.Bytes()):], a_.Bytes())
 
@@ -354,7 +370,6 @@ func CreateSolveArgsSigArgsGraph(
 	if !ok {
 		return nil, fmt.Errorf("ms ts: %v", msTs_)
 	}
-
 	var msTs [16]byte
 	copy(msTs[:], msTsI.Bytes())
 
@@ -362,13 +377,11 @@ func CreateSolveArgsSigArgsGraph(
 	if err != nil {
 		return nil, fmt.Errorf("addr: %v", err)
 	}
-
 	var p *types.Permit
 	if permit != nil {
 		if permit.Deadline < 0 {
 			return nil, fmt.Errorf("negative deadline")
 		}
-
 		p, err = NewPermitGraph(
 			asset,
 			uint64(permit.Deadline),
@@ -380,7 +393,6 @@ func CreateSolveArgsSigArgsGraph(
 			return nil, fmt.Errorf("permit: %v", err)
 		}
 	}
-
 	return CreateSolveArgsSigArgs(
 		prog,
 		asset,
@@ -408,7 +420,6 @@ func CreateSolveArgsSigArgsMint(
 		referrer,
 		recipient,
 	)
-
 	return CreateSolveArgsSigArgs(
 		prog,
 		asset,
@@ -432,7 +443,6 @@ func CreateSolveArgsSigArgsMintGraph(
 	if err != nil {
 		return nil, fmt.Errorf("outcome: %v", err)
 	}
-
 	a_, ok := new(big.Int).SetString(amount, 10)
 	if !ok {
 		return nil, fmt.Errorf("amount: %v", amount)
@@ -440,7 +450,6 @@ func CreateSolveArgsSigArgsMintGraph(
 	if len(a_.Bytes()) > 32 {
 		return nil, fmt.Errorf("too huge amount: %v", amount)
 	}
-
 	var a [32]byte
 	copy(a[32-len(a_.Bytes()):], a_.Bytes())
 
@@ -448,17 +457,14 @@ func CreateSolveArgsSigArgsMintGraph(
 	if err != nil {
 		return nil, fmt.Errorf("market: %v", err)
 	}
-
 	ref, err := strToAddr(referrer)
 	if err != nil {
 		return nil, fmt.Errorf("referrer: %v", err)
 	}
-
 	msTsI, ok := new(big.Int).SetString(msTs_, 10)
 	if !ok {
 		return nil, fmt.Errorf("ms ts: %v", msTs_)
 	}
-
 	var msTs [16]byte
 	copy(msTs[:], msTsI.Bytes())
 
@@ -467,7 +473,6 @@ func CreateSolveArgsSigArgsMintGraph(
 		if permit.Deadline < 0 {
 			return nil, fmt.Errorf("negative deadline")
 		}
-
 		p, err = NewPermitGraph(
 			asset,
 			uint64(permit.Deadline),
@@ -479,7 +484,6 @@ func CreateSolveArgsSigArgsMintGraph(
 			return nil, fmt.Errorf("permit: %v", err)
 		}
 	}
-
 	return CreateSolveArgsSigArgsMint(
 		prog,
 		asset,
@@ -515,7 +519,21 @@ func TagFreshBackwards(
 	if err != nil {
 		return err
 	}
+	f.SolveArgs = append(f.SolveArgs, *m)
+	return nil
+}
 
+func TagFreshBackwardsNoToken(
+	prog string,
+	f *types.FreshBackwards,
+	target ethCommon.Address,
+	cd []byte,
+	msTs [16]byte,
+) error {
+	m, err := CreateSolveArgsSigArgsNoToken(prog, target, cd, msTs)
+	if err != nil {
+		return err
+	}
 	f.SolveArgs = append(f.SolveArgs, *m)
 	return nil
 }
@@ -541,7 +559,6 @@ func TagFreshBackwardsGraph(
 	if err != nil {
 		return err
 	}
-
 	f.SolveArgs = append(f.SolveArgs, *m)
 	return nil
 }
@@ -571,7 +588,6 @@ func TagFreshBackwardsWithMint(
 	if err != nil {
 		return err
 	}
-
 	f.SolveArgs = append(f.SolveArgs, *m)
 	return nil
 }
@@ -599,7 +615,6 @@ func TagFreshBackwardsWithMintGraph(
 	if err != nil {
 		return err
 	}
-
 	f.SolveArgs = append(f.SolveArgs, *m)
 	return nil
 }
