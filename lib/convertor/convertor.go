@@ -162,7 +162,7 @@ func CreatePayoffForOtherArgsGraph(
 	}
 	var msTs [16]byte
 	msTsB := msTsI.Bytes()
-	if l := len(msTsB) > 32 {
+	if l := len(msTsB); l  > 32 {
 		return nil, fmt.Errorf("ms ts too large: %v", l)
 	}
 	copy(msTs[32-len(msTsB):], msTsB)
