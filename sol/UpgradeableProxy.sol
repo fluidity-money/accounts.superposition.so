@@ -61,12 +61,10 @@ contract UpgradeableProxy {
             }
             (address newImpl, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
             emit Upgraded(newImpl);
-            uint256 rdlen;
             assembly {
                 sstore(slotImpl, newImpl)
-                rdlen := returndatasize()
             }
-            if (rdlen > 0) {
+            if (data.length > 0) {
                 (bool rc,) = newImpl.delegatecall(data);
                 require(rc, "delegatecall failed");
             }

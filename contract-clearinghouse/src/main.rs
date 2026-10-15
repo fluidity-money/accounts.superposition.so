@@ -7,6 +7,7 @@ use bobcat_sdk::{
     },
     prelude::*,
 };
+
 use superposition_assets::{Asset, Network};
 
 #[global_allocator]
@@ -85,7 +86,7 @@ pub unsafe extern "C" fn user_entrypoint(len: usize) -> usize {
                 .addr(network)
                 .expect("asset is not supported on this network");
             let calldata = make_quote_calldata(asset_addr, fee, tick_spacing, amt);
-            let (rc, quote) = static_call_word(uniswap_quoter, &calldata, u64::MAX, 32);
+            let (rc, quote) = call_word(uniswap_quoter, &calldata, u64::MAX, 32);
             assert!(rc, "failed to call Uniswap quoter");
             write_word(&quote);
             0

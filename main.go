@@ -132,6 +132,14 @@ func (a authMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// since we have an open database storage situation acrouss our
 		// monitoring stack. We avoid a roundtrip of the secret this way!
 		bearerS := strings.Split(bearer, ":")
+		if len(bearerS) != 2 {
+			slog.Error("bad bearer header",
+				"snowflake", snowflake,
+				"bearer", bearerS,
+			)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		eoaPreferred_ := bearerS[0]
 		if !ethCommon.IsHexAddress(eoaPreferred_) {
 			slog.Error("not eoa address",

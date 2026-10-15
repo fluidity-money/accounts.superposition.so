@@ -161,8 +161,11 @@ func CreatePayoffForOtherArgsGraph(
 		return nil, fmt.Errorf("ms ts: %v", msTs_)
 	}
 	var msTs [16]byte
-	copy(msTs[:], msTsI.Bytes())
-
+	msTsB := msTsI.Bytes()
+	if l := len(msTsB) > 32 {
+		return nil, fmt.Errorf("ms ts too large: %v", l)
+	}
+	copy(msTs[32-len(msTsB):], msTsB)
 	markets := make([]ethCommon.Address, len(markets_))
 	for i, m := range markets_ {
 		if !ethCommon.IsHexAddress(m) {
@@ -310,7 +313,6 @@ func CreateSolveArgsSigArgs(
 		return nil, fmt.Errorf("invoking dalekph: %v, %v", string(sig), err)
 	}
 	copy(sigArr[:], sig)
-
 	return &types.SolveArgsSigArgs{
 		Sig:  sigArr,
 		Args: solveArgs,
@@ -365,14 +367,16 @@ func CreateSolveArgsSigArgsGraph(
 	}
 	var a [32]byte
 	copy(a[32-len(a_.Bytes()):], a_.Bytes())
-
 	msTsI, ok := new(big.Int).SetString(msTs_, 10)
 	if !ok {
 		return nil, fmt.Errorf("ms ts: %v", msTs_)
 	}
 	var msTs [16]byte
-	copy(msTs[:], msTsI.Bytes())
-
+	msTsB := msTsI.Bytes()
+	if l := len(msTsB); l > 32 {
+		return nil, fmt.Errorf("ms ts too large: %v", l)
+	}
+	copy(msTs[32-len(msTsB):], msTsB)
 	m, err := strToAddr(target)
 	if err != nil {
 		return nil, fmt.Errorf("addr: %v", err)

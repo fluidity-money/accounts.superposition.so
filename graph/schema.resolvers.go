@@ -337,7 +337,9 @@ func (r *mutationResolver) NinelivesMint(ctx context.Context, mint model.Mint, d
 		}
 		return "", fmt.Errorf("last error sending: %v", err)
 	}
-	trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "mint")
+	if !isDryrun(dryrun) {
+		trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "mint")
+	}
 	return h.Hex(), nil
 }
 
@@ -413,7 +415,9 @@ func (r *mutationResolver) ClaimRewards(ctx context.Context, markets []string, m
 
 		return "", fmt.Errorf("last error sending: %v", err)
 	}
-	trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "claim rewards")
+	if !isDryrun(dryrun) {
+		trackTx(r.Db, eoa.String(), h.Hex(), gasLimit, "claim rewards")
+	}
 	return h.Hex(), nil
 }
 
