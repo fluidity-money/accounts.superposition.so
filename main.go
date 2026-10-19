@@ -264,6 +264,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer l.Close()
+	_ = os.Chmod(HttpUnixSocket, 0x0777)
 	panic(http.Serve(l, nil))
 }
 
