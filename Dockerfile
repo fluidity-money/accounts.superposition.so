@@ -17,10 +17,11 @@ COPY superposition_libaccounts/Cargo.toml superposition_libaccounts/Cargo.toml
 COPY accounts-cli/Cargo.toml accounts-cli/Cargo.toml
 COPY .cargo .cargo
 
-RUN mkdir -p contract/src superposition_libaccounts/src accounts-cli/src && \
+RUN mkdir -p contract/src superposition_libaccounts/src accounts-cli/src contract-clearinghouse/src && \
 	echo "fn main() {}" > contract/src/main.rs && \
 	echo "" > superposition_libaccounts/src/lib.rs && \
-	echo "fn main() {}" > accounts-cli/src/main.rs
+	echo "fn main() {}" > accounts-cli/src/main.rs && \
+	echo "fn main() {}" > contract-clearinghouse/src/main.rs
 
 RUN cargo fetch || true
 
