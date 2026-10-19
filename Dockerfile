@@ -14,6 +14,7 @@ WORKDIR /build
 COPY Cargo.toml Cargo.lock* ./
 COPY contract/Cargo.toml contract/Cargo.toml
 COPY superposition_libaccounts/Cargo.toml superposition_libaccounts/Cargo.toml
+COPY contract-clearinghouse/Cargo.toml contract-clearinghouse/Cargo.toml
 COPY accounts-cli/Cargo.toml accounts-cli/Cargo.toml
 COPY .cargo .cargo
 
