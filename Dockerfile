@@ -45,12 +45,7 @@ RUN cd ed25519-dalek-ph && \
 	cargo build --release --bin ed25519-dalek-ph && \
 	mv target/release/ed25519-dalek-ph ../ed25519-dalek-ph.out
 
-COPY frontend frontend
-RUN cd frontend && \
-	cargo build --release --target wasm32-wasip1 && \
-	wasm-bindgen target/wasm32-wasip1/release/frontend.wasm --out-dir ../out
-
-FROM golang:1.25-bookworm AS go-builder
+FROM golang:1.27-bookworm AS go-builder
 WORKDIR /build
 
 COPY go.mod go.sum* ./
