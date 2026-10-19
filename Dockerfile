@@ -1,8 +1,6 @@
 
 FROM rust:1.98-bookworm AS rust-builder
 
-RUN rustup target add wasm32-unknown-unknown wasm32-wasip1
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		wabt \
 		binaryen \
@@ -29,14 +27,6 @@ RUN cargo fetch || true
 COPY contract contract
 COPY superposition_libaccounts superposition_libaccounts
 COPY accounts-cli accounts-cli
-COPY wasm-post.sh check-codesize.sh ./
-RUN chmod +x wasm-post.sh check-codesize.sh
-
-RUN cargo build --release --target wasm32-unknown-unknown --bin contract && \
-	./wasm-post.sh \
-		target/wasm32-unknown-unknown/release/contract.wasm \
-		accounts.superposition.so.wasm && \
-	./check-codesize.sh accounts.superposition.so.wasm
 
 RUN cargo build --release --bin accounts-cli && \
 	mv target/release/accounts-cli accounts-cli.out
@@ -68,7 +58,6 @@ WORKDIR /app
 
 COPY --from=go-builder /build/accounts-server .
 
-COPY --from=rust-builder /build/accounts.superposition.so.wasm .
 COPY --from=rust-builder /build/accounts-cli.out .
 COPY --from=rust-builder /build/ed25519-dalek-ph.out .
 COPY --from=rust-builder /build/out out/
