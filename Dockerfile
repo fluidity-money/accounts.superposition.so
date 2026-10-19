@@ -1,5 +1,5 @@
 
-FROM rust:1.87-bookworm AS rust-builder
+FROM rust:1.98-bookworm AS rust-builder
 
 RUN rustup target add wasm32-unknown-unknown wasm32-wasip1
 
