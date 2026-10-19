@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"math/big"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -28,21 +29,14 @@ import (
 
 	"github.com/vektah/gqlparser/v2/ast"
 
-	"github.com/aws/aws-lambda-go/lambda"
-
-	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
-
 	ethCommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+// HttpUnixSocket that we listen on using a socket.
+const HttpUnixSocket = "/run/accounts.superposition.so/http.sock"
+
 const (
-	// EnvBackendType to use to listen the server with, (http|lambda).
-	EnvBackendType = "SPN_LISTEN_BACKEND"
-
-	// EnvListenAddr to listen the HTTP server on.
-	EnvListenAddr = "SPN_LISTEN_ADDR"
-
 	// EnvGethAddr to connect to make requests to Superposition.
 	EnvGethAddr = "SPN_GETH_URL"
 
@@ -264,22 +258,13 @@ func main() {
 	})
 	http.Handle("/", authMiddleware{db, srv, adminSecret})
 	http.Handle("/playground", playground.Handler("GraphQL playground", "/"))
-	switch typ := os.Getenv(EnvBackendType); typ {
-	case "lambda":
-		lambda.Start(httpadapter.NewV2(http.DefaultServeMux).ProxyWithContext)
-	case "http":
-		err := http.ListenAndServe(os.Getenv(EnvListenAddr), nil)
-		log.Fatalf( // This should only return if there's an error.
-			"err listening, %#v not set?: %v",
-			EnvListenAddr,
-			err,
-		)
-	default:
-		log.Fatalf(
-			"unexpected listen type: %#v, use either (lambda|http) for SPN_LISTEN_BACKEND",
-			typ,
-		)
+	_ = os.Remove(HttpUnixSocket)
+	l, err := net.Listen("unix", HttpUnixSocket)
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer l.Close()
+	panic(http.Serve(l, nil))
 }
 
 func writeUnauthorised(w http.ResponseWriter) {

@@ -59,8 +59,8 @@ func CreateSolveV3(
 	gasTokenAmt uint64,
 ) (*types.Args, error) {
 	solveArgs := types.SolveV3Args{
-		Args:          args,
-		GasToken: gasToken,
+		Args:        args,
+		GasToken:    gasToken,
 		GasTokenAmt: gasTokenAmt,
 	}
 	encoded, err := borsh.Serialize(solveArgs)
@@ -162,7 +162,7 @@ func CreatePayoffForOtherArgsGraph(
 	}
 	var msTs [16]byte
 	msTsB := msTsI.Bytes()
-	if l := len(msTsB); l  > 32 {
+	if l := len(msTsB); l > 32 {
 		return nil, fmt.Errorf("ms ts too large: %v", l)
 	}
 	copy(msTs[32-len(msTsB):], msTsB)
