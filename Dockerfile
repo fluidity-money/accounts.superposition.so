@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		zip \
 	&& rm -rf /var/lib/apt/lists/*
 
-RUN cargo install wasm-bindgen-cli@0.2.105
 WORKDIR /build
 
 COPY Cargo.toml Cargo.lock* ./
