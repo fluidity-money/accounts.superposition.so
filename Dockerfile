@@ -59,7 +59,7 @@ WORKDIR /app
 COPY --from=go-builder /build/accounts-server .
 
 COPY --from=rust-builder /build/accounts-cli.out .
-COPY --from=rust-builder /build/ed25519-dalek-ph.out .
+COPY --from=rust-builder /build/ed25519-dalek-ph.out /bin/ed25519-dalek-ph
 
 COPY graph/schema.graphqls graph/
 USER app
