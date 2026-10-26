@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const ProgDalek = "/bin/ed25519-dalek-ph"
+const ProgDalek = "/usr/local/bin/ed25519-dalek-ph"
 
 func isDryrun(x *bool) bool {
 	if x != nil && *x {

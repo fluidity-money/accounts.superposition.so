@@ -31,6 +31,6 @@ FROM alpine:3.20 AS runtime
 
 WORKDIR /app
 
-COPY --from=rust-builder /build/accounts-cli.out ./accounts-cli
+COPY --from=rust-builder /build/accounts-cli.out ./accounts
 
 ENTRYPOINT ["./accounts-cli"]
