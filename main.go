@@ -5,13 +5,13 @@ package main
 import (
 	"context"
 	"database/sql"
+	"sync"
 	"encoding/hex"
 	"encoding/json"
 	"log"
 	"log/slog"
 	"math/big"
 	"math/rand"
-	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -26,6 +26,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+
+	"github.com/coreos/go-systemd/v22/activation"
 
 	"github.com/vektah/gqlparser/v2/ast"
 
@@ -258,14 +260,17 @@ func main() {
 	})
 	http.Handle("/", authMiddleware{db, srv, adminSecret})
 	http.Handle("/playground", playground.Handler("GraphQL playground", "/"))
-	_ = os.Remove(HttpUnixSocket)
-	l, err := net.Listen("unix", HttpUnixSocket)
+	l, err := activation.Listeners()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("listeners: %v", err)
 	}
-	defer l.Close()
-	_ = os.Chmod(HttpUnixSocket, 0o0777)
-	panic(http.Serve(l, nil))
+	var wg sync.WaitGroup
+	for _, l := range l {
+		wg.Go(func() {
+			panic(http.Serve(l, nil))
+		})
+	}
+	wg.Wait()
 }
 
 func writeUnauthorised(w http.ResponseWriter) {
