@@ -87,10 +87,9 @@ ed25519-dalek-ph.out: $(shell find Cargo.* ed25519-dalek-ph -path '*/target' -pr
 accounts.superposition.so: $(shell find -name '*.go')
 	@go build
 
-install: cli
+install:
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
 	@install -m755 ${CLIS} ${DESTDIR}${PREFIX}/bin/
-	@chmod +x ${DESTDIR}${PREFIX}/bin/${CLIS}
 	@install -m644 ${UNITS} ${DESTDIR}${SYSTEMD_DIR}/
 
 clean:
