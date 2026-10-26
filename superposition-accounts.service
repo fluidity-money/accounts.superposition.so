@@ -1,0 +1,22 @@
+[Unit]
+Description=Superposition Accounts GraphQL
+Requires=superposition-accounts.socket
+After=network-online.target superposition-accounts.socket
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=spn-accounts
+Group=database-users
+EnvironmentFile=/etc/accounts.superposition.so/config
+ExecStart=/usr/local/bin/accounts.superposition.so
+Restart=on-failure
+RestartSec=3s
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

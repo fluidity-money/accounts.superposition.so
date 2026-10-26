@@ -1,7 +1,10 @@
 
+PREFIX ?= /usr/local
+SYSTEMD_DIR ?= /usr/lib/systemd/system
+
 include config.mk
 
-.PHONY: build clean frontend
+.PHONY: build clean frontend cli
 
 .DELETE_ON_ERROR:
 
@@ -9,14 +12,22 @@ comma := ,
 CARGO_EXTRA_FEATURES := \
 	$(if ${SPN_PANIC_REVERT},--features panic-revert)
 
-build: \
+WASMS := \
 	arbitrum.accounts.superposition.so.wasm \
 	robinhood-mainnet.accounts.superposition.so.wasm \
 	robinhood-testnet.accounts.superposition.so.wasm \
 	arbitrum.clearinghouse.superposition.so.wasm \
-	robinhood-mainnet.clearinghouse.superposition.so.wasm \
-	accounts-cli.out \
-	bootstrap.zip
+	robinhood-mainnet.clearinghouse.superposition.so.wasm
+
+CLIS := accounts-cli.out accounts.superposition.so
+
+UNITS := \
+	superposition-accounts.service \
+	superposition-accounts.socket
+
+cli: ${CLIS}
+
+build: ${WASMS} ${CLIS}
 
 RUST_CODE := $(shell find Cargo.* superposition_libaccounts -type f)
 
@@ -76,11 +87,11 @@ ed25519-dalek-ph.out: $(shell find Cargo.* ed25519-dalek-ph -path '*/target' -pr
 accounts.superposition.so: $(shell find -name '*.go')
 	@go build
 
-bootstrap: accounts.superposition.so
-	@cp accounts.superposition.so bootstrap
-
-bootstrap.zip: bootstrap ed25519-dalek-ph.out
-	@zip bootstrap.zip bootstrap ed25519-dalek-ph.out
+install: cli
+	@mkdir -p ${DESTDIR}${PREFIX}/bin
+	@install -m755 ${CLIS} ${DESTDIR}${PREFIX}/bin/
+	@chmod +x ${DESTDIR}${PREFIX}/bin/${CLIS}
+	@install -m644 ${UNITS} ${DESTDIR}${SYSTEMD_DIR}/
 
 clean:
 	@cargo clean
