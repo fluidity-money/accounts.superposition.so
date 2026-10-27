@@ -2,7 +2,7 @@
 Description=Superposition Accounts socket
 
 [Socket]
-SocketUser=spn-accounts
+SocketUser=spn_accounts
 SocketGroup=www-data
 SocketMode=0660
 DirectoryMode=0755
