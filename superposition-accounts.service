@@ -6,8 +6,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=spn-accounts
-Group=database-users
+User=spn_accounts
+Group=fluidity_apps
 EnvironmentFile=/etc/fluidity-services/arbitrum.conf
 ExecStart=/usr/local/bin/accounts.superposition.so
 Restart=on-failure
