@@ -1,6 +1,6 @@
 [Unit]
 Description=Superposition Accounts GraphQL for %i
-Requires=superposition-accounts.socket
+Requires=superposition-accounts@%i.socket
 After=network-online.target superposition-accounts@%i.socket
 Wants=network-online.target
 
