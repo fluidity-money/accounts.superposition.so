@@ -1,6 +1,6 @@
 
 PREFIX ?= /usr/local
-SYSTEMD_DIR ?= /usr/lib/systemd/system
+SYSTEMD_DIR ?= /usr/local/lib/systemd/system
 
 include config.mk
 

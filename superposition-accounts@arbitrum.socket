@@ -1,5 +1,5 @@
 [Unit]
-Description=Superposition Accounts socket
+Description=Superposition Accounts socket for %i
 
 [Socket]
 SocketUser=spn_accounts
@@ -7,7 +7,7 @@ SocketGroup=www-data
 SocketMode=0660
 DirectoryMode=0755
 RemoveOnStop=yes
-ListenStream=/run/www/superposition-accounts.sock
+ListenStream=/run/www/superposition-accounts-%i.sock
 
 [Install]
 WantedBy=sockets.target

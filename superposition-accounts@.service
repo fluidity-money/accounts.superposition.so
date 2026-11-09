@@ -1,5 +1,5 @@
 [Unit]
-Description=Superposition Accounts GraphQL
+Description=Superposition Accounts GraphQL for %i
 Requires=superposition-accounts.socket
 After=network-online.target superposition-accounts.socket
 Wants=network-online.target
@@ -8,7 +8,7 @@ Wants=network-online.target
 Type=simple
 User=spn_accounts
 Group=fluidity_apps
-EnvironmentFile=/etc/fluidity-apps/arbitrum.conf
+EnvironmentFile=/etc/fluidity-apps/%i.conf
 ExecStart=/usr/local/bin/accounts.superposition.so
 Restart=on-failure
 RestartSec=3s
