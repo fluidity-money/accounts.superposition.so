@@ -22,8 +22,8 @@ WASMS := \
 CLIS := accounts-cli.out accounts.superposition.so
 
 UNITS := \
-	superposition-accounts.service \
-	superposition-accounts.socket
+	superposition-accounts@.service \
+	superposition-accounts@.socket
 
 cli: ${CLIS}
 
