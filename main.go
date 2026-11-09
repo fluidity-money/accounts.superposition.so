@@ -25,7 +25,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/99designs/gqlgen/graphql/playground"
 
 	"github.com/coreos/go-systemd/v22/activation"
 
@@ -259,7 +258,6 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 	http.Handle("/", authMiddleware{db, srv, adminSecret})
-	http.Handle("/playground", playground.Handler("GraphQL playground", ".."))
 	l, err := activation.Listeners()
 	if err != nil {
 		log.Fatalf("listeners: %v", err)
