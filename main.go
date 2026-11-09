@@ -259,7 +259,7 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 	http.Handle("/", authMiddleware{db, srv, adminSecret})
-	http.Handle("/playground", playground.Handler("GraphQL playground", "/"))
+	http.Handle("/playground", playground.Handler("GraphQL playground", ".."))
 	l, err := activation.Listeners()
 	if err != nil {
 		log.Fatalf("listeners: %v", err)
